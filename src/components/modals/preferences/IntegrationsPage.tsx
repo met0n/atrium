@@ -55,7 +55,7 @@ function TerminalCommandSection() {
     >
       <div className={styles.integrationFields}>
         <pre className={styles.cliUsage}>
-          <code>{'alethe\nalethe .\nalethe ~/meu-projeto'}</code>
+          <code>{'atrium\natrium .\natrium ~/meu-projeto'}</code>
         </pre>
 
         {status?.supported === false ? (

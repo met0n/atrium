@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** A planner can start long-running commands as shells Alethe owns, read their output, and the person can stop, restart, run again, open and remove them from the orchestration board.
+**Goal:** A planner can start long-running commands as shells Atrium owns, read their output, and the person can stop, restart, run again, open and remove them from the orchestration board.
 
 **Architecture:** The Tauri-free orchestrator core gains shell records and a `ShellHost` trait, the same injection pattern launchers use; the app implements the host on `pty.rs` (headless PTY spawn, `attach_pty` tail, Ctrl+C then kill). Shells ride the existing `orchestrator://jobs` snapshot, render as a **Shells** section in the board's side rail, and use the PTY id prefix `orchestrator-shell-` so the frontend detaches instead of killing when a view closes.
 
@@ -12,13 +12,13 @@
 
 ## Global Constraints
 
-- `src-tauri/src/orchestrator_core.rs` and the new `src-tauri/src/orchestrator_shells.rs` stay free of Tauri imports: both compile inside `src-tauri/tests/orchestrator.rs` and the standalone `alethe-orchestrator-mcp` binary through `#[path]`.
+- `src-tauri/src/orchestrator_core.rs` and the new `src-tauri/src/orchestrator_shells.rs` stay free of Tauri imports: both compile inside `src-tauri/tests/orchestrator.rs` and the standalone `atrium-orchestrator-mcp` binary through `#[path]`.
 - English for code, comments, docs and commit messages. Every visible string goes through `t()` (or `translate(getLocale(), …)` outside React), with the key in both `src/lib/i18n/messages/en.ts` and `pt-BR.ts`.
 - Colors only through theme tokens (`--fg`, `--fg-muted`, `--status-working`, …); no literal colors, no gradients. Spacing follows the literal-px practice of `OrchestratorPane.module.css`.
 - Every user-facing change gets an entry under `[Unreleased]` in `docs/CHANGELOG.md`.
 - Never stop or restart the owner's running app. Manual checks use `npm run app -- --no-watch`, only when the owner is ready.
 - Commit only with the owner's go-ahead. Commit messages carry no co-author, session or tool trailers.
-- Values: stop grace 5 s; `alethe_shell_output` 40 lines by default, 200 at most; output read window 64 KiB; headless PTY 120x30; board card tail 12 lines, polled every 2 s while running; PTY id `orchestrator-<shellId>`.
+- Values: stop grace 5 s; `atrium_shell_output` 40 lines by default, 200 at most; output read window 64 KiB; headless PTY 120x30; board card tail 12 lines, polled every 2 s while running; PTY id `orchestrator-<shellId>`.
 
 **Commands**
 
@@ -65,7 +65,7 @@
 Create `src-tauri/src/orchestrator_shells.rs`:
 
 ```rust
-//! Shells a planner asks Alethe to keep running: a dev server, `docker compose up`, a watcher.
+//! Shells a planner asks Atrium to keep running: a dev server, `docker compose up`, a watcher.
 //!
 //! Tauri-free on purpose, like `orchestrator_core`, which declares this module: both compile inside
 //! the orchestrator tests and the standalone MCP binary. The app supplies the `ShellHost`.
@@ -353,7 +353,7 @@ git commit -m "feat(orchestrator): shell records and clean terminal output"
 
 **Interfaces:**
 - Consumes: Task 1's `Shell`, `ShellHost`, `SHELL_RUNNING`, `shells::default_name`, `shells::tail_lines`.
-- Produces: `Core::set_shell_host(&self, Arc<dyn ShellHost>)`, `Core::has_shell_host(&self) -> bool`, `Core::open_shell(&self, Option<&str>, &str, Option<&str>, &str) -> Result<Value, String>` returning `{ shellId, name, cwd, status }`, `Core::shell_output(&self, &str, usize) -> Result<Value, String>` returning `{ shellId, status, exitCode, output }`; snapshot key `shells`; tools `alethe_open_shell { command, cwd?, name? }`, `alethe_shell_output { shellId, lines? }`, listed only when a host is set.
+- Produces: `Core::set_shell_host(&self, Arc<dyn ShellHost>)`, `Core::has_shell_host(&self) -> bool`, `Core::open_shell(&self, Option<&str>, &str, Option<&str>, &str) -> Result<Value, String>` returning `{ shellId, name, cwd, status }`, `Core::shell_output(&self, &str, usize) -> Result<Value, String>` returning `{ shellId, status, exitCode, output }`; snapshot key `shells`; tools `atrium_open_shell { command, cwd?, name? }`, `atrium_shell_output { shellId, lines? }`, listed only when a host is set.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -414,7 +414,7 @@ fn tool_names(listed: &Value) -> Vec<String> {
 }
 
 fn open_npm(core: &Core) -> Value {
-    call(core, "alethe_open_shell", json!({ "command": "npm run dev", "cwd": "C:\\app" }))
+    call(core, "atrium_open_shell", json!({ "command": "npm run dev", "cwd": "C:\\app" }))
 }
 ```
 
@@ -425,12 +425,12 @@ Add the tests:
 fn shells_are_offered_only_where_something_can_run_them() {
     let bare = Core::default();
     let names = tool_names(&rpc(&bare, 1, "tools/list", json!({})));
-    assert!(!names.iter().any(|name| name == "alethe_open_shell"), "{names:?}");
+    assert!(!names.iter().any(|name| name == "atrium_open_shell"), "{names:?}");
 
     let (core, _) = shell_core();
     let names = tool_names(&rpc(&core, 1, "tools/list", json!({})));
-    assert!(names.iter().any(|name| name == "alethe_open_shell"), "{names:?}");
-    assert!(names.iter().any(|name| name == "alethe_shell_output"), "{names:?}");
+    assert!(names.iter().any(|name| name == "atrium_open_shell"), "{names:?}");
+    assert!(names.iter().any(|name| name == "atrium_shell_output"), "{names:?}");
 }
 
 #[test]
@@ -469,7 +469,7 @@ fn the_output_is_the_clean_tail() {
     open_npm(&core);
     *host.printed.lock().expect("printed") =
         "\u{1b}[32mcompiled\u{1b}[0m\r\nlistening on :3000\r\n".to_string();
-    let read = call(&core, "alethe_shell_output", json!({ "shellId": "shell-01", "lines": 1 }));
+    let read = call(&core, "atrium_shell_output", json!({ "shellId": "shell-01", "lines": 1 }));
     assert_eq!(read["output"], "listening on :3000", "{read}");
     assert_eq!(read["status"], "running", "{read}");
 }
@@ -477,7 +477,7 @@ fn the_output_is_the_clean_tail() {
 #[test]
 fn an_unknown_shell_is_refused() {
     let (core, _) = shell_core();
-    let read = call(&core, "alethe_shell_output", json!({ "shellId": "shell-99" }));
+    let read = call(&core, "atrium_shell_output", json!({ "shellId": "shell-99" }));
     assert!(
         read["error"].as_str().unwrap_or_default().contains("unknown shell"),
         "{read}"
@@ -637,20 +637,20 @@ fn tools_for(core: &Core) -> Value {
 fn shell_tools() -> Vec<Value> {
     vec![
         json!({
-            "name": "alethe_open_shell",
-            "description": "Start a long-running command (a dev server, docker compose up, a watcher, a long build) as a shell Alethe keeps running and shows the person on its board, where they can stop and restart it. Keep the command in the foreground: a detached one returns at once. Returns a shellId for alethe_shell_output.",
+            "name": "atrium_open_shell",
+            "description": "Start a long-running command (a dev server, docker compose up, a watcher, a long build) as a shell Atrium keeps running and shows the person on its board, where they can stop and restart it. Keep the command in the foreground: a detached one returns at once. Returns a shellId for atrium_shell_output.",
             "inputSchema": {
                 "type": "object",
                 "properties": {
                     "command": { "type": "string", "description": "The command line, run by the system shell exactly as typed." },
-                    "cwd": { "type": "string", "description": "Folder to run it in. Pass the project's folder; without it the shell starts in Alethe's own directory." },
+                    "cwd": { "type": "string", "description": "Folder to run it in. Pass the project's folder; without it the shell starts in Atrium's own directory." },
                     "name": { "type": "string", "description": "A short name the person will recognise on the board. Defaults to the command's first word." }
                 },
                 "required": ["command"]
             }
         }),
         json!({
-            "name": "alethe_shell_output",
+            "name": "atrium_shell_output",
             "description": "Read what a shell printed last, with terminal escape codes removed, and whether it is still running or has exited, with its exit code.",
             "inputSchema": {
                 "type": "object",
@@ -665,10 +665,10 @@ fn shell_tools() -> Vec<Value> {
 }
 ```
 
-In `dispatch_tool`, before `"alethe_guide" =>`:
+In `dispatch_tool`, before `"atrium_guide" =>`:
 
 ```rust
-        "alethe_open_shell" => {
+        "atrium_open_shell" => {
             let command = required_str(arguments, "command")?;
             let name = arguments.get("name").and_then(Value::as_str);
             let cwd = arguments
@@ -683,7 +683,7 @@ In `dispatch_tool`, before `"alethe_guide" =>`:
                 .unwrap_or_default();
             core.open_shell(planner, &command, name, &cwd)
         }
-        "alethe_shell_output" => {
+        "atrium_shell_output" => {
             let shell_id = required_str(arguments, "shellId")?;
             let lines = arguments
                 .get("lines")
@@ -738,7 +738,7 @@ fn an_exit_report_marks_the_shell_exited_and_keeps_what_it_printed() {
     assert_eq!(shell["exitCode"], 1, "{shell}");
 
     *host.printed.lock().expect("printed") = String::new();
-    let read = call(&core, "alethe_shell_output", json!({ "shellId": "shell-01" }));
+    let read = call(&core, "atrium_shell_output", json!({ "shellId": "shell-01" }));
     assert_eq!(read["output"], "Error: port 3000 is taken", "{read}");
 }
 
@@ -809,7 +809,7 @@ fn shells_come_back_stopped_after_a_restart_and_keep_counting() {
     assert_eq!(reopened.snapshot()["shells"][0]["status"], "stopped");
     let next = call(
         &reopened,
-        "alethe_open_shell",
+        "atrium_open_shell",
         json!({ "command": "cargo watch", "cwd": "C:\\app" }),
     );
     assert_eq!(next["shellId"], "shell-02", "{next}");
@@ -1473,7 +1473,7 @@ export function shellControls(status: OrchestratorShellStatus): ShellControl[] {
 ```ts
 export type OrchestratorShellStatus = 'running' | 'exited' | 'stopped'
 
-/** A long-running command a planner started, owned by Alethe rather than by the planner. */
+/** A long-running command a planner started, owned by Atrium rather than by the planner. */
 export type OrchestratorShell = {
   id: string
   name: string
@@ -2091,11 +2091,11 @@ fn instructions_of(core: &Core) -> String {
 #[test]
 fn the_instructions_teach_shells_only_where_they_exist() {
     let bare = instructions_of(&Core::default());
-    assert!(!bare.contains("alethe_open_shell"), "{bare}");
+    assert!(!bare.contains("atrium_open_shell"), "{bare}");
 
     let (core, _) = shell_core();
     let text = instructions_of(&core);
-    assert!(text.contains("alethe_open_shell"), "{text}");
+    assert!(text.contains("atrium_open_shell"), "{text}");
     assert!(text.contains("in two ways"), "{text}");
     assert!(text.contains("up -d"), "{text}");
 }
@@ -2104,7 +2104,7 @@ fn the_instructions_teach_shells_only_where_they_exist() {
 - [ ] **Step 2: Run the test to verify it fails**
 
 Run: `cargo test --manifest-path src-tauri/Cargo.toml --test orchestrator the_instructions_teach_shells_only_where_they_exist`
-Expected: FAIL, the instructions do not mention `alethe_open_shell`.
+Expected: FAIL, the instructions do not mention `atrium_open_shell`.
 
 - [ ] **Step 3: Implement**
 
@@ -2112,12 +2112,12 @@ Replace `const PLANNER_INTRO` with:
 
 ```rust
 const PLANNER_OPENING: &str =
-    "You are running inside Alethe, a desktop workspace that runs coding agents and shells side by side.";
+    "You are running inside Atrium, a desktop workspace that runs coding agents and shells side by side.";
 
 const PLANNER_WORKERS: &str = "
 Workers - other agents
 - Work that splits into two or more independent units, each needing its own reading and
-  judgement: send every unit in one alethe_delegate call instead of using your own subagents.
+  judgement: send every unit in one atrium_delegate call instead of using your own subagents.
   Workers are separate processes on their own token budget, and they outlive your turn.
 - Do not delegate what one command does, or what is quicker to do than to describe.
 ";
@@ -2125,12 +2125,12 @@ Workers - other agents
 const PLANNER_SHELLS: &str = "
 Shells - plain terminals
 - For anything that should keep running where the person can see it (a dev server, a watcher,
-  logs, a long build), open it with alethe_open_shell instead of running it hidden in your own
-  shell. The person sees it on Alethe's board, can stop and restart it there, and it outlives
-  you. Read what it printed with alethe_shell_output.
+  logs, a long build), open it with atrium_open_shell instead of running it hidden in your own
+  shell. The person sees it on Atrium's board, can stop and restart it there, and it outlives
+  you. Read what it printed with atrium_shell_output.
 - Keep the command in the foreground (docker compose up, not up -d): a detached command returns
   at once, and the person can no longer stop it from the board.
-- Pass the project's folder as cwd; without it the shell starts in Alethe's own directory.
+- Pass the project's folder as cwd; without it the shell starts in Atrium's own directory.
 ";
 ```
 
@@ -2139,9 +2139,9 @@ and the last line of `planner_instructions` with:
 ```rust
     let shells = core.has_shell_host();
     let reach = if shells {
-        "Alethe can run work for you in two ways."
+        "Atrium can run work for you in two ways."
     } else {
-        "Alethe can run other agents as workers for you."
+        "Atrium can run other agents as workers for you."
     };
     let shells_section = if shells { PLANNER_SHELLS } else { "" };
     format!(
@@ -2163,7 +2163,7 @@ In `docs/CHANGELOG.md`, at the top of `[Unreleased]` → `### Added`:
 
 ```markdown
 - **Shells the lead agent starts now live on the orchestration board.** Ask it to run your dev
-  server or `docker compose up` and it opens a shell Alethe owns: it keeps running when the project
+  server or `docker compose up` and it opens a shell Atrium owns: it keeps running when the project
   is off screen or the agent is done, the board lists it under **Shells** with its last lines, and
   you can stop it, restart it, run it again or open it as a terminal from there. Stopping sends
   Ctrl+C first, so `docker compose up` brings its containers down cleanly, and closing the terminal
@@ -2189,11 +2189,11 @@ git commit -m "feat(orchestrator): teach planners to run long commands as board 
 Run only when the owner is ready to reopen the app.
 
 - [ ] **Step 1:** Owner opens `npm run app -- --no-watch` (never kill a running instance).
-- [ ] **Step 2:** Create an orchestration for a project other than `alethe-agents` with a dev server (`npm run dev`). Ask the planner to start it and say when it is ready. Expected: it calls `alethe_open_shell` with that project's folder as `cwd`, then `alethe_shell_output`, and reports the address.
+- [ ] **Step 2:** Create an orchestration for a project other than `atrium-agents` with a dev server (`npm run dev`). Ask the planner to start it and say when it is ready. Expected: it calls `atrium_open_shell` with that project's folder as `cwd`, then `atrium_shell_output`, and reports the address.
 - [ ] **Step 3:** On the board, the **Shells** section shows the card running with its last lines refreshing.
 - [ ] **Step 4:** **Open terminal** shows the live output in the grid. Close that pane: the card stays running and the server still answers.
 - [ ] **Step 5:** **Stop**: the card shows stopped within 5 s, and the server no longer answers. Check in Task Manager that no `node` process from it is left. This is the spec's `Ctrl+C` through ConPTY risk; note whether it exited on Ctrl+C or only at the 5 s kill.
 - [ ] **Step 6:** **Run again**: running again, same command. **Restart** while running: comes back running.
-- [ ] **Step 7:** Start a command that fails at once (`npm run nope`). The card shows `exited` with a non-zero code, and `alethe_shell_output` returns the npm error.
+- [ ] **Step 7:** Start a command that fails at once (`npm run nope`). The card shows `exited` with a non-zero code, and `atrium_shell_output` returns the npm error.
 - [ ] **Step 8 (if Docker is installed):** `docker compose up` in a folder with a compose file, then **Stop**. The containers are down (`docker ps`).
 - [ ] **Step 9:** Close and reopen the app. The shell comes back stopped, with its last output; a terminal view left open says the shell is not running instead of opening a new shell.

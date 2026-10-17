@@ -454,7 +454,7 @@ build/
 .venv/
 venv/
 __pycache__/
-.alethe/
+.atrium/
 .env
 .env.local
 ";
@@ -479,16 +479,16 @@ fn git_init_inner(path: String) -> Result<String, String> {
     checked_output(&dir, &["add", "-A"])?;
     let identity = [
         "-c",
-        "user.name=Alethe",
+        "user.name=Atrium",
         "-c",
-        "user.email=alethe@localhost",
+        "user.email=atrium@localhost",
     ];
     let mut commit_args: Vec<&str> = identity.to_vec();
-    commit_args.extend(["commit", "-m", "Commit inicial (Alethe)"]);
+    commit_args.extend(["commit", "-m", "Commit inicial (Atrium)"]);
 
     if checked_output(&dir, &commit_args).is_err() {
         let mut empty_args: Vec<&str> = identity.to_vec();
-        empty_args.extend(["commit", "--allow-empty", "-m", "Commit inicial (Alethe)"]);
+        empty_args.extend(["commit", "--allow-empty", "-m", "Commit inicial (Atrium)"]);
         checked_output(&dir, &empty_args)?;
     }
     repository_root(&path).map(|root| frontend_path(&root))
@@ -691,10 +691,10 @@ pub struct DiffSummaryEntry {
 
 /// `opencode.json` (MCP do Graphify + plugin GSD, escritos automaticamente a
 
-/// `.opencode/alethe-gsd-config.json`, `.planning/goal.md` etc. como se
+/// `.opencode/atrium-gsd-config.json`, `.planning/goal.md` etc. como se
 
-/// Alethe escrevendo essa infraestrutura na worktree.
-fn is_alethe_infra_path(path: &str) -> bool {
+/// Atrium escrevendo essa infraestrutura na worktree.
+fn is_atrium_infra_path(path: &str) -> bool {
     path.starts_with(".planning/") || path.starts_with(".opencode/") || path == "opencode.json"
 }
 
@@ -822,7 +822,7 @@ fn git_diff_summary_inner(
         }
     }
 
-    entries.retain(|entry| !is_alethe_infra_path(&entry.path));
+    entries.retain(|entry| !is_atrium_infra_path(&entry.path));
 
     Ok(entries)
 }
@@ -868,9 +868,9 @@ pub struct GitCommitEntry {
 /// commits already resolves this without ambiguity.
 const LOG_GRAPH_FIELD_SEP: char = '\u{1f}';
 
-/// Recognizes `alethe/agent-<id>` and `alethe/merge-<id>` (with or without a
+/// Recognizes `atrium/agent-<id>` and `atrium/merge-<id>` (with or without a
 /// decoration prefix like `HEAD -> `/`tag: `/`origin/`) — the ephemeral
-/// branches that Alethe itself creates and deletes in worktree/merge flows,
+/// branches that Atrium itself creates and deletes in worktree/merge flows,
 /// never real branches from the user's point of view.
 fn is_ephemeral_ref(raw: &str) -> bool {
     let name = raw
@@ -878,7 +878,7 @@ fn is_ephemeral_ref(raw: &str) -> bool {
         .or_else(|| raw.strip_prefix("tag: "))
         .unwrap_or(raw);
     let name = name.strip_prefix("origin/").unwrap_or(name);
-    name.starts_with("alethe/agent-") || name.starts_with("alethe/merge-")
+    name.starts_with("atrium/agent-") || name.starts_with("atrium/merge-")
 }
 
 fn git_log_graph_inner(repo: String, max_count: u32) -> Result<Vec<GitCommitEntry>, String> {
@@ -890,9 +890,9 @@ fn git_log_graph_inner(repo: String, max_count: u32) -> Result<Vec<GitCommitEntr
     // `--branches --tags` (not `--all`): shows the user's real branches/tags
     // in the graph — without this, the log falls back to just HEAD's history
     // and any other branch simply disappears from the UI. The `--exclude`
-    // flags strip out only the EPHEMERAL branches that Alethe itself creates
-    // and discards for worktree/merge flows (`alethe/agent-<id>`,
-    // `alethe/merge-<id>` — see worktrees.rs/conflict_resolution.rs), which
+    // flags strip out only the EPHEMERAL branches that Atrium itself creates
+    // and discards for worktree/merge flows (`atrium/agent-<id>`,
+    // `atrium/merge-<id>` — see worktrees.rs/conflict_resolution.rs), which
     // aren't real branches from the user's point of view and would only
     // pollute the graph with isolated lanes with no connecting line.
     //
@@ -910,8 +910,8 @@ fn git_log_graph_inner(repo: String, max_count: u32) -> Result<Vec<GitCommitEntr
     let mut args = vec![
         "log",
         "--topo-order",
-        "--exclude=refs/heads/alethe/agent-*",
-        "--exclude=refs/heads/alethe/merge-*",
+        "--exclude=refs/heads/atrium/agent-*",
+        "--exclude=refs/heads/atrium/merge-*",
         "--branches",
         "--tags",
         &format_arg,
@@ -942,7 +942,7 @@ fn git_log_graph_inner(repo: String, max_count: u32) -> Result<Vec<GitCommitEntr
             let refs_raw = fields.next().unwrap_or("").trim();
             // `--exclude` only affects which commits `log` TRAVERSES, not the
             // decoration (`%D`) of a commit that's still reachable through
-            // another included ref — if an ephemeral Alethe branch points at
+            // another included ref — if an ephemeral Atrium branch points at
             // the SAME commit that's already on `main` (common after a
             // --ff-only merge, where no new commit is created), its name
             // still shows up as a badge even though it was excluded from the
@@ -1273,11 +1273,11 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let root = std::env::temp_dir().join(format!("alethe-main-repo-root-{suffix}"));
+        let root = std::env::temp_dir().join(format!("atrium-main-repo-root-{suffix}"));
         fs::create_dir_all(&root).unwrap();
         checked_output(&root, &["init", "-b", "main"]).unwrap();
-        checked_output(&root, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(&root, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(&root, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(&root, &["config", "user.email", "atrium@example.invalid"]).unwrap();
         fs::write(root.join("a.txt"), "a\n").unwrap();
         checked_output(&root, &["add", "-A"]).unwrap();
         checked_output(&root, &["commit", "-m", "base"]).unwrap();
@@ -1331,13 +1331,13 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let root = std::env::temp_dir().join(format!("alethe-git-control-{suffix}"));
+        let root = std::env::temp_dir().join(format!("atrium-git-control-{suffix}"));
         fs::create_dir_all(&root).unwrap();
         let root_string = root.to_string_lossy().into_owned();
         let run = |args: &[&str]| checked_output(&root, args).unwrap();
         run(&["init"]);
-        run(&["config", "user.name", "Alethe Test"]);
-        run(&["config", "user.email", "alethe@example.invalid"]);
+        run(&["config", "user.name", "Atrium Test"]);
+        run(&["config", "user.email", "atrium@example.invalid"]);
 
         fs::write(root.join("tracked.txt"), "one\n").unwrap();
         git_stage(root_string.clone(), vec!["tracked.txt".to_string()]).unwrap();
@@ -1412,8 +1412,8 @@ mod tests {
     fn git_init_is_idempotent_on_an_existing_repo() {
         let root = temp_dir("init-idempotent");
         checked_output(&root, &["init"]).unwrap();
-        checked_output(&root, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(&root, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(&root, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(&root, &["config", "user.email", "atrium@example.invalid"]).unwrap();
         fs::write(root.join("a.txt"), "a\n").unwrap();
         checked_output(&root, &["add", "-A"]).unwrap();
         checked_output(&root, &["commit", "-m", "first"]).unwrap();
@@ -1431,8 +1431,8 @@ mod tests {
     fn git_diff_summary_lists_added_modified_and_renamed_files_between_branches() {
         let root = temp_dir("diff-summary");
         checked_output(&root, &["init", "-b", "main"]).unwrap();
-        checked_output(&root, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(&root, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(&root, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(&root, &["config", "user.email", "atrium@example.invalid"]).unwrap();
         fs::write(root.join("kept.txt"), "same on both\n").unwrap();
         fs::write(root.join("old-name.txt"), "will be renamed\n").unwrap();
         checked_output(&root, &["add", "-A"]).unwrap();
@@ -1468,8 +1468,8 @@ mod tests {
     fn git_diff_summary_includes_uncommitted_worktree_changes() {
         let root = temp_dir("diff-summary-uncommitted");
         checked_output(&root, &["init", "-b", "main"]).unwrap();
-        checked_output(&root, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(&root, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(&root, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(&root, &["config", "user.email", "atrium@example.invalid"]).unwrap();
         fs::write(root.join("base.txt"), "base\n").unwrap();
         checked_output(&root, &["add", "-A"]).unwrap();
         checked_output(&root, &["commit", "-m", "base"]).unwrap();
@@ -1496,7 +1496,7 @@ mod tests {
         fs::write(
             root.join(".opencode")
                 .join("plugins")
-                .join("alethe-gsd-state.ts"),
+                .join("atrium-gsd-state.ts"),
             "",
         )
         .unwrap();
@@ -1515,7 +1515,7 @@ mod tests {
         );
         assert!(
             with_worktree.iter().all(|e| !e.path.starts_with(".planning/") && !e.path.starts_with(".opencode/") && e.path != "opencode.json"),
-            "Alethe infrastructure (.planning/, .opencode/, opencode.json) should never show up: {with_worktree:?}"
+            "Atrium infrastructure (.planning/, .opencode/, opencode.json) should never show up: {with_worktree:?}"
         );
 
         fs::remove_dir_all(root).unwrap();
@@ -1526,7 +1526,7 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let root = std::env::temp_dir().join(format!("alethe-git-control-{label}-{suffix}"));
+        let root = std::env::temp_dir().join(format!("atrium-git-control-{label}-{suffix}"));
         fs::create_dir_all(&root).unwrap();
         root
     }
@@ -1575,8 +1575,8 @@ mod tests {
         let root = temp_dir("diff-unstaged");
         let root_string = root.to_string_lossy().into_owned();
         checked_output(&root, &["init"]).unwrap();
-        checked_output(&root, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(&root, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(&root, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(&root, &["config", "user.email", "atrium@example.invalid"]).unwrap();
         fs::write(root.join("file.txt"), "line1\n").unwrap();
         checked_output(&root, &["add", "file.txt"]).unwrap();
         checked_output(&root, &["commit", "-m", "initial"]).unwrap();
@@ -1593,8 +1593,8 @@ mod tests {
         let root = temp_dir("diff-staged");
         let root_string = root.to_string_lossy().into_owned();
         checked_output(&root, &["init"]).unwrap();
-        checked_output(&root, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(&root, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(&root, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(&root, &["config", "user.email", "atrium@example.invalid"]).unwrap();
         fs::write(root.join("file.txt"), "line1\n").unwrap();
         checked_output(&root, &["add", "file.txt"]).unwrap();
         checked_output(&root, &["commit", "-m", "initial"]).unwrap();
@@ -1615,8 +1615,8 @@ mod tests {
         let root = temp_dir("diff-binary");
         let root_string = root.to_string_lossy().into_owned();
         checked_output(&root, &["init"]).unwrap();
-        checked_output(&root, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(&root, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(&root, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(&root, &["config", "user.email", "atrium@example.invalid"]).unwrap();
         fs::write(root.join("bin.dat"), &0u8.to_le_bytes()).unwrap();
         checked_output(&root, &["add", "bin.dat"]).unwrap();
         checked_output(&root, &["commit", "-m", "initial"]).unwrap();

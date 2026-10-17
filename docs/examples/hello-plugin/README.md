@@ -1,6 +1,6 @@
 # Hello Plugin — a local plugin you can run without a build step
 
-Copy this whole folder into Alethe's plugins directory, keeping the folder name
+Copy this whole folder into Atrium's plugins directory, keeping the folder name
 equal to the manifest `id`:
 
 ```
@@ -20,11 +20,11 @@ Once enabled:
 
 ## What it demonstrates
 
-- Declaring a view and a command in `plugin.json`, so Alethe can draw the tab without running any
+- Declaring a view and a command in `plugin.json`, so Atrium can draw the tab without running any
   plugin code.
 - Implementing them with `context.registerView` / `context.registerCommand`. Either call is refused
   if the manifest did not declare that id.
-- Binding against `window.alethe` (`react`, `registerPlugin`) instead of importing from the host —
+- Binding against `window.atrium` (`react`, `registerPlugin`) instead of importing from the host —
   the production bundle is minified with `mangle.toplevel`, so module names do not survive.
 - Reading `SidebarTabProps` (`projectId`, `cwd`, `ptyId`, `terminalName`).
 - Styling through the app's own tokens (`var(--fg)`, `var(--accent)`) so the panel follows the

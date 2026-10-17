@@ -1,7 +1,7 @@
 import type { PluginManifest } from '../../lib/tauri'
 
 export const TODOS_MANIFEST: PluginManifest = {
-  id: 'alethe.todos',
+  id: 'atrium.todos',
   name: 'Todo List',
   version: '1.0.0',
   kind: 'ui',

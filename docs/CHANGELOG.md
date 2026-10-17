@@ -1,6 +1,6 @@
 # Changelog
 
-Notable user-facing changes to **Alethe** are documented here. The format is based on
+Notable user-facing changes to **Atrium** are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows
 [Semantic Versioning](https://semver.org/). Dates use UTC.
 
@@ -8,7 +8,38 @@ Notable user-facing changes to **Alethe** are documented here. The format is bas
 > `[Unreleased]` in the same task. During a release, `[Unreleased]` becomes the new
 > dated version and a new empty `[Unreleased]` section is added at the top.
 
-## [Unreleased]
+
+## Atrium [Unreleased]
+
+Atrium forks Alethe at upstream commit f6f9557 (after v1.7.0). Entries below this section are
+Alethe history, kept for attribution.
+
+### Changed
+
+- Renamed the app to Atrium, with a new mark, app icon, window icon variants, home backdrop and
+  installer art. Bundle identifier `com.met0n.atrium`, terminal command `atrium`, orchestrator MCP
+  server `atrium` with `atrium_*` tools, so Atrium and Alethe can be installed side by side.
+- The in-app updater is off until Atrium publishes signed releases.
+- Cloud sync no longer uses the upstream GitHub OAuth app; set `ATRIUM_SYNC_GITHUB_CLIENT_ID`.
+
+### macOS
+
+- The window is a native macOS window: traffic lights over the title bar, native rounded corners,
+  shadow and edge resizing, full screen from the green button and Sequoia window tiling. The
+  title bar leaves room for the traffic lights and drops its own window buttons on macOS.
+- Cmd+Q and Atrium ▸ Quit Atrium go through the same confirm-and-save flow as closing the window,
+  so the workspace is saved before quitting. A second Cmd+Q within ten seconds still forces the
+  quit. Quitting from the Dock still exits immediately.
+- App shortcuts use ⌘ on macOS, and every Ctrl chord now reaches the terminal, so shell keys such as
+  Ctrl+P, Ctrl+K, Ctrl+E, Ctrl+B, Ctrl+W and Ctrl+T work. ⌘C/⌘V copy and paste in the terminal;
+  pressing Ctrl+C twice quickly still force-kills a stuck process.
+- Opened from Finder, the Dock or Spotlight, Atrium reads the login shell's PATH at startup, so
+  agent CLIs installed with nvm, bun, volta, pnpm, npm prefixes or vendor installers are found.
+- Codex integration works on macOS and Linux: the orchestrator MCP bridge and the subagent hook
+  forwarder run through `sh` and `curl` instead of PowerShell, from owner-only scripts.
+- Monospace text falls back to SF Mono and Menlo instead of Courier.
+
+## Alethe — changes after 1.7.0 (included in the fork)
 
 ### Added
 - **Administrator shell tabs.** New terminal and new tab dialogs offer a Windows administrator

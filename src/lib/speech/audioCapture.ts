@@ -61,7 +61,7 @@ export async function startAudioCapture(deviceId: string | null): Promise<AudioC
     } catch {
       const message = firstError instanceof Error ? firstError.message : String(firstError)
       throw new Error(
-        `Microphone permission denied or unavailable (${message}). Allow the mic for Alethe and try again.`,
+        `Microphone permission denied or unavailable (${message}). Allow the mic for Atrium and try again.`,
       )
     }
   }

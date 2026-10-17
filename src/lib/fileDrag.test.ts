@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { ALETHE_FILE_DRAG_TYPE, readFileDragPayload } from './fileDrag'
+import { ATRIUM_FILE_DRAG_TYPE, readFileDragPayload } from './fileDrag'
 
 function transfer(raw: string): DataTransfer {
   return {
-    getData: (type: string) => (type === ALETHE_FILE_DRAG_TYPE ? raw : ''),
+    getData: (type: string) => (type === ATRIUM_FILE_DRAG_TYPE ? raw : ''),
   } as DataTransfer
 }
 

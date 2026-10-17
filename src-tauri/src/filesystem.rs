@@ -6,8 +6,8 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter};
 
-const TODO_TEMPLATE_FILE: &str = "alethe-todo.template.jsonc";
-const TODO_TEMPLATE: &str = r#"// Alethe Todo template
+const TODO_TEMPLATE_FILE: &str = "atrium-todo.template.jsonc";
+const TODO_TEMPLATE: &str = r#"// Atrium Todo template
                                                                                      
 // For now, the app stores Todo items in its local profile; this template documents
 // the structure expected by the importer/sync layer.
@@ -298,8 +298,8 @@ pub fn write_text_file(path: String, content: String) -> Result<(), String> {
     fs::write(&file, content).map_err(|error| error.to_string())
 }
 
-/// Writes the `.alethe/project.json` mirror inside the project's own folder
-/// (not app data) — creates `.alethe/` if it doesn't exist yet. Unlike
+/// Writes the `.atrium/project.json` mirror inside the project's own folder
+/// (not app data) — creates `.atrium/` if it doesn't exist yet. Unlike
 /// `write_text_file`, this command can create the file from scratch (doesn't
 /// require it to already exist), because the whole point is to initialize
 /// the mirror the first time the project is saved.
@@ -309,19 +309,19 @@ pub fn write_project_marker(project_dir: String, content: String) -> Result<(), 
     if !dir.is_dir() {
         return Err("directory not found".to_string());
     }
-    let marker_dir = dir.join(".alethe");
+    let marker_dir = dir.join(".atrium");
     fs::create_dir_all(&marker_dir).map_err(|error| error.to_string())?;
     fs::write(marker_dir.join("project.json"), content).map_err(|error| error.to_string())
 }
 
-/// Reads a folder's `.alethe/project.json`, if it exists — used to detect an
+/// Reads a folder's `.atrium/project.json`, if it exists — used to detect an
 /// "already-configured project" when pointing a new project at that folder.
 /// `None` (not an error) when the marker simply doesn't exist yet, which is
-/// the normal case for any folder new to / never used by Alethe.
+/// the normal case for any folder new to / never used by Atrium.
 #[tauri::command]
 pub fn read_project_marker(project_dir: String) -> Option<String> {
     let marker = PathBuf::from(project_dir.trim())
-        .join(".alethe")
+        .join(".atrium")
         .join("project.json");
     fs::read_to_string(marker).ok()
 }
@@ -471,12 +471,12 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let parent = std::env::temp_dir().join(format!("alethe-relative-path-{suffix}"));
+        let parent = std::env::temp_dir().join(format!("atrium-relative-path-{suffix}"));
         let main = parent.join("repo");
         fs::create_dir_all(&main).unwrap();
         checked_output(&main, &["init", "-b", "main"]).unwrap();
-        checked_output(&main, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(&main, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(&main, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(&main, &["config", "user.email", "atrium@example.invalid"]).unwrap();
         fs::write(main.join("a.txt"), "a\n").unwrap();
         checked_output(&main, &["add", "-A"]).unwrap();
         checked_output(&main, &["commit", "-m", "base"]).unwrap();

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 
 import { APP_SHELL_ID } from '../lib/appShell'
 import { getLocale, translate } from '../lib/i18n'
+import { hasPrimaryModifier } from '../lib/platform'
 import {
   MAX_RECENT_PROJECT_TABS,
   selectActiveContainer,
@@ -35,7 +36,7 @@ export function useKeybindings() {
         target &&
         (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
 
-      const ctrl = e.ctrlKey || e.metaKey
+      const ctrl = hasPrimaryModifier(e)
       if (ctrl && !e.altKey && isZoomKey(e)) {
         e.preventDefault()
         const projects = useProjectsStore.getState()
@@ -68,7 +69,7 @@ export function useKeybindings() {
         }
         e.preventDefault()
         window.dispatchEvent(
-          new CustomEvent('alethe:terminal-restart-request', {
+          new CustomEvent('atrium:terminal-restart-request', {
             detail: { terminalId: selected.terminalId },
           }),
         )

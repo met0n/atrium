@@ -1,9 +1,8 @@
-import { normalizeProjectGrids } from '../lib/projectGrids'
 /** Group and project actions extracted from the main store. */
-
 import { nanoid } from 'nanoid'
 
 import { getLocale, translate } from '../lib/i18n'
+import { normalizeProjectGrids } from '../lib/projectGrids'
 import {
   clearTerminalPtyIds,
   collectTerminalPtyIds,
@@ -585,7 +584,7 @@ export function createProjectsSlice({
               runAsAdmin: tab.runAsAdmin,
             })
             window.dispatchEvent(
-              new CustomEvent('alethe:terminal-resize-request', { detail: { ptyId: tab.ptyId } }),
+              new CustomEvent('atrium:terminal-resize-request', { detail: { ptyId: tab.ptyId } }),
             )
           } catch (restartErr) {
             console.warn(
@@ -703,7 +702,7 @@ export function createProjectsSlice({
                   runAsAdmin: tab.runAsAdmin,
                 })
                 window.dispatchEvent(
-                  new CustomEvent('alethe:terminal-resize-request', {
+                  new CustomEvent('atrium:terminal-resize-request', {
                     detail: { ptyId: tab.ptyId },
                   }),
                 )

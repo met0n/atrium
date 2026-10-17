@@ -7,7 +7,7 @@ describe('when enabling a plugin has to be confirmed', () => {
     expect(requiresTrustConfirmation('local', true)).toBe(true)
   })
 
-  it('does not ask for what ships with Alethe', () => {
+  it('does not ask for what ships with Atrium', () => {
     expect(requiresTrustConfirmation('bundled', true)).toBe(false)
   })
 

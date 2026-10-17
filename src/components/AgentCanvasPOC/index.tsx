@@ -381,8 +381,8 @@ function AgentCanvasInner() {
   exitCanvasRef.current = exitCanvas
   useEffect(() => {
     const handler = () => exitCanvasRef.current()
-    window.addEventListener('alethe:agent-canvas-exit', handler)
-    return () => window.removeEventListener('alethe:agent-canvas-exit', handler)
+    window.addEventListener('atrium:agent-canvas-exit', handler)
+    return () => window.removeEventListener('atrium:agent-canvas-exit', handler)
   }, [])
 
   const clearCanvas = () => {
@@ -598,7 +598,7 @@ function AgentCanvasInner() {
                     key={agent.name}
                     name={agent.name}
                     installed
-                    foreign={!agent.from_alethe}
+                    foreign={!agent.from_atrium}
                     action={
                       <button
                         type="button"

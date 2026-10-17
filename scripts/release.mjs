@@ -3,7 +3,7 @@
  * Version bump + commit + tag + push. Does NOT publish installers.
  *
  * Keeps the four sources of the version in sync:
- *   package.json · src-tauri/tauri.conf.json · src-tauri/Cargo.toml · src-tauri/Cargo.lock (alethe entry)
+ *   package.json · src-tauri/tauri.conf.json · src-tauri/Cargo.toml · src-tauri/Cargo.lock (atrium entry)
  *
  * Usage:
  *   npm run release            # patch:  1.2.0 -> 1.2.1
@@ -91,10 +91,10 @@ bumpFile(PKG, /"version":\s*"(\d+\.\d+\.\d+)"/)
 bumpFile(TAURI, /"version":\s*"(\d+\.\d+\.\d+)"/)
 bumpFile(CARGO, /version\s*=\s*"(\d+\.\d+\.\d+)"/)
 
-// Cargo.lock: only the entry of the crate itself (name = "alethe").
+// Cargo.lock: only the entry of the crate itself (name = "atrium").
 const toAdd = [PKG, TAURI, CARGO]
 if (existsSync(LOCK)) {
-  bumpFile(LOCK, /name = "alethe"\r?\nversion = "(\d+\.\d+\.\d+)"/, LOCK)
+  bumpFile(LOCK, /name = "atrium"\r?\nversion = "(\d+\.\d+\.\d+)"/, LOCK)
   toAdd.push(LOCK)
 }
 

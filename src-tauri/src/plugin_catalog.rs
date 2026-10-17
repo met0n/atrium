@@ -12,17 +12,17 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 
-const INDEX_URL: &str = "https://raw.githubusercontent.com/Kc1t/alethe-agents/main/plugins.json";
+const INDEX_URL: &str = "https://raw.githubusercontent.com/met0n/atrium/main/plugins.json";
 
 /// Where the catalogue is actually read from.
 ///
-/// `ALETHE_PLUGIN_INDEX_URL` redirects it, and is honoured **only in debug builds**: the index is
+/// `ATRIUM_PLUGIN_INDEX_URL` redirects it, and is honoured **only in debug builds**: the index is
 /// what publishes each package's checksum, so whoever controls it controls which bytes the app is
 /// willing to run. That is a fine thing for a fork or a test to point somewhere else, and not
 /// something a shipped binary should let an environment variable decide.
 fn index_url() -> String {
     #[cfg(debug_assertions)]
-    if let Ok(override_url) = std::env::var("ALETHE_PLUGIN_INDEX_URL") {
+    if let Ok(override_url) = std::env::var("ATRIUM_PLUGIN_INDEX_URL") {
         let trimmed = override_url.trim();
         if !trimmed.is_empty() {
             return trimmed.to_string();
@@ -43,7 +43,7 @@ pub fn http_client() -> &'static reqwest::Client {
     CLIENT.get_or_init(|| {
         reqwest::Client::builder()
             .timeout(REQUEST_TIMEOUT)
-            .user_agent(concat!("Alethe/", env!("CARGO_PKG_VERSION")))
+            .user_agent(concat!("Atrium/", env!("CARGO_PKG_VERSION")))
             .build()
             .unwrap_or_default()
     })
@@ -295,7 +295,7 @@ pub async fn plugin_install_from_catalog(
     let bytes = crate::plugin_package::download(&package.url).await?;
     crate::plugin_package::verify_sha256(&bytes, &package.sha256)?;
 
-    let staging = std::env::temp_dir().join(format!("alethe-plugin-install-{}", entry.id));
+    let staging = std::env::temp_dir().join(format!("atrium-plugin-install-{}", entry.id));
     let _ = fs::remove_dir_all(&staging);
     let result = (|| {
         crate::plugin_package::extract_zip(&bytes, &staging)?;
@@ -357,7 +357,7 @@ mod tests {
             "file:///C:/Windows/System32",
             "http://example.com/x",
             "javascript:alert(1)",
-            "alethe-plugin://localhost/x",
+            "atrium-plugin://localhost/x",
         ] {
             let entry = format!(r#"{{ "id": "a.b", "name": "N", "downloadUrl": "{url}" }}"#);
             assert!(parse_index(&index(&entry), 1).unwrap().is_empty(), "{url}");

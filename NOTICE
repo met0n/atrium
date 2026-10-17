@@ -10,3 +10,15 @@ The Alethe name, logo, and official branding are not licensed under the AGPL.
 They are governed separately by TRADEMARK.md. The software license does not grant
 permission to present a fork, modified build, product, or service as Alethe or as
 an official release.
+
+---
+
+Atrium
+Copyright (C) 2026 Atrium contributors
+
+Atrium is a modified version of Alethe (https://github.com/Kc1t/alethe-agents),
+forked from upstream commit f6f9557 (after v1.7.0) on 2026-10-17. Changes since
+the fork include renaming and rebranding the application, new logo and icons,
+and macOS compatibility work; the git history records every modification.
+Atrium is distributed under AGPL-3.0-or-later and is not affiliated with or
+endorsed by the Alethe project.

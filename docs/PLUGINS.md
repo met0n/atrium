@@ -1,6 +1,6 @@
 # Plugin System (RFC-012)
 
-Alethe loads features as plugins so the core does not have to own every one of them. Official
+Atrium loads features as plugins so the core does not have to own every one of them. Official
 plugins ship inside the app, are enabled by default, and can be turned off. Turning one off removes
 its surfaces immediately — no restart.
 
@@ -13,8 +13,8 @@ load it when someone actually opens it.
 | | Bundled | Local |
 |---|---|---|
 | Lives in | `src/plugins/<id>/`, shipped in the app bundle | `<profile>/plugins/<id>/` on disk — the directory name must equal the manifest `id` |
-| Loaded by | a code-split `import()` from the app origin | a `<script>` served over `alethe-plugin://` |
-| Binds against | the app's modules directly | `window.alethe` |
+| Loaded by | a code-split `import()` from the app origin | a `<script>` served over `atrium-plugin://` |
+| Binds against | the app's modules directly | `window.atrium` |
 | Trust | first-party | unreviewed; installs disabled, enabling asks first |
 
 Both go through the **same** `activate(context)` contract. Only the transport differs, so a bundled
@@ -24,7 +24,7 @@ plugin exercises the real API rather than a privileged shortcut.
 
 ```jsonc
 {
-  "id": "alethe.git-control",
+  "id": "atrium.git-control",
   "name": "Git Control",
   "version": "1.0.0",
   "apiVersion": 1,
@@ -135,8 +135,8 @@ way `registerView` does — a plugin steering another plugin's interface would b
 steering at all.
 
 This exists because a local plugin has no other route. A bundled plugin could always import the
-app's stores directly, being part of the same build; a plugin loaded over `alethe-plugin://` gets
-`window.alethe` and its context and nothing else. Without `context.ui`, a command that reveals its
+app's stores directly, being part of the same build; a plugin loaded over `atrium-plugin://` gets
+`window.atrium` and its context and nothing else. Without `context.ui`, a command that reveals its
 own panel — the first thing any plugin author writes — was possible only for our own plugins.
 
 `registerView` and `registerCommand` refuse an id the manifest does not declare — announcing is the
@@ -161,7 +161,7 @@ await context.storage.clear()
 
 It lives in `<profile>/plugin-data/<id>.json`, **not** inside the plugin's directory. Two reasons,
 both of which would bite later: everything under `plugins/<id>/` is reachable over
-`alethe-plugin://`, so a plugin's data would be fetchable as an asset; and a reimport replaces that
+`atrium-plugin://`, so a plugin's data would be fetchable as an asset; and a reimport replaces that
 directory, which would take the user's data with it. Data therefore survives an upgrade, and an
 uninstall removes it — that is the user asking for the plugin gone.
 
@@ -235,10 +235,10 @@ Add it to `BUNDLED_PLUGINS` in `src/plugins/index.ts`:
 
 Vite code-splits it into its own chunk. Nothing else is needed.
 
-## Local plugins and `alethe-plugin://`
+## Local plugins and `atrium-plugin://`
 
 A local plugin's assets are served by a custom URI scheme whose root is **fixed per plugin**:
-`alethe-plugin://<pluginId>/<path>`, resolved by `src-tauri/src/plugin_assets.rs`. This is preferred
+`atrium-plugin://<pluginId>/<path>`, resolved by `src-tauri/src/plugin_assets.rs`. This is preferred
 over Tauri's `assetProtocol`, whose scope is configurable and therefore weaker.
 
 The resolver rejects an invalid plugin id, `..` segments, absolute paths, drive and UNC prefixes,
@@ -248,18 +248,18 @@ Content type comes from the extension only, never sniffed, so a `.txt` holding s
 inert.
 
 The scheme is allowed in `script-src`, `style-src`, `font-src` and `img-src`, in both its
-`alethe-plugin:` and `http://alethe-plugin.localhost` forms. **Windows and Android reach a custom
+`atrium-plugin:` and `http://atrium-plugin.localhost` forms. **Windows and Android reach a custom
 scheme only through the `.localhost` form**, so the loader builds the URL per platform.
 
 The two shapes differ in where the plugin id sits, which the handler has to reconcile:
 
 | Platform | What the page requests | What reaches the handler | Plugin id |
 |---|---|---|---|
-| macOS, Linux | `alethe-plugin://<id>/<path>` | same | the host |
-| Windows, Android | `http://alethe-plugin.localhost/<id>/<path>` | `alethe-plugin://localhost/<id>/<path>` | first path segment |
+| macOS, Linux | `atrium-plugin://<id>/<path>` | same | the host |
+| Windows, Android | `http://atrium-plugin.localhost/<id>/<path>` | `atrium-plugin://localhost/<id>/<path>` | first path segment |
 
 Tauri rewrites the `.localhost` form and the host arrives as the literal string `localhost`, not as
-`alethe-plugin.localhost`. `split_target` in `plugin_assets.rs` handles both and is covered by a
+`atrium-plugin.localhost`. `split_target` in `plugin_assets.rs` handles both and is covered by a
 test, because getting it wrong fails silently: the script simply never loads. No remote
 origin and no `eval` were added; `src/securityPolicy.test.ts` asserts each directive literally,
 including those negatives.
@@ -269,7 +269,7 @@ directory in (`plugin_import_dir`). The manifest is validated before anything is
 assets must exist, symlinks are refused, and the copy is bounded (200 files, 10 MB, 5 levels). The
 plugin arrives disabled; re-importing over an existing id keeps whatever the user had chosen.
 
-`src/lib/plugins/localTransport.ts` injects the `<script>`, hands the plugin `window.alethe`
+`src/lib/plugins/localTransport.ts` injects the `<script>`, hands the plugin `window.atrium`
 (`apiVersion`, `react`, `jsxRuntime`, `registerPlugin`), and waits for the plugin to register
 itself. Nothing is evaluated from a string. A plugin that fails to load, or never registers within
 ten seconds, is reported as an activation error and leaves no script or stylesheet behind.
@@ -281,7 +281,7 @@ plugin cannot import from the host by module name.
 
 Preferences → Plugins lists plugins published by other people. The index is a single file,
 `plugins.json`, at the root of this repository, read from
-`raw.githubusercontent.com/Kc1t/alethe-agents/main/plugins.json`:
+`raw.githubusercontent.com/met0n/atrium/main/plugins.json`:
 
 ```jsonc
 {
@@ -292,8 +292,8 @@ Preferences → Plugins lists plugins published by other people. The index is a 
       "name": "Panel",
       "description": "…",
       "author": "acme",
-      "repo": "acme/alethe-panel",
-      "downloadUrl": "https://github.com/acme/alethe-panel/releases/latest",
+      "repo": "acme/atrium-panel",
+      "downloadUrl": "https://github.com/acme/atrium-panel/releases/latest",
       "version": "1.0.0",
       "minApiVersion": 1,
       "capabilities": ["ui.sidebarTab"]
@@ -392,8 +392,8 @@ sha256sum my-plugin.zip
 Attach the zip to a release and put that URL in `package.url`. **Re-hash whenever the zip changes**:
 a stale hash does not install a stale plugin, it fails the check and installs nothing.
 
-The plugin's `main.js` must be a bundle that binds against `window.alethe` rather than importing the
-host. Do not bundle React — take it from `window.alethe.react`, which is why the surface is
+The plugin's `main.js` must be a bundle that binds against `window.atrium` rather than importing the
+host. Do not bundle React — take it from `window.atrium.react`, which is why the surface is
 string-keyed: the app is minified with `mangle.toplevel`, so nothing is reachable by module name.
 `docs/examples/notes-plugin/` is a working plugin in plain JavaScript with no build step at all, and
 is the shortest way to see the contract.
@@ -405,13 +405,13 @@ is the shortest way to see the contract.
 | `src/lib/plugins/host.ts` | discovery, declaration, activation, enable/disable, the plugin context |
 | `src/lib/plugins/registry.ts` | `ContributionList` and the contribution registries |
 | `src/lib/plugins/permissions.ts` | capability matching and the forbidden-command list |
-| `src/lib/plugins/localTransport.ts` | `window.alethe` and the local `<script>` loader |
+| `src/lib/plugins/localTransport.ts` | `window.atrium` and the local `<script>` loader |
 | `src/lib/plugins/storage.ts` | `context.storage` — the per-plugin persisted record |
 | `src/lib/plugins/icons.ts` | the icon names a manifest may use |
 | `src/lib/themeTokens.ts` | theme token sanitization and stylesheet injection |
 | `src/lib/tauri/plugins.ts` | IPC bindings |
 | `src-tauri/src/plugins.rs` | manifest storage, id validation, enable/disable state |
-| `src-tauri/src/plugin_assets.rs` | `alethe-plugin://` path resolution and safety |
+| `src-tauri/src/plugin_assets.rs` | `atrium-plugin://` path resolution and safety |
 | `src/components/ContributedView/` | renders a declared view, activating it on reveal |
 | `src/components/modals/preferences/PluginsPage.tsx` | the management UI |
 | `src/components/ContributedModals/` | mounts the contributed modal matching `openModal` |

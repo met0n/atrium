@@ -18,7 +18,7 @@ const ACTIVE_STATUSES = new Set<OrchestratorJob['status']>(['queued', 'running',
 
 /**
  * What right-clicking a worker offers. Claude's own subagents and background shells live inside
- * the planner's process, out of Alethe's reach, so they can only be opened.
+ * the planner's process, out of Atrium's reach, so they can only be opened.
  */
 export function WorkerContextMenu({ job, x, y, onOpen, onStop, onRestart, onClose }: Props) {
   const t = useT()

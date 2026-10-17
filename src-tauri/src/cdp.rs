@@ -1,7 +1,7 @@
 //! Minimal Chrome DevTools Protocol client.
 //!
 //! The browser owned by `browser_session` already speaks CDP, and Playwright MCP attaches to the
-//! same endpoint. This is the second consumer: it lets Alethe drive and observe a tab itself —
+//! same endpoint. This is the second consumer: it lets Atrium drive and observe a tab itself —
 //! frames in, input events out — instead of only handing the browser to an agent.
 
 use std::collections::HashMap;
@@ -373,12 +373,12 @@ mod tests {
     }
 
     /// Needs a real browser, so it stays out of the default run:
-    /// `ALETHE_CDP_ENDPOINT=http://127.0.0.1:PORT cargo test --lib cdp -- --ignored --nocapture`
+    /// `ATRIUM_CDP_ENDPOINT=http://127.0.0.1:PORT cargo test --lib cdp -- --ignored --nocapture`
     #[tokio::test]
     #[ignore]
     async fn drives_a_live_browser_end_to_end() {
-        let endpoint = std::env::var("ALETHE_CDP_ENDPOINT")
-            .expect("set ALETHE_CDP_ENDPOINT to a running browser");
+        let endpoint = std::env::var("ATRIUM_CDP_ENDPOINT")
+            .expect("set ATRIUM_CDP_ENDPOINT to a running browser");
 
         let ws = browser_ws_url(&endpoint).await.expect("browser ws url");
         let client = CdpClient::connect(&ws).await.expect("cdp connect");
@@ -396,7 +396,7 @@ mod tests {
             .call(
                 "Runtime.evaluate",
                 json!({
-                    "expression": "document.title = 'alethe-cdp-probe'; document.title",
+                    "expression": "document.title = 'atrium-cdp-probe'; document.title",
                     "returnByValue": true
                 }),
                 Some(&session),
@@ -404,7 +404,7 @@ mod tests {
             .await
             .expect("evaluate");
         assert_eq!(
-            evaluated["result"]["value"], "alethe-cdp-probe",
+            evaluated["result"]["value"], "atrium-cdp-probe",
             "a round trip must carry the evaluated value back"
         );
 

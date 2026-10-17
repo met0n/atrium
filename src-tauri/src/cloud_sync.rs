@@ -9,19 +9,24 @@ use tauri::AppHandle;
 use crate::paths::app_data_dir;
 use crate::provider_common::now_ms;
 
-const USER_AGENT: &str = "Alethe";
+const USER_AGENT: &str = "Atrium";
 const GITHUB_DEVICE_CODE_URL: &str = "https://github.com/login/device/code";
 const GITHUB_ACCESS_TOKEN_URL: &str = "https://github.com/login/oauth/access_token";
 const DEVICE_GRANT_TYPE: &str = "urn:ietf:params:oauth:grant-type:device_code";
 const DEFAULT_SERVER_URL: &str = "http://127.0.0.1:8787";
-const DEFAULT_GITHUB_CLIENT_ID: &str = "Ov23liE8HEZvJ3LGIbIp";
+// Atrium has no GitHub OAuth app of its own baked in. Register one and pass its client id
+// at build time (or at runtime) through ATRIUM_SYNC_GITHUB_CLIENT_ID; empty disables sync.
+const DEFAULT_GITHUB_CLIENT_ID: &str = match option_env!("ATRIUM_SYNC_GITHUB_CLIENT_ID") {
+    Some(id) => id,
+    None => "",
+};
 
 fn server_url() -> String {
-    std::env::var("ALETHE_SYNC_SERVER").unwrap_or_else(|_| DEFAULT_SERVER_URL.to_string())
+    std::env::var("ATRIUM_SYNC_SERVER").unwrap_or_else(|_| DEFAULT_SERVER_URL.to_string())
 }
 
 fn github_client_id() -> String {
-    std::env::var("ALETHE_SYNC_GITHUB_CLIENT_ID")
+    std::env::var("ATRIUM_SYNC_GITHUB_CLIENT_ID")
         .unwrap_or_else(|_| DEFAULT_GITHUB_CLIENT_ID.to_string())
 }
 

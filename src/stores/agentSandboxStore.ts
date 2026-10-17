@@ -1,6 +1,6 @@
-import { create } from 'zustand'
-import { nanoid } from 'nanoid'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
+import { nanoid } from 'nanoid'
+import { create } from 'zustand'
 
 import {
   codexApprovalAnswer,
@@ -99,7 +99,7 @@ type AgentSandboxState = {
   ungroupNodes: (groupId: string) => void
 }
 
-const SPAWN_BRIDGE_PROMPT = `You are the Planner Claude inside Alethe. You are the parent orchestrator. When the user asks you to delegate work, create a real Codex worker through Alethe's local bridge instead of doing the work yourself. Use a short self-contained task and include parent_id='lead'. Example: $body=@{agent='codex';task='Create worker-proof.txt containing READY';cwd=(pwd).Path;parent_id='lead'}|ConvertTo-Json -Compress; Invoke-RestMethod "$env:ALETHE_AGENT_HOOKS_ENDPOINT/spawn" -Method Post -Headers @{'X-Alethe-Token'=$env:ALETHE_AGENT_HOOKS_TOKEN} -ContentType 'application/json' -Body $body. Keep task under 300 characters. Alethe injects the worker's completed response back into your terminal, so review it and send follow-up work through the same bridge or composer. Never claim a worker completed work until its response arrives. If a worker exists, do not perform its delegated task yourself or edit its files.`
+const SPAWN_BRIDGE_PROMPT = `You are the Planner Claude inside Atrium. You are the parent orchestrator. When the user asks you to delegate work, create a real Codex worker through Atrium's local bridge instead of doing the work yourself. Use a short self-contained task and include parent_id='lead'. Example: $body=@{agent='codex';task='Create worker-proof.txt containing READY';cwd=(pwd).Path;parent_id='lead'}|ConvertTo-Json -Compress; Invoke-RestMethod "$env:ATRIUM_AGENT_HOOKS_ENDPOINT/spawn" -Method Post -Headers @{'X-Atrium-Token'=$env:ATRIUM_AGENT_HOOKS_TOKEN} -ContentType 'application/json' -Body $body. Keep task under 300 characters. Atrium injects the worker's completed response back into your terminal, so review it and send follow-up work through the same bridge or composer. Never claim a worker completed work until its response arrives. If a worker exists, do not perform its delegated task yourself or edit its files.`
 
 type SpawnPayload = {
   agent?: string
@@ -172,7 +172,7 @@ function hookSummary(payload: Record<string, unknown>): string {
       : detailSource && typeof detailSource === 'object'
         ? JSON.stringify(detailSource)
         : ''
-  return `[Alethe hook] ${eventName}${tool}${detail ? `: ${detail.replace(/[\r\n]+/g, ' ').slice(0, 420)}` : ''}`
+  return `[Atrium hook] ${eventName}${tool}${detail ? `: ${detail.replace(/[\r\n]+/g, ' ').slice(0, 420)}` : ''}`
 }
 
 async function writeAgentMessage(ptyId: string, text: string): Promise<void> {
@@ -188,7 +188,7 @@ async function writeAgentMessage(ptyId: string, text: string): Promise<void> {
 }
 
 function agentInput(command: SandboxNode['command'], from: string, text: string): string {
-  const message = `[Alethe message from ${from}] ${text.trim()}`
+  const message = `[Atrium message from ${from}] ${text.trim()}`
   return command === 'shell' ? shellLine(message) : `${message}\r`
 }
 
@@ -304,7 +304,7 @@ export const useAgentSandboxStore = create<AgentSandboxState>((set, get) => ({
                 ]),
                 ...(payload.agent === 'claude' ? ['--settings', settingsPath] : []),
               ],
-              env: { ALETHE_AGENT_HOOKS_ENDPOINT: endpoint, ALETHE_AGENT_HOOKS_TOKEN: token },
+              env: { ATRIUM_AGENT_HOOKS_ENDPOINT: endpoint, ATRIUM_AGENT_HOOKS_TOKEN: token },
             })
           }
           if (generation !== sandboxGeneration) {
@@ -421,7 +421,7 @@ export const useAgentSandboxStore = create<AgentSandboxState>((set, get) => ({
                 const reply = turnOutput.trim()
                 const parent = get().nodes.find((item) => item.id === node.parentId)
                 if (reply && parent?.ptyId) {
-                  const relay = `[Alethe reply from ${node.label}] ${reply}`
+                  const relay = `[Atrium reply from ${node.label}] ${reply}`
                   void writeAgentMessage(parent.ptyId, relay).catch((error) =>
                     console.error('[sandbox] worker reply relay failed', error),
                   )
@@ -447,7 +447,7 @@ export const useAgentSandboxStore = create<AgentSandboxState>((set, get) => ({
                       ? {
                           ...item,
                           status: approvalDeclined ? 'blocked' : 'idle',
-                          output: `${item.output ?? ''}\n\n[Alethe] Turn completed. Ready for another message.\n`,
+                          output: `${item.output ?? ''}\n\n[Atrium] Turn completed. Ready for another message.\n`,
                         }
                       : item,
                   ),
@@ -480,7 +480,7 @@ export const useAgentSandboxStore = create<AgentSandboxState>((set, get) => ({
                             ...item,
                             status: 'blocked',
                             lastMessage: notice,
-                            output: `${item.output ?? ''}\n\n[Alethe] ${notice}\n`,
+                            output: `${item.output ?? ''}\n\n[Atrium] ${notice}\n`,
                           }
                         : item,
                     ),
@@ -504,7 +504,7 @@ export const useAgentSandboxStore = create<AgentSandboxState>((set, get) => ({
                           ...item,
                           status: 'error',
                           lastMessage: 'Codex app-server connection closed',
-                          output: `${item.output ?? ''}\n\n[Alethe] Codex connection closed.\n`,
+                          output: `${item.output ?? ''}\n\n[Atrium] Codex connection closed.\n`,
                         }
                       : item,
                   ),
@@ -583,7 +583,7 @@ export const useAgentSandboxStore = create<AgentSandboxState>((set, get) => ({
           cwd,
           command: node.command === 'shell' ? undefined : node.command,
           extraArgs: [...(node.extraArgs ?? []), '--settings', settingsPath],
-          env: { ALETHE_AGENT_HOOKS_ENDPOINT: endpoint, ALETHE_AGENT_HOOKS_TOKEN: token },
+          env: { ATRIUM_AGENT_HOOKS_ENDPOINT: endpoint, ATRIUM_AGENT_HOOKS_TOKEN: token },
         })
         if (generation !== sandboxGeneration) {
           await killPty(ptyId).catch(() => {})

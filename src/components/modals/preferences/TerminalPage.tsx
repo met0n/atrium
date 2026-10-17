@@ -86,8 +86,8 @@ export function TerminalPage({ enabledCount }: { enabledCount: number }) {
     setFontDraft(next)
     if (next === preferences.terminalFontFamily) return
     setPreferences({ terminalFontFamily: next })
-    // Mounted terminals reread the font and refit, the way they follow `alethe:zoom-changed`.
-    window.dispatchEvent(new CustomEvent('alethe:terminal-font-changed'))
+    // Mounted terminals reread the font and refit, the way they follow `atrium:zoom-changed`.
+    window.dispatchEvent(new CustomEvent('atrium:terminal-font-changed'))
   }
 
   const onPickShellPath = async () => {

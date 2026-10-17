@@ -41,7 +41,7 @@ import { useUiStore } from './uiStore'
  *
  * "Done" detection is triggered by 3 cascading layers, none of them
  * reliable on its own (see `beginResolvingWatch`): a file marker
- * (`ALETHE_RESOLVED`), the agent process exiting (`pty://exit`), and a
+ * (`ATRIUM_RESOLVED`), the agent process exiting (`pty://exit`), and a
  * cheap fallback poll (only re-reads the marker, never calls the backend).
  * No layer validates, commits, or integrates anything on its own — they
  * only stop at `awaiting_review` and wait for human confirmation. Explicit
@@ -58,7 +58,7 @@ export type MergePhase =
   | 'analyzing'
   | 'preparing'
   | 'resolving'
-  /** Agent signaled "done" (ALETHE_RESOLVED marker, pty exited, or the
+  /** Agent signaled "done" (ATRIUM_RESOLVED marker, pty exited, or the
    *  fallback poll found the marker) — but NOTHING has been checked/
    *  validated/committed yet. Explicit user request: the old automatic
    *  3-layer trigger integrated on its own with no human confirming
@@ -138,7 +138,7 @@ type MergeState = {
 /** Rules/step-by-step shared by both prompts (initial and retry) —
  *  agent-facing, so it stays outside UI i18n (its own messages, not sourced
  *  from `messages/*.ts`), but follows the app's CURRENT LANGUAGE
- *  (`getLocale()`) — explicit user request: Alethe already has two
+ *  (`getLocale()`) — explicit user request: Atrium already has two
  *  languages (en/pt-BR/zh-CN), so the conflict agent should speak the same
  *  language the user is currently using in the app, with an explicit
  *  instruction to that effect (the UI's language alone doesn't guarantee
@@ -148,7 +148,7 @@ type MergeState = {
  *  explicit user request — asks BEFORE deciding alone when the choice
  *  between the two sides is genuinely ambiguous, instead of always
  *  resolving everything automatically. Also instructs it to create the
- *  `ALETHE_RESOLVED` marker when done: without this, completion detection
+ *  `ATRIUM_RESOLVED` marker when done: without this, completion detection
  *  never used the fastest layer (watchFile), only the 7s poll or the
  *  process dying — the agent never knew it was supposed to create that file. */
 function conflictRules(locale: Locale): string {
@@ -156,7 +156,7 @@ function conflictRules(locale: Locale): string {
     return (
       '## 最高优先级 — 无论发生什么都不要跳过\n' +
       '- 请用简体中文回复。本条指令使用中文，是因为当前应用语言为中文。\n' +
-      '- 切勿实现与所列冲突无关的功能或修复无关 bug。范围仅限 ALETHE_CONFLICT.md 中的内容。\n' +
+      '- 切勿实现与所列冲突无关的功能或修复无关 bug。范围仅限 ATRIUM_CONFLICT.md 中的内容。\n' +
       '- 切勿提交（commit）。\n' +
       '- 切勿独自决定真正有歧义的冲突（双方以不兼容的方式改动了同一处，且没有明显可合并的办法）— 请停下来，在此终端向用户说明冲突与可选方案，询问如何处理。\n' +
       '- 必须解决列出的全部文件，一个都不能少。\n\n' +
@@ -166,7 +166,7 @@ function conflictRules(locale: Locale): string {
       '3. 如果两处改动可以兼容，请合并并保留双方意图（这不算歧义 — 直接解决，无需询问）。\n' +
       '4. 解决后，确认文件中不再残留冲突标记（<<<<<<<、=======、>>>>>>>）。\n\n' +
       '## 完成时 — 高优先级\n' +
-      '- 在此目录创建一个名为 ALETHE_RESOLVED 的空文件（这是 Alethe 用来判断你已完成的信号）。\n' +
+      '- 在此目录创建一个名为 ATRIUM_RESOLVED 的空文件（这是 Atrium 用来判断你已完成的信号）。\n' +
       '- 宣告你已完成。'
     )
   }
@@ -174,7 +174,7 @@ function conflictRules(locale: Locale): string {
     return (
       '## PRIORIDADE ALTA — nunca ignore, não importa o quê\n' +
       '- Responda em português (pt-BR). Esta instrução está em português porque o app está com o idioma em português no momento.\n' +
-      '- NUNCA implemente funcionalidades ou corrija bugs não relacionados aos conflitos listados. Escopo é só o que está em ALETHE_CONFLICT.md.\n' +
+      '- NUNCA implemente funcionalidades ou corrija bugs não relacionados aos conflitos listados. Escopo é só o que está em ATRIUM_CONFLICT.md.\n' +
       '- NUNCA commite.\n' +
       '- NUNCA decida sozinho um conflito realmente ambíguo (os dois lados mudaram a mesma coisa de forma incompatível, sem um jeito óbvio de combinar) — PARE e pergunte ao usuário aqui no terminal como ele quer prosseguir, explicando o conflito e as opções.\n' +
       '- SEMPRE resolva TODOS os arquivos listados, nenhum a menos.\n\n' +
@@ -184,14 +184,14 @@ function conflictRules(locale: Locale): string {
       '3. Se as duas mudanças forem compatíveis, combine preservando a intenção das duas (não é ambíguo — resolva direto, sem perguntar).\n' +
       '4. Depois de resolver, confirme que não sobrou nenhum marcador de conflito (<<<<<<<, =======, >>>>>>>) no arquivo.\n\n' +
       '## AO TERMINAR — prioridade alta\n' +
-      '- Crie um arquivo vazio chamado ALETHE_RESOLVED neste diretório (é o sinal que o Alethe usa pra saber que você acabou).\n' +
+      '- Crie um arquivo vazio chamado ATRIUM_RESOLVED neste diretório (é o sinal que o Atrium usa pra saber que você acabou).\n' +
       '- Avise que terminou.'
     )
   }
   return (
     '## HIGH PRIORITY — never skip, no matter what\n' +
     '- Respond in English. This instruction is in English because the app is currently set to English.\n' +
-    '- NEVER implement features or fix bugs unrelated to the listed conflicts. Scope is only what is in ALETHE_CONFLICT.md.\n' +
+    '- NEVER implement features or fix bugs unrelated to the listed conflicts. Scope is only what is in ATRIUM_CONFLICT.md.\n' +
     '- NEVER commit.\n' +
     '- NEVER decide a genuinely ambiguous conflict alone (both sides changed the same thing in incompatible ways, with no obvious way to combine them) — STOP and ask the user here in the terminal how they want to proceed, explaining the conflict and the options.\n' +
     '- ALWAYS resolve ALL listed files, none left out.\n\n' +
@@ -201,7 +201,7 @@ function conflictRules(locale: Locale): string {
     '3. If the two changes are compatible, combine them preserving both intents (not ambiguous — resolve directly, no need to ask).\n' +
     '4. After resolving, confirm no conflict markers (<<<<<<<, =======, >>>>>>>) remain in the file.\n\n' +
     '## WHEN DONE — high priority\n' +
-    '- Create an empty file named ALETHE_RESOLVED in this directory (this is the signal Alethe uses to know you finished).\n' +
+    '- Create an empty file named ATRIUM_RESOLVED in this directory (this is the signal Atrium uses to know you finished).\n' +
     '- Announce that you are done.'
   )
 }
@@ -210,18 +210,18 @@ function conflictRules(locale: Locale): string {
 function conflictPrompt(locale: Locale): string {
   if (locale === 'zh-CN') {
     return (
-      '请阅读此目录中的 ALETHE_CONFLICT.md 文件 — 其中列出了所有冲突文件。\n\n' +
+      '请阅读此目录中的 ATRIUM_CONFLICT.md 文件 — 其中列出了所有冲突文件。\n\n' +
       conflictRules(locale)
     )
   }
   if (locale === 'pt-BR') {
     return (
-      'Leia o arquivo ALETHE_CONFLICT.md neste diretório — ele lista todos os arquivos em conflito.\n\n' +
+      'Leia o arquivo ATRIUM_CONFLICT.md neste diretório — ele lista todos os arquivos em conflito.\n\n' +
       conflictRules(locale)
     )
   }
   return (
-    'Read the ALETHE_CONFLICT.md file in this directory — it lists every file in conflict.\n\n' +
+    'Read the ATRIUM_CONFLICT.md file in this directory — it lists every file in conflict.\n\n' +
     conflictRules(locale)
   )
 }
@@ -230,7 +230,7 @@ function conflictPrompt(locale: Locale): string {
 function retryPrompt(failureContext: string, locale: Locale): string {
   if (locale === 'zh-CN') {
     return (
-      '此前解决此冲突的尝试失败了。请再次阅读此目录中的 ALETHE_CONFLICT.md 文件，并修复下面的问题。\n\n' +
+      '此前解决此冲突的尝试失败了。请再次阅读此目录中的 ATRIUM_CONFLICT.md 文件，并修复下面的问题。\n\n' +
       conflictRules(locale) +
       '\n\n此前失败的原因：\n' +
       failureContext.slice(0, 2000)
@@ -238,7 +238,7 @@ function retryPrompt(failureContext: string, locale: Locale): string {
   }
   if (locale === 'pt-BR') {
     return (
-      'A tentativa anterior de resolver este conflito falhou. Leia o arquivo ALETHE_CONFLICT.md ' +
+      'A tentativa anterior de resolver este conflito falhou. Leia o arquivo ATRIUM_CONFLICT.md ' +
       'neste diretório de novo e corrija o problema abaixo.\n\n' +
       conflictRules(locale) +
       '\n\nMotivo da falha anterior:\n' +
@@ -246,7 +246,7 @@ function retryPrompt(failureContext: string, locale: Locale): string {
     )
   }
   return (
-    'The previous attempt to resolve this conflict failed. Read the ALETHE_CONFLICT.md file ' +
+    'The previous attempt to resolve this conflict failed. Read the ATRIUM_CONFLICT.md file ' +
     'in this directory again and fix the issue below.\n\n' +
     conflictRules(locale) +
     '\n\nReason the previous attempt failed:\n' +
@@ -321,7 +321,7 @@ function reopenAgentTerminal(
 // sense — confirmed live as reckless (the agent merged incompatible
 // content into a single file, without asking, and it was
 // committed/integrated automatically).
-//   1. watchFile on the ALETHE_RESOLVED marker (fastest, if the agent creates it).
+//   1. watchFile on the ATRIUM_RESOLVED marker (fastest, if the agent creates it).
 //   2. pty://exit of the agent's terminal (process died — finished or
 //      crashed; "Validate" shows which one it was, we don't decide here).
 //   3. cheap periodic poll (fallback in case the OS's watchFile misses the
@@ -338,7 +338,7 @@ function stopResolvingWatch() {
 
 function beginResolvingWatch(env: ConflictEnv, agentTerminalId: string) {
   stopResolvingWatch()
-  const markerPath = `${env.path.replace(/[\\/]+$/, '')}/ALETHE_RESOLVED`
+  const markerPath = `${env.path.replace(/[\\/]+$/, '')}/ATRIUM_RESOLVED`
   let stopped = false
   let pollTimer: ReturnType<typeof setInterval> | null = null
   let unlistenFile: (() => void) | null = null
@@ -705,7 +705,7 @@ export const useMergeStore = create<MergeState>((set, get) => ({
       // (In gitWorktree mode this is a no-op on the backend.)
       await worktreeFetchBranch(repo, worktreeAgentId)
       const target = (await gitStatus(repo)).branch
-      const source = `alethe/agent-${worktreeAgentId}`
+      const source = `atrium/agent-${worktreeAgentId}`
       await get().start(project, repo, source, target, worktreeAgentId)
       const { phase } = get()
       if (phase === 'merged') {

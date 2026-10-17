@@ -146,13 +146,13 @@ fn audit_record(
 
     checked_output(root, &["add", "--", PLANNING_DIR])?;
     let subject = format!(
-        "gsd(alethe): {}",
+        "gsd(atrium): {}",
         reason
             .map(str::trim)
             .filter(|r| !r.is_empty())
             .unwrap_or("planning update")
     );
-    let trailer = format!("Alethe-Agent: {}", agent_id.unwrap_or("unknown"));
+    let trailer = format!("Atrium-Agent: {}", agent_id.unwrap_or("unknown"));
     // Scoped commit: `commit -- .planning` guarantees staged changes from
     // other directories do NOT get pulled into this audit commit.
     checked_output(
@@ -202,7 +202,7 @@ pub fn planning_audit_history(
     let root = crate::git_control::repository_root(&repo_path)?;
     let count = limit.unwrap_or(50).min(500).to_string();
     let format = format!(
-        "%H{FIELD_SEP}%an{FIELD_SEP}%ct{FIELD_SEP}%s{FIELD_SEP}%(trailers:key=Alethe-Agent,valueonly,separator=,){RECORD_SEP}"
+        "%H{FIELD_SEP}%an{FIELD_SEP}%ct{FIELD_SEP}%s{FIELD_SEP}%(trailers:key=Atrium-Agent,valueonly,separator=,){RECORD_SEP}"
     );
     // With no commits yet (new repo) the log fails — return an empty history.
     let output = match git_command(
@@ -332,7 +332,7 @@ pub fn list_project_plans(repo_path: String, project_id: String) -> Result<Vec<P
 
 pub fn list_project_plans_core(repo_path: &str, project_id: &str) -> Result<Vec<PlanItem>, String> {
     let repo_root = Path::new(repo_path);
-    let plans_dir = repo_root.join(".alethe").join("plans");
+    let plans_dir = repo_root.join(".atrium").join("plans");
     if !plans_dir.is_dir() {
         return Ok(Vec::new());
     }
@@ -387,7 +387,7 @@ fn collect_plans_recursive(
                         .map(|s| s.to_string_lossy().to_string())
                         .unwrap_or_else(|| "Plan".to_string());
 
-                    // Infer terminal_id if saved in .alethe/plans/<terminal_id>/...
+                    // Infer terminal_id if saved in .atrium/plans/<terminal_id>/...
                     let terminal_id = path
                         .parent()
                         .and_then(|p| p.strip_prefix(plans_root).ok())
@@ -437,7 +437,7 @@ pub fn save_project_plan(
     content: String,
 ) -> Result<PlanItem, String> {
     let repo_root = Path::new(&repo_path);
-    let mut target_dir = repo_root.join(".alethe").join("plans");
+    let mut target_dir = repo_root.join(".atrium").join("plans");
     if let Some(ref tid) = terminal_id {
         target_dir = target_dir.join(tid);
     }
@@ -576,12 +576,12 @@ mod tests {
     use std::fs;
 
     fn planning_repo() -> (std::path::PathBuf, String) {
-        let root = std::env::temp_dir().join(format!("alethe-planning-{}", nanoid!(8)));
+        let root = std::env::temp_dir().join(format!("atrium-planning-{}", nanoid!(8)));
         fs::create_dir_all(root.join(PLANNING_DIR)).unwrap();
         let run = |args: &[&str]| checked_output(&root, args).unwrap();
         run(&["init", "-b", "main"]);
-        run(&["config", "user.name", "Alethe Test"]);
-        run(&["config", "user.email", "alethe@example.invalid"]);
+        run(&["config", "user.name", "Atrium Test"]);
+        run(&["config", "user.email", "atrium@example.invalid"]);
         fs::write(root.join("code.txt"), "code\n").unwrap();
         fs::write(root.join(PLANNING_DIR).join("roadmap.md"), "- [ ] task 1\n").unwrap();
         run(&["add", "."]);
@@ -618,7 +618,7 @@ mod tests {
         let history = planning_audit_history(root_str, Some(10)).unwrap();
         assert_eq!(history.len(), 2); // base + auditoria
         assert_eq!(history[0].agent_id.as_deref(), Some("agent-42"));
-        assert!(history[0].subject.contains("gsd(alethe)"));
+        assert!(history[0].subject.contains("gsd(atrium)"));
         assert!(history[0].timestamp_ms > 0);
         assert_eq!(history[1].agent_id, None);
 

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Hand Alethe's own engineering rules to every worker it delegates to, as named sets the planner chooses from and the person edits.
+**Goal:** Hand Atrium's own engineering rules to every worker it delegates to, as named sets the planner chooses from and the person edits.
 
 **Architecture:** The orchestrator core owns the rule sets (three shipped as markdown assets, the person's list injected by the app the same way launchers are), composes a delimited block from General plus the named set, and prefixes it to a worker's first message. The planner learns the set names in its handshake briefing, names one when delegating, and can read a set on demand. The editor lives beside the message shortcuts in Preferences → Multiagent.
 
@@ -34,7 +34,7 @@
 
 **Modified**
 
-- `src-tauri/src/orchestrator_core.rs` — module declaration, `Core::set_rule_sets` / `rule_sets`, the `alethe_delegate` arm, `Job.rules_name`, `snapshot`/`record`, `planner_instructions`, the `alethe_rules` tool, the first-turn prefix.
+- `src-tauri/src/orchestrator_core.rs` — module declaration, `Core::set_rule_sets` / `rule_sets`, the `atrium_delegate` arm, `Job.rules_name`, `snapshot`/`record`, `planner_instructions`, the `atrium_rules` tool, the first-turn prefix.
 - `src-tauri/src/orchestrator.rs`, `src-tauri/src/lib.rs` — `orchestrator_set_rule_sets` and `orchestrator_default_rule_sets` commands.
 - `src-tauri/tests/orchestrator.rs` — delegation, rejection, briefing and prefix tests.
 - `src/lib/types.ts` — `RuleSet`, `Preferences.workerRuleSets`, the default.
@@ -133,7 +133,7 @@ Expected: FAIL — the module is not declared and the items do not exist.
 At the top of `src-tauri/src/orchestrator_rules.rs`:
 
 ```rust
-//! The engineering rules Alethe hands to the workers it delegates to.
+//! The engineering rules Atrium hands to the workers it delegates to.
 //!
 //! Tauri-free like `orchestrator_core`, which declares this module: both compile inside the
 //! orchestrator tests and the standalone MCP binary. The app injects the person's own sets.
@@ -152,7 +152,7 @@ const GENERAL: &str = include_str!("../assets/rules/general.md");
 const BACKEND: &str = include_str!("../assets/rules/backend.md");
 const FRONTEND: &str = include_str!("../assets/rules/frontend.md");
 
-/// What ships with Alethe. The person edits these or replaces them entirely.
+/// What ships with Atrium. The person edits these or replaces them entirely.
 pub fn default_rule_sets() -> Vec<RuleSet> {
     vec![
         RuleSet { id: GENERAL_ID.into(), name: "General".into(), text: GENERAL.into() },
@@ -186,7 +186,7 @@ pub fn find_set<'a>(sets: &'a [RuleSet], name: &str) -> Option<&'a RuleSet> {
     sets.iter().find(|set| fold_name(&set.name) == wanted)
 }
 
-const PRECEDENCE: &str = "These are Alethe's working rules for this task. If this repository states something different (CLAUDE.md, AGENTS.md, CONTRIBUTING.md), the repository wins.";
+const PRECEDENCE: &str = "These are Atrium's working rules for this task. If this repository states something different (CLAUDE.md, AGENTS.md, CONTRIBUTING.md), the repository wins.";
 
 /// The block prefixed to a worker's first message: the general set, then the named one if there is
 /// one. An unknown name is refused rather than silently ignored — a worker running with the wrong
@@ -216,7 +216,7 @@ pub fn rules_block(sets: &[RuleSet], named: Option<&str>) -> Result<String, Stri
         .map(|set| set.text.trim())
         .collect::<Vec<_>>()
         .join("\n\n");
-    Ok(format!("<alethe-rules>\n{PRECEDENCE}\n\n{body}\n</alethe-rules>\n\n"))
+    Ok(format!("<atrium-rules>\n{PRECEDENCE}\n\n{body}\n</atrium-rules>\n\n"))
 }
 ```
 
@@ -273,7 +273,7 @@ fn the_core_serves_the_shipped_rules_until_the_app_injects_its_own() {
 }
 ```
 
-Add `RuleSet` to that file's existing `use alethe_lib::orchestrator_core::{...}` import list (read the file's header to match how `Core` and `Launcher` are imported).
+Add `RuleSet` to that file's existing `use atrium_lib::orchestrator_core::{...}` import list (read the file's header to match how `Core` and `Launcher` are imported).
 
 - [ ] **Step 2: Run it to verify it fails**
 
@@ -332,12 +332,12 @@ git add src-tauri/src/orchestrator_core.rs src-tauri/tests/orchestrator.rs
 ### Task 3: Delegating with a rule set
 
 **Files:**
-- Modify: `src-tauri/src/orchestrator_core.rs` (the `"alethe_delegate"` arm around line 2205, the `Job` struct around line 180, `Job::snapshot` around line 223 and `Job::record` just below it, and the `alethe_delegate` entry in `tools()`)
+- Modify: `src-tauri/src/orchestrator_core.rs` (the `"atrium_delegate"` arm around line 2205, the `Job` struct around line 180, `Job::snapshot` around line 223 and `Job::record` just below it, and the `atrium_delegate` entry in `tools()`)
 - Modify: `src-tauri/tests/orchestrator.rs`
 
 **Interfaces:**
 - Consumes: `rules_block`, `find_set` (Task 1), `Core::rule_sets` (Task 2).
-- Produces: `Job.rules_name: Option<String>`; the snapshot and record fields `"rules"`; `alethe_delegate`'s `rules` argument.
+- Produces: `Job.rules_name: Option<String>`; the snapshot and record fields `"rules"`; `atrium_delegate`'s `rules` argument.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -349,7 +349,7 @@ fn a_delegated_job_records_the_rule_set_it_was_given() {
     let dir = workspace("rules-name");
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": ["one"], "rules": "backend" }),
     );
 
@@ -365,7 +365,7 @@ fn delegating_without_a_rule_set_records_none() {
     let core = Core::default();
     core.set_launcher(silent_launcher());
     let dir = workspace("rules-none");
-    call(&core, "alethe_delegate", json!({ "cwd": dir.to_string_lossy(), "tasks": ["one"] }));
+    call(&core, "atrium_delegate", json!({ "cwd": dir.to_string_lossy(), "tasks": ["one"] }));
 
     assert_eq!(core.snapshot()["jobs"][0]["rules"], json!(null));
 
@@ -382,7 +382,7 @@ fn an_unknown_rule_set_refuses_the_call_and_starts_no_worker() {
         7,
         "tools/call",
         json!({
-            "name": "alethe_delegate",
+            "name": "atrium_delegate",
             "arguments": { "cwd": dir.to_string_lossy(), "tasks": ["one"], "rules": "Backhand" }
         }),
     );
@@ -406,7 +406,7 @@ Expected: FAIL — `rules` is ignored and the snapshot has no such field.
 
 - [ ] **Step 3: Parse and validate the argument**
 
-In the `"alethe_delegate"` arm, after `agent` is resolved and **before** any worktree is created (the batch is accepted whole or not at all, and a refusal must not leave worktrees behind):
+In the `"atrium_delegate"` arm, after `agent` is resolved and **before** any worktree is created (the batch is accepted whole or not at all, and a refusal must not leave worktrees behind):
 
 ```rust
             // Resolved here so the refusal happens before anything is created, and so the job
@@ -452,7 +452,7 @@ Add to both `Job::snapshot` and `Job::record`, beside `"spec"`:
 
 - [ ] **Step 5: Declare the argument in the tool schema**
 
-In `tools()`, inside `alethe_delegate`'s `properties`:
+In `tools()`, inside `atrium_delegate`'s `properties`:
 
 ```rust
                     "rules": {
@@ -504,8 +504,8 @@ and in that file's `#[cfg(test)] mod tests` (create one if the file has none):
 ```rust
     #[test]
     fn a_first_turn_carries_the_rules_then_the_task() {
-        let text = first_turn_text("<alethe-rules>\nR\n</alethe-rules>\n\n", "do the thing");
-        assert!(text.starts_with("<alethe-rules>"), "{text}");
+        let text = first_turn_text("<atrium-rules>\nR\n</atrium-rules>\n\n", "do the thing");
+        assert!(text.starts_with("<atrium-rules>"), "{text}");
         assert!(text.contains("<task>\ndo the thing\n</task>"), "{text}");
     }
 
@@ -570,7 +570,7 @@ git add src-tauri/src/orchestrator_core.rs src-tauri/tests/orchestrator.rs
 
 **Interfaces:**
 - Consumes: `Core::rule_sets` (Task 2).
-- Produces: the `alethe_rules` tool.
+- Produces: the `atrium_rules` tool.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -589,7 +589,7 @@ fn the_briefing_names_the_rule_sets_and_says_to_choose_one() {
 #[test]
 fn the_rules_tool_lists_names_and_returns_one_set() {
     let core = Core::default();
-    let listed = call(&core, "alethe_rules", json!({}));
+    let listed = call(&core, "atrium_rules", json!({}));
     let names = listed["sets"].as_array().expect("names");
     assert!(names.iter().any(|value| value == "Frontend"), "{listed}");
 
@@ -597,7 +597,7 @@ fn the_rules_tool_lists_names_and_returns_one_set() {
         &core,
         2,
         "tools/call",
-        json!({ "name": "alethe_rules", "arguments": { "name": "frontend" } }),
+        json!({ "name": "atrium_rules", "arguments": { "name": "frontend" } }),
     );
     let text = one["result"]["content"][0]["text"].as_str().expect("text");
     assert!(text.starts_with("# Frontend"), "plain markdown, not escaped JSON: {text}");
@@ -626,7 +626,7 @@ In `planner_instructions`, after the block that lists the available workers, app
         format!(
             "\nRule sets: General (always applied){}{}\n- When you delegate, name the set that \
              matches the work, in `rules`. Omit it and the worker gets the general rules only.\n- \
-             Read a set with alethe_rules before writing code yourself.\n",
+             Read a set with atrium_rules before writing code yourself.\n",
             if names.is_empty() { "" } else { ", " },
             names.join(", ")
         )
@@ -641,8 +641,8 @@ In `tools()`:
 
 ```rust
         {
-            "name": "alethe_rules",
-            "description": "The engineering rules Alethe applies here. Without a name it lists the sets; with one it returns that set's text. Read the set that matches before writing code yourself.",
+            "name": "atrium_rules",
+            "description": "The engineering rules Atrium applies here. Without a name it lists the sets; with one it returns that set's text. Read the set that matches before writing code yourself.",
             "inputSchema": {
                 "type": "object",
                 "properties": {
@@ -652,10 +652,10 @@ In `tools()`:
         },
 ```
 
-In `dispatch_tool`, beside the `"alethe_guide"` arm:
+In `dispatch_tool`, beside the `"atrium_guide"` arm:
 
 ```rust
-        "alethe_rules" => {
+        "atrium_rules" => {
             let sets = core.rule_sets();
             match arguments
                 .get("name")
@@ -676,7 +676,7 @@ In `dispatch_tool`, beside the `"alethe_guide"` arm:
         }
 ```
 
-The `tool_text` helper already turns a `Value::String` into plain text rather than an escaped JSON string — the same reason `alethe_guide` returns one.
+The `tool_text` helper already turns a `Value::String` into plain text rather than an escaped JSON string — the same reason `atrium_guide` returns one.
 
 - [ ] **Step 5: Run the tests**
 
@@ -722,7 +722,7 @@ pub fn orchestrator_set_rule_sets(
 ) {
     state.core.set_rule_sets(
         sets.into_iter()
-            .map(|set| alethe_lib::orchestrator_core::RuleSet {
+            .map(|set| atrium_lib::orchestrator_core::RuleSet {
                 id: set.id,
                 name: set.name,
                 text: set.text,
@@ -731,10 +731,10 @@ pub fn orchestrator_set_rule_sets(
     );
 }
 
-/// What ships with Alethe, so the editor can show ours and restore one.
+/// What ships with Atrium, so the editor can show ours and restore one.
 #[tauri::command]
 pub fn orchestrator_default_rule_sets() -> Value {
-    json!(alethe_lib::orchestrator_core::default_rule_sets()
+    json!(atrium_lib::orchestrator_core::default_rule_sets()
         .into_iter()
         .map(|set| json!({ "id": set.id, "name": set.name, "text": set.text }))
         .collect::<Vec<_>>())
@@ -863,7 +863,7 @@ export type RuleSet = {
 In `Preferences`:
 
 ```ts
-  /** null means "use Alethe's"; any array — empty included — is the person's own list. */
+  /** null means "use Atrium's"; any array — empty included — is the person's own list. */
   workerRuleSets: RuleSet[] | null
 ```
 
@@ -1068,7 +1068,7 @@ The message-shortcuts section immediately above is the template — read it and 
 ```ts
   'prefs.workerRules': 'Rules for delegated work',
   'prefs.workerRulesDesc':
-    'What Alethe tells the agents it delegates to. The general set goes with every task; the lead agent names the set that matches the work. A repository’s own conventions always win over these.',
+    'What Atrium tells the agents it delegates to. The general set goes with every task; the lead agent names the set that matches the work. A repository’s own conventions always win over these.',
   'prefs.ruleSetName': 'Set name',
   'prefs.ruleSetText': 'Rules',
   'prefs.ruleSetSize': '{count} characters, sent with every task of this set',
@@ -1076,7 +1076,7 @@ The message-shortcuts section immediately above is the template — read it and 
   'prefs.ruleSetAdd': 'Add set',
   'prefs.ruleSetNewName': 'New set',
   'prefs.ruleSetsEmpty': 'No rules are sent with delegated work.',
-  'prefs.ruleSetsRestoreAll': 'Restore Alethe’s sets',
+  'prefs.ruleSetsRestoreAll': 'Restore Atrium’s sets',
 ```
 
 - [ ] **Step 4: Style it**
@@ -1126,11 +1126,11 @@ Add `'orchestrator.runRulesTitle': 'Rule set this run was delegated with'` to bo
 Under `## [Unreleased]` → `### Added`:
 
 ```markdown
-- **Alethe now hands its own engineering rules to the agents it delegates to.** Every delegated task
+- **Atrium now hands its own engineering rules to the agents it delegates to.** Every delegated task
   carries a general set — verify before you report, write the failing test first, record an
   architecture decision in the same change, never weaken shared CI to make your change pass — and the
   lead agent names the set that matches the work, so a frontend worker gets frontend rules instead of
-  database ones. Alethe ships General, Backend and Frontend, written to hold in any language or
+  database ones. Atrium ships General, Backend and Frontend, written to hold in any language or
   framework; a repository's own conventions always win over them. Edit them, add your own — "Banco de
   Dados", "Pesquisa" — or remove them entirely in Preferences → Multiagent, and the board shows which
   set each run was delegated with.
@@ -1164,4 +1164,4 @@ Not a task for an implementer — the app must not be started by one.
 3. Ask the planner to delegate something with `rules: "Banco de Dados"`; the worker's transcript opens with the rules block and the board's run shows the set.
 4. Ask it to delegate with a misspelled set name: the call is refused and names the valid sets.
 5. Delete every set, delegate again: the worker gets no rules block and nothing breaks.
-6. Press "Restore Alethe's sets": ours come back.
+6. Press "Restore Atrium's sets": ours come back.

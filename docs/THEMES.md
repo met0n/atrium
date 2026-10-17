@@ -1,4 +1,4 @@
-# Adding a Theme to Alethe
+# Adding a Theme to Atrium
 
 There are two ways to add a theme, and the one you want is almost always the first.
 

@@ -8,24 +8,24 @@
 // Este modulo escreve um plugin real do OpenCode (formato confirmado em
 // opencode.ai/docs/plugins/) num diretorio GLOBAL do usuario
 
-// qualquer terminal opencode que o Alethe spawnar, nao so os com Graphify
+// qualquer terminal opencode que o Atrium spawnar, nao so os com Graphify
 // habilitado. O plugin reporta session.idle/tool.execute.before de volta pro
-// Alethe via HTTP local, reaproveitando o listener ja existente em
+// Atrium via HTTP local, reaproveitando o listener ja existente em
 
 use std::path::PathBuf;
 
-const PLUGIN_FILE_NAME: &str = "alethe-bridge.js";
+const PLUGIN_FILE_NAME: &str = "atrium-bridge.js";
 
 const PLUGIN_SOURCE: &str = r#"                                                                                
 // boot do app se o conteudo mudar).
 //
                                                                                 
-// via o endpoint local passado em ALETHE_BRIDGE_ENDPOINT (injetado como env var
+// via o endpoint local passado em ATRIUM_BRIDGE_ENDPOINT (injetado como env var
                                                                           
-// quebrar a sessao do OpenCode se o Alethe nao estiver rodando ou a porta tiver
+// quebrar a sessao do OpenCode se o Atrium nao estiver rodando ou a porta tiver
 // mudado.
-export const AletheBridgePlugin = async ({ directory }) => {
-  const endpoint = process.env.ALETHE_BRIDGE_ENDPOINT
+export const AtriumBridgePlugin = async ({ directory }) => {
+  const endpoint = process.env.ATRIUM_BRIDGE_ENDPOINT
   if (!endpoint) return {}
 
   const report = async (state) => {
@@ -90,10 +90,10 @@ mod tests {
 
     #[test]
     fn plugin_source_exports_the_expected_hooks() {
-        assert!(PLUGIN_SOURCE.contains("export const AletheBridgePlugin"));
+        assert!(PLUGIN_SOURCE.contains("export const AtriumBridgePlugin"));
         assert!(PLUGIN_SOURCE.contains("session.idle"));
         assert!(PLUGIN_SOURCE.contains("tool.execute.before"));
-        assert!(PLUGIN_SOURCE.contains("ALETHE_BRIDGE_ENDPOINT"));
+        assert!(PLUGIN_SOURCE.contains("ATRIUM_BRIDGE_ENDPOINT"));
         assert!(PLUGIN_SOURCE.contains("/opencode-status"));
     }
 }

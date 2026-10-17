@@ -66,6 +66,8 @@ mod project_detector;
 mod projects;
 mod provider_common;
 mod pty;
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+mod quit_request;
 mod remote;
 mod resource_manager;
 mod resources;
@@ -73,6 +75,7 @@ mod router9;
 mod scheduler;
 mod secure_store;
 mod session_watcher;
+mod shell_path;
 // The handoff it reports goes over D-Bus, which only the Linux build links (zbus).
 #[cfg(target_os = "linux")]
 mod single_instance_probe;
@@ -130,6 +133,10 @@ use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Before any thread starts: a Finder-launched macOS app needs the login shell's PATH to find
+    // agent CLIs installed outside Homebrew.
+    shell_path::adopt_login_shell_path();
+
     // bugs conhecidos no Wayland — escala fracionada quebrando layout,
 
     // ("Error 71") em alguns drivers de GPU — documentados oficialmente em
@@ -178,7 +185,7 @@ pub fn run() {
                     None => "another process".to_string(),
                 };
                 eprintln!(
-                    "[single-instance] Alethe is already running ({owner}); focusing its window."
+                    "[single-instance] Atrium is already running ({owner}); focusing its window."
                 );
             }
             ProbeOutcome::StaleOwner { pid } => {
@@ -189,7 +196,7 @@ pub fn run() {
                 eprintln!(
                     "[single-instance] {owner} holds the D-Bus name but did not answer within \
                      1s, so no window will open. End the stuck instance \
-                     (`busctl --user list | grep alethe`) and try again."
+                     (`busctl --user list | grep atrium`) and try again."
                 );
                 std::process::exit(1);
             }
@@ -227,7 +234,7 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .register_uri_scheme_protocol("alethe-plugin", |ctx, request| {
+        .register_uri_scheme_protocol("atrium-plugin", |ctx, request| {
             plugin_assets::serve(ctx.app_handle(), &request)
         });
 
@@ -242,7 +249,7 @@ pub fn run() {
         .setup(move |app| {
             #[cfg(debug_assertions)]
             if let Some(window) = app.get_webview_window("main") {
-                let _ = window.set_title("(DEV) Alethe");
+                let _ = window.set_title("(DEV) Atrium");
             }
 
             #[cfg(target_os = "linux")]
@@ -275,13 +282,18 @@ pub fn run() {
             // Keep the terminal launcher available after installation.
             #[cfg(not(debug_assertions))]
             let _ = cli_shim::cli_shim_install();
-            // `alethe <path>` com o app fechado: guarda o alvo agora, o
+            // `atrium <path>` com o app fechado: guarda o alvo agora, o
 
             cli_launch::capture_cold_start(app.handle());
             event_bus::set_app_handle(app.handle().clone());
             // Cantos arredondados no macOS (no-op nas outras plataformas). A
 
             window_style::apply_rounded_corners(app.handle());
+            // Cmd+Q must save the workspace like closing the window does (see quit_request.rs).
+            #[cfg(target_os = "macos")]
+            if let Err(error) = quit_request::install_app_menu(app.handle()) {
+                eprintln!("[quit_request] app menu not installed: {error}");
+            }
 
             crash_watch::start(app.handle().clone());
             resources::start(
@@ -293,7 +305,7 @@ pub fn run() {
             pty::cleanup_orphan_scrollback(app.handle());
             agent_events::start_listener(app.handle().clone());
 
-            // reporta working/idle real de volta pro Alethe (ver opencode_bridge.rs).
+            // reporta working/idle real de volta pro Atrium (ver opencode_bridge.rs).
             opencode_bridge::ensure_installed();
             session_watcher::start_watcher(app.handle().clone());
 
@@ -639,7 +651,7 @@ pub fn run() {
             ping,
         ])
         .build(context)
-        .expect("error while building alethe")
+        .expect("error while building atrium")
         .run(move |_app_handle, event| {
             // emitir `Exit`; esperar esse evento deixa shells/agentes vivos
 

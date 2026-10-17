@@ -1,17 +1,17 @@
 [package]
-name = "alethe"
+name = "atrium"
 version = "1.7.0"
-description = "Alethe — terminal multiplexer GUI"
-authors = ["Kauã Miguel"]
+description = "Atrium — multi-agent coding workspace"
+authors = ["Atrium contributors", "Kauã Miguel (original Alethe author)"]
 license = "AGPL-3.0-or-later"
 edition = "2021"
-# Two binaries in this crate (alethe + alethe-orchestrator-mcp). Without
+# Two binaries in this crate (atrium + atrium-orchestrator-mcp). Without
 # default-run, the bare `cargo run` that `tauri dev` issues cannot pick one and
 # aborts before the app ever starts.
-default-run = "alethe"
+default-run = "atrium"
 
 [lib]
-name = "alethe_lib"
+name = "atrium_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [lints.rust]
@@ -74,7 +74,7 @@ regex = "1"
 # without rewriting the credentials, hooks and project tables around it.
 toml_edit = "0.22"
 
-# Impede execuções paralelas do Alethe (pré-requisito da guarda de
+# Impede execuções paralelas do Atrium (pré-requisito da guarda de
 # monotonicidade de `save_projects` em projects.rs). Só compila em desktop —
 # a crate não suporta mobile.
 [target.'cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))'.dependencies]

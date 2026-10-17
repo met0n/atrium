@@ -76,7 +76,7 @@
   pointer-events: none;
 }
 
-[data-panel='alethe-todo-sidebar'] .sidebarContent[data-hidden='true'] {
+[data-panel='atrium-todo-sidebar'] .sidebarContent[data-hidden='true'] {
   transform: translateX(16px) scale(0.985);
 }
 

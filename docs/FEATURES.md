@@ -1,4 +1,4 @@
-# Alethe Features
+# Atrium Features
 
 This document summarizes the main product capabilities in the public desktop app.
 
@@ -15,7 +15,7 @@ This document summarizes the main product capabilities in the public desktop app
 
 ## Layouts
 
-Alethe supports layouts at project, group, and workspace level.
+Atrium supports layouts at project, group, and workspace level.
 
 - **Auto**: one pane full size, two panes side by side, three or more in a grid.
 - **Spotlight**: one primary pane with secondary panes stacked beside it.
@@ -142,7 +142,7 @@ Custom grids support `colSpan`, `rowSpan`, drag-and-drop swapping, and resizable
   `duration_ms`, `cost_usd`, and `memory_mb` values; arbitrary event data is never persisted.
 - The telemetry log is capped at 2 MiB by replacing old content before a new entry would cross the
   limit, and is created with owner-only permissions on Unix.
-- Alethe has no telemetry uploader; this data stays on the device.
+- Atrium has no telemetry uploader; this data stays on the device.
 
 ## Backup
 
@@ -162,6 +162,6 @@ Custom grids support `colSpan`, `rowSpan`, drag-and-drop swapping, and resizable
 
 ## Agent Planning
 
-Agent Planning / Agent Canvas is experimental. It provides a visual control surface for coordinating agent sessions and workers from inside Alethe.
+Agent Planning / Agent Canvas is experimental. It provides a visual control surface for coordinating agent sessions and workers from inside Atrium.
 
 Its agents follow a permission mode set in **Preferences → Terminal and agents → Agent Canvas permissions**: **Ask** (default) keeps each agent's own permission checks, and a background worker with nobody to answer has the action refused; **Bypass** lets agents run commands and edit files without asking. The mode is not synced between machines.

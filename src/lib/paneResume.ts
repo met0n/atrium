@@ -64,5 +64,5 @@ export async function resumeSessionInPane({
   })
   useProjectsStore.getState().setSubTabSessionId(projectId, terminalId, tabId, sessionId)
 
-  window.dispatchEvent(new CustomEvent('alethe:terminal-resize-request', { detail: { ptyId } }))
+  window.dispatchEvent(new CustomEvent('atrium:terminal-resize-request', { detail: { ptyId } }))
 }

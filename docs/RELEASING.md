@@ -1,4 +1,4 @@
-# Releasing Alethe
+# Releasing Atrium
 
 Two deliberate steps, never one. `npm run release` only stamps a version in git; publishing
 installers is a separate command. A pushed tag never builds anything on its own.
@@ -12,7 +12,7 @@ One version, four files, kept in sync by `scripts/release.mjs`:
 | `package.json`              | Source of truth the script reads the current version from |
 | `src-tauri/tauri.conf.json` | The version the installers and `latest.json` carry  |
 | `src-tauri/Cargo.toml`      | The crate version                                   |
-| `src-tauri/Cargo.lock`      | The `alethe` entry only                             |
+| `src-tauri/Cargo.lock`      | The `atrium` entry only                             |
 
 Never bump them by hand — the script rewrites all four and refuses to run on a dirty tree, so the
 release commit contains the bump and nothing else.
@@ -53,7 +53,7 @@ Two jobs run after the build:
   failing the release.
 - **Point windows-x86_64 at NSIS** rewrites `latest.json` so the generic Windows updater key serves
   the NSIS installer. This is not cosmetic: an MSI applied over an NSIS install neither upgrades it
-  nor restarts the app, so the updater would close Alethe and nothing would come back. The job then
+  nor restarts the app, so the updater would close Atrium and nothing would come back. The job then
   verifies every platform is present and signed before it finishes.
 
 ## Release notes

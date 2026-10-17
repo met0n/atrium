@@ -79,7 +79,7 @@ export async function agentCanvasMirror(): Promise<string | null> {
 }
 
 /**
- * Writes the `[hooks]` block that reports this Codex terminal's own subagents back to Alethe,
+ * Writes the `[hooks]` block that reports this Codex terminal's own subagents back to Atrium,
  * tagged with `plannerId` (agent_events.rs). Codex has no http hook handler, so this points its
  * SubagentStart/Stop hooks at a small generated PowerShell forwarder instead.
  */
@@ -97,7 +97,7 @@ export async function codexMcpConfigWrite(
   await invoke('codex_mcp_config_write', { repo, plannerId, plannerLabel, plannerAgent })
 }
 
-export type InstalledAgent = { name: string; from_alethe: boolean }
+export type InstalledAgent = { name: string; from_atrium: boolean }
 
 export async function listInstalledAgents(folder: string): Promise<InstalledAgent[]> {
   return invoke<InstalledAgent[]>('list_installed_agents', { folder })

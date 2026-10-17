@@ -99,10 +99,10 @@ jobs:
           LINUXDEPLOY_EXCLUDED_LIBRARIES: "libwayland-client.so.0;libwayland-cursor.so.0;libwayland-egl.so.1;libwayland-server.so.0"
         with:
           tagName: v__VERSION__
-          releaseName: 'Alethe v__VERSION__'
+          releaseName: 'Atrium v__VERSION__'
           # Placeholder only. The release-notes job below replaces it with
           # docs/releases/<tag>.md once every platform has finished uploading.
-          releaseBody: 'Free desktop build of Alethe for Windows, macOS and Linux. Local app is free; cloud/sync services may be offered separately.'
+          releaseBody: 'Free desktop build of Atrium for Windows, macOS and Linux. Local app is free; cloud/sync services may be offered separately.'
           # Promoted to a real release at the end of fix-updater-target, once every check ran.
           releaseDraft: true
           prerelease: false
@@ -148,7 +148,7 @@ jobs:
   # tauri-action picks the Windows bundle for the generic `windows-x86_64` key of
   # latest.json on its own, and it picks the MSI. Almost everyone installs through
   # NSIS (the landing page serves setup.exe), and an MSI applied over an NSIS install
-  # neither upgrades it nor restarts the app — the updater closes Alethe and nothing
+  # neither upgrades it nor restarts the app — the updater closes Atrium and nothing
   # comes back. Here the generic key is repointed at NSIS, without dropping the
   # `-msi` / `-nsis` keys, which stay published.
   fix-updater-target:

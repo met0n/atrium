@@ -152,7 +152,7 @@ export function createSidebarMenus(deps: SidebarMenuDeps) {
         void (async () => {
           const target = await saveFile({
             title: t('ui.sidebar.exportProjectConfigTitle'),
-            defaultPath: `${project.name.replace(/[^A-Za-z0-9_-]/g, '-')}.alethe-project.json`,
+            defaultPath: `${project.name.replace(/[^A-Za-z0-9_-]/g, '-')}.atrium-project.json`,
             filters: [{ name: t('ui.sidebar.projectConfigFilter'), extensions: ['json'] }],
           })
           if (!target) return
@@ -486,7 +486,7 @@ export function createSidebarMenus(deps: SidebarMenuDeps) {
         runAsAdmin: activeTab.runAsAdmin,
       })
       window.dispatchEvent(
-        new CustomEvent('alethe:terminal-resize-request', { detail: { ptyId: activeTab.ptyId } }),
+        new CustomEvent('atrium:terminal-resize-request', { detail: { ptyId: activeTab.ptyId } }),
       )
     } catch (err) {
       window.alert(

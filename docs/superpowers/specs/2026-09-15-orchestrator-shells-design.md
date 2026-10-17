@@ -13,7 +13,7 @@ offers no control over them.
 
 ## 2. Goals
 
-- The planner can start a long-running command as a **shell that Alethe owns**, and read its
+- The planner can start a long-running command as a **shell that Atrium owns**, and read its
   recent output to react to it ("listening on :3000", a build error).
 - The person sees every such shell on the **orchestration board** and can **stop**, **restart**
   and **open** it from there, quickly.
@@ -85,13 +85,13 @@ say to use the foreground form when the person should be able to stop it from th
 
 ## 6. Planner tools
 
-**`alethe_open_shell { command, name?, cwd? }`** registers a shell, opens it through the host and
+**`atrium_open_shell { command, name?, cwd? }`** registers a shell, opens it through the host and
 returns `{ shellId, name, cwd, status }`. The core does not know the planner's folder, so, like
-`alethe_delegate`, a missing `cwd` falls back to Alethe's own working directory; the tool
+`atrium_delegate`, a missing `cwd` falls back to Atrium's own working directory; the tool
 description and the instructions tell the planner to pass the project's folder. `name` defaults
 to the first word of the command. Registered only when a shell host is set.
 
-**`alethe_shell_output { shellId, lines? }`** returns `{ shellId, status, exitCode, output }`,
+**`atrium_shell_output { shellId, lines? }`** returns `{ shellId, status, exitCode, output }`,
 where `output` is the last `lines` lines (default 40, at most 200) with ANSI escape sequences
 removed. An unknown `shellId` is an error.
 
@@ -112,7 +112,7 @@ with the run it belongs to. The core sets `exited` and the code, ignores a repor
 person stopped or for an earlier run, and emits a snapshot.
 
 **Last output.** Stopping releases the PTY and its scrollback. So when a shell leaves `running`,
-by exiting or by being stopped, the core keeps its last lines, and `alethe_shell_output` and the
+by exiting or by being stopped, the core keeps its last lines, and `atrium_shell_output` and the
 card read those from then on.
 
 **The person's controls** are Tauri commands the board calls: `orchestrator_shell_stop`,
@@ -152,17 +152,17 @@ to shells unchanged.
 ## 9. Errors
 
 - Opening fails (bad cwd, shell missing): the tool returns the error; no card is left behind.
-- The command fails at once: the card shows `exited` with its code, and `alethe_shell_output`
+- The command fails at once: the card shows `exited` with its code, and `atrium_shell_output`
   returns the error text.
 - Unknown `shellId` on any tool or command: a clear error, never a panic.
-- No shell host registered (the standalone `alethe-orchestrator-mcp` binary): the shell tools are
+- No shell host registered (the standalone `atrium-orchestrator-mcp` binary): the shell tools are
   not advertised.
 
 ## 10. Planner instructions
 
 When this ships, the "Shells — plain terminals" section enters the instructions built by
 `planner_instructions` in `orchestrator_core.rs`, with the foreground note from §5, and the
-opening line returns to "Alethe can run work for you in two ways".
+opening line returns to "Atrium can run work for you in two ways".
 
 ## 11. Testing
 
@@ -186,7 +186,7 @@ opening line returns to "Alethe can run work for you in two ways".
 - **`Ctrl+C` through ConPTY.** Writing `\x03` should raise a console control event for the
   foreground process on Windows; this is verified on a real `npm run dev` and `docker compose up`
   before relying on it. The 5-second kill is the fallback either way.
-- **Memory parking.** Alethe parks terminals it tracks in the project store when memory runs low.
+- **Memory parking.** Atrium parks terminals it tracks in the project store when memory runs low.
   Backend-owned shells are not in that store, so parking does not reach them. They still count in
   the memory stats (`list_pty_processes`). Accepted for this version.
 - **Shells outliving attention.** A shell keeps running after its planner ends. The card is the

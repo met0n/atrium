@@ -1,7 +1,7 @@
 import { setPluginEnabled } from './host'
 
-export const GIT_CONTROL_PLUGIN_ID = 'alethe.git-control'
-export const TODOS_PLUGIN_ID = 'alethe.todos'
+export const GIT_CONTROL_PLUGIN_ID = 'atrium.git-control'
+export const TODOS_PLUGIN_ID = 'atrium.todos'
 
 let pendingGitFlag: boolean | undefined
 let pendingTodosFlag: boolean | undefined

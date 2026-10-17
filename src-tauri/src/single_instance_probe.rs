@@ -112,20 +112,20 @@ mod tests {
     #[test]
     fn appends_single_instance_subname() {
         assert_eq!(
-            dbus_name("com.kc1t.alethe"),
-            "com.kc1t.alethe.SingleInstance"
+            dbus_name("com.met0n.atrium"),
+            "com.met0n.atrium.SingleInstance"
         );
         assert_eq!(
-            dbus_name("com.kc1t.alethe.dev"),
-            "com.kc1t.alethe.dev.SingleInstance"
+            dbus_name("com.met0n.atrium.dev"),
+            "com.met0n.atrium.dev.SingleInstance"
         );
     }
 
     #[test]
     fn path_mirrors_plugin_derivation() {
         assert_eq!(
-            dbus_path("com.kc1t.alethe.SingleInstance"),
-            "/com/kc1t/alethe/SingleInstance"
+            dbus_path("com.met0n.atrium.SingleInstance"),
+            "/com/kc1t/atrium/SingleInstance"
         );
     }
 
@@ -140,6 +140,6 @@ mod tests {
     #[test]
     fn path_is_always_rooted() {
         assert_eq!(dbus_path("a.b"), "/a/b");
-        assert!(dbus_path(&dbus_name("com.kc1t.alethe")).starts_with('/'));
+        assert!(dbus_path(&dbus_name("com.met0n.atrium")).starts_with('/'));
     }
 }

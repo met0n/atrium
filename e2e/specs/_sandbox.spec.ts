@@ -37,7 +37,7 @@ describe('sandbox: ad-hoc exploration', () => {
     ].filter((needle) => pageSourceEn.includes(needle))
 
     await clickByText('About')
-    await waitForText('Alethe')
+    await waitForText('Atrium')
     await snapshot('about-tab-en')
 
     await clickByText('Account')
@@ -62,7 +62,7 @@ describe('sandbox: ad-hoc exploration', () => {
     ].filter((needle) => pageSourcePt.includes(needle))
 
     await clickByText('Sobre')
-    await waitForText('Alethe')
+    await waitForText('Atrium')
     await snapshot('about-tab-pt-br')
 
     await clickByText('Fechar', { scopeSelector: '[role="dialog"]' })

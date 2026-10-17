@@ -10,7 +10,7 @@ import {
 describe('terminal font', () => {
   it('puts the bundled fonts ahead of any system font', () => {
     expect(
-      TERMINAL_FONT_FAMILY.startsWith('"Caskaydia Cove Nerd Font Mono", "Alethe Terminal Symbols"'),
+      TERMINAL_FONT_FAMILY.startsWith('"Caskaydia Cove Nerd Font Mono", "Atrium Terminal Symbols"'),
     ).toBe(true)
     expect(TERMINAL_FONT_FAMILY.endsWith('monospace')).toBe(true)
   })

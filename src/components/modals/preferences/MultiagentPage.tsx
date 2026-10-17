@@ -65,7 +65,7 @@ export function MultiagentPage() {
       setDefaultRuleSetsStatus('ready')
     } catch (err) {
       if (ruleSetsLoadRef.current !== attempt) return
-      console.error('Failed to load Alethe’s rule sets:', err)
+      console.error('Failed to load Atrium’s rule sets:', err)
       // Deliberately no empty list here: "we could not read ours" is not "there are none", and the
       // core is still serving its own defaults because App's publish effect failed the same way.
       setDefaultRuleSetsStatus('failed')
@@ -265,7 +265,7 @@ export function MultiagentPage() {
         ) : (
           <div className={multiagentStyles.metricGrid}>
             {Object.entries(metrics).map(([key, data]) => {
-              const name = key.replace('alethe_event_', '').toUpperCase()
+              const name = key.replace('atrium_event_', '').toUpperCase()
               return (
                 <div key={key} className={multiagentStyles.metricCard}>
                   <div className={multiagentStyles.metricLabel}>{name}</div>

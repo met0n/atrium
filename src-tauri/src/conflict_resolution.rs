@@ -2,9 +2,9 @@
 //!
 //! Second stage of the safe merge cycle. The Merge Analyzer (RFC-006) decided
 //! there's integration work to do; this module provisions an **ephemeral
-//! environment** (worktree `alethe/merge-<id>`) with the real merge applied —
+//! environment** (worktree `atrium/merge-<id>`) with the real merge applied —
 //! including the conflict markers — and the **minimal context**
-//! (`ALETHE_CONFLICT.md`) for the Conflict Resolution Agent to work with:
+//! (`ATRIUM_CONFLICT.md`) for the Conflict Resolution Agent to work with:
 //!
 //! - the agent is ephemeral and provider-agnostic: the FRONTEND spawns the
 //!   configured CLI (Claude/Codex/OpenCode) with `cwd = env.path`; it's born,
@@ -31,7 +31,7 @@ use crate::merge_analyzer::{
 };
 use crate::worktrees::git_arg;
 
-const PROMPT_FILE: &str = "ALETHE_CONFLICT.md";
+const PROMPT_FILE: &str = "ATRIUM_CONFLICT.md";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -113,7 +113,7 @@ fn emit(event_type: &str, meta: &MergeMeta, data: serde_json::Value) {
 
 fn build_prompt(meta: &MergeMeta, conflicts: &[ConflictFile]) -> String {
     let mut lines = vec![
-        "# Merge conflict resolution (Alethe)".to_string(),
+        "# Merge conflict resolution (Atrium)".to_string(),
         String::new(),
         format!("Merge from `{}` into `{}`. This directory is an EPHEMERAL environment for this integration only.", meta.source, meta.target),
         String::new(),
@@ -121,7 +121,7 @@ fn build_prompt(meta: &MergeMeta, conflicts: &[ConflictFile]) -> String {
         "- Resolve ONLY the conflicts listed below. Nothing beyond that.".to_string(),
         "- NEVER implement features, change requirements, or change architecture.".to_string(),
         "- Preserve the intent of BOTH branches; confirm nothing was lost.".to_string(),
-        "- When done, just save the resolved files (no commit — Alethe commits after validation).".to_string(),
+        "- When done, just save the resolved files (no commit — Atrium commits after validation).".to_string(),
         String::new(),
         "## Conflicted files".to_string(),
     ];
@@ -173,7 +173,7 @@ pub(crate) fn merge_prepare_inner(
     std::fs::create_dir_all(&envs).map_err(|e| format!("mkdir_failed:{e}"))?;
     let env = env_dir(&root, &id);
     let env_arg = git_arg(&env);
-    let branch = format!("alethe/merge-{id}");
+    let branch = format!("atrium/merge-{id}");
 
     checked_output(
         &root,
@@ -319,7 +319,7 @@ fn validate_and_stage(
     // it AFTER staging doesn't help: `git add -A` already captured its
     // content in the index, and deleting it from disk afterward doesn't undo
     // that stage on its own (it would need another `add -A`/`rm` to reflect
-    // the removal) — confirmed live: `ALETHE_CONFLICT.md` leaked into the
+    // the removal) — confirmed live: `ATRIUM_CONFLICT.md` leaked into the
     // final commit because of exactly this wrong ordering, in an earlier
     // version of this same code in this session. It also can't be removed
     // any earlier than this, unconditionally (as it was before this gate
@@ -445,7 +445,7 @@ pub(crate) fn merge_finalize_inner(
     // Shield Layer 4 — Health Probe (warning, never blocks): boots the
     // project's start command in the SAME ephemeral environment (never in
     // the user's real worktree) and confirms the app actually responds —
-    // and, if it's an Alethe core, that a real terminal works (a
+    // and, if it's an Atrium core, that a real terminal works (a
     // write/read round-trip, not just "the process exists").
     // `block_on` is safe here: this function already runs inside a
     // `spawn_blocking` (a thread from tokio's blocking pool, not the async
@@ -466,7 +466,7 @@ pub(crate) fn merge_finalize_inner(
                 .ok()
         });
 
-    let message = format!("merge(alethe): {} -> {}", meta.source, meta.target);
+    let message = format!("merge(atrium): {} -> {}", meta.source, meta.target);
     // After a successful merge_rebase_onto_target, the reconciliation already
     // committed everything — nothing is left staged here, and that's expected
     // (HEAD is already the right commit). `diff --cached --quiet`: exit 0 =
@@ -477,7 +477,7 @@ pub(crate) fn merge_finalize_inner(
         .map(|output| !output.status.success())
         .unwrap_or(true);
     if has_staged_changes {
-        // `ALETHE_CONFLICT.md` sits on disk (untracked) from BEFORE the agent
+        // `ATRIUM_CONFLICT.md` sits on disk (untracked) from BEFORE the agent
         // even starts working (written in `merge_prepare`, above) — if the
         // agent finishes the resolution with the common "stage everything and
         // commit" pattern, this file unintentionally leaks into ITS commit
@@ -486,7 +486,7 @@ pub(crate) fn merge_finalize_inner(
         // and without this check, that alone was enough to create an ENTIRE
         // second commit just to drop 1 support file, visually duplicating
         // each resolution in the graph (the agent's real commit + a generic
-        // "merge(alethe): ..." commit with no new information). When the
+        // "merge(atrium): ..." commit with no new information). When the
         // ONLY staged change is exactly this removal and there's already a
         // prior commit on this branch (the agent's), amend it instead of
         // creating a new commit — fast-forward still works the same, since
@@ -527,7 +527,7 @@ pub(crate) fn merge_finalize_inner(
             ..Default::default()
         });
     }
-    let branch = format!("alethe/merge-{env_id}");
+    let branch = format!("atrium/merge-{env_id}");
     // Real bug, confirmed live with a real agent (a branch with no commit
     // relative to the target — nothing was committed above because there was
     // no change at all): without this check, `git merge --ff-only` responds
@@ -661,7 +661,7 @@ pub(crate) fn merge_preflight_abort_inner(repo: String, env_id: String) -> Resul
 ///
 /// - Clean reconciliation → `stage: "rebase_ok"`, ready for the frontend to
 ///   call `merge_finalize` again.
-/// - Conflicts → rewrites `ALETHE_CONFLICT.md`/metadata with the new
+/// - Conflicts → rewrites `ATRIUM_CONFLICT.md`/metadata with the new
 ///   conflicted files and returns `stage: "rebase_conflict"` — same
 ///   "resolve" surface as before, frontend goes back to `resolving`.
 /// - Hard failure (not a conflict) → aborts and returns `stage: "rebase_failed"`.
@@ -761,7 +761,7 @@ pub struct ForceCleanupResult {
 /// Brute-force cleanup of an unrecoverable merge environment (`TerminalError`,
 /// when the preventive abort already failed due to real corruption). Direct
 /// physical deletion of the directory (double-checked to never leave
-/// `.alethe/merge-envs/`) followed by a best-effort `git worktree prune`. The
+/// `.atrium/merge-envs/`) followed by a best-effort `git worktree prune`. The
 /// frontend decides `pruneOnly` vs `requiresRawDeletion` based on
 /// `deleted`/`pruned`.
 #[tauri::command]
@@ -820,7 +820,7 @@ pub(crate) fn merge_abort_inner(repo: String, env_id: String) -> Result<(), Stri
 
     let env_arg = git_arg(&env);
     let _ = git_command(&root, &["worktree", "remove", "--force", &env_arg]);
-    let _ = git_command(&root, &["branch", "-D", &format!("alethe/merge-{env_id}")]);
+    let _ = git_command(&root, &["branch", "-D", &format!("atrium/merge-{env_id}")]);
     let _ = std::fs::remove_file(meta_path(&root, &env_id));
 
     if let Some(meta) = meta {
@@ -911,14 +911,14 @@ mod tests {
         // other.rs came along from branch B in the merge.
         let other = fs::read_to_string(root.join("other.rs")).unwrap();
         assert!(other.contains("from_b"));
-        // ALETHE_CONFLICT.md (the ephemeral prompt) must never leak into the
+        // ATRIUM_CONFLICT.md (the ephemeral prompt) must never leak into the
         // final commit — real regression: `git add -A` staged the file
         // BEFORE it was removed from disk, so deleting it afterward didn't
         // undo the stage and it still ended up in the commit (fixed: removal
         // now happens before `add -A`).
-        assert!(!root.join("ALETHE_CONFLICT.md").exists());
+        assert!(!root.join("ATRIUM_CONFLICT.md").exists());
         // Temporary branch removed.
-        let branches = checked_output(&root, &["branch", "--list", "alethe/merge-*"]).unwrap();
+        let branches = checked_output(&root, &["branch", "--list", "atrium/merge-*"]).unwrap();
         assert!(String::from_utf8_lossy(&branches.stdout).trim().is_empty());
 
         fs::remove_dir_all(root).unwrap();

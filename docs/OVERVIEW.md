@@ -1,6 +1,6 @@
-# Alethe Overview
+# Atrium Overview
 
-Alethe is a desktop workspace for running coding agents and shells side by side. It turns terminals into persistent workspace units: each pane has its own cwd, PTY, scrollback, tabs, layout state, and local resume data.
+Atrium is a desktop workspace for running coding agents and shells side by side. It turns terminals into persistent workspace units: each pane has its own cwd, PTY, scrollback, tabs, layout state, and local resume data.
 
 The app is local-first, not local-only. Its primary workspace state is stored on the user's machine, while update checks, provider usage polling, optional integrations, embedded web content, LAN remote control, and coding-agent subprocesses have the data flows documented in the [privacy guide](PRIVACY.md). See the repository [security policy](../SECURITY.md) for private vulnerability reporting.
 
@@ -50,7 +50,7 @@ Group
 
 ## Persistence
 
-Alethe stores app data under the platform app-data directory. Each local profile/account has its own isolated data folder.
+Atrium stores app data under the platform app-data directory. Each local profile/account has its own isolated data folder.
 
 Typical files include:
 
@@ -85,6 +85,6 @@ src-tauri/target/release/bundle/
 
 ## Current Scope
 
-Alethe is currently focused on the local desktop app. Windows is the most tested platform, while Linux and macOS builds are supported by the release workflow and need broader real-machine validation.
+Atrium is currently focused on the local desktop app. Windows is the most tested platform, while Linux and macOS builds are supported by the release workflow and need broader real-machine validation.
 
-Alethe does not require an Alethe cloud account. Current first-party and third-party network surfaces, their defaults, and local retention/deletion behavior are documented in [`PRIVACY.md`](PRIVACY.md).
+Atrium does not require an Atrium cloud account. Current first-party and third-party network surfaces, their defaults, and local retention/deletion behavior are documented in [`PRIVACY.md`](PRIVACY.md).

@@ -18,7 +18,7 @@ fn client() -> &'static reqwest::Client {
     CLIENT.get_or_init(|| {
         reqwest::Client::builder()
             .timeout(REQUEST_TIMEOUT)
-            .user_agent(concat!("Alethe/", env!("CARGO_PKG_VERSION")))
+            .user_agent(concat!("Atrium/", env!("CARGO_PKG_VERSION")))
             .build()
             .unwrap_or_default()
     })
@@ -652,7 +652,7 @@ mod tests {
         use std::os::unix::fs::PermissionsExt;
 
         let dir = std::env::temp_dir().join(format!(
-            "alethe-registry-cache-{}-{}",
+            "atrium-registry-cache-{}-{}",
             std::process::id(),
             crate::provider_common::now_ms()
         ));

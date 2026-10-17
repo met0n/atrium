@@ -63,7 +63,7 @@ fn stage_remote_page_assets() {
 }
 
 fn stub_asset(name: &str) -> String {
-    const HINT: &str = "Alethe was built without node_modules: run `npm install` and rebuild to enable the remote terminal.";
+    const HINT: &str = "Atrium was built without node_modules: run `npm install` and rebuild to enable the remote terminal.";
     if name.ends_with(".css") {
         format!("/* {HINT} */\n")
     } else {
@@ -104,7 +104,7 @@ fn link_libghostty() {
         .include(&headers)
         .flag("-fobjc-arc")
         .flag("-fmodules")
-        .compile("alethe_ghostty_shim");
+        .compile("atrium_ghostty_shim");
     println!("cargo:rerun-if-changed=ghostty_shim/ghostty_shim.m");
     println!("cargo:rerun-if-changed=ghostty_shim/ghostty_shim.h");
 

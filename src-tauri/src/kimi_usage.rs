@@ -190,7 +190,7 @@ pub async fn get_kimi_usage() -> Result<KimiUsage, String> {
                 Value::from(now + renewed["expires_in"].as_u64().unwrap_or(900));
             // Preserve a concurrent CLI renewal rather than overwriting its newer credentials.
             if tokio::fs::read_to_string(&path).await.ok().as_deref() == Some(original.as_str()) {
-                let temporary = path.with_extension(format!("alethe-{}.tmp", std::process::id()));
+                let temporary = path.with_extension(format!("atrium-{}.tmp", std::process::id()));
                 let bytes = serde_json::to_vec(&credentials)
                     .map_err(|_| "Kimi credential serialization failed")?;
                 #[cfg(unix)]

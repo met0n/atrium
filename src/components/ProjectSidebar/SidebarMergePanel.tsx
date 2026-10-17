@@ -4,13 +4,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useGsdSyncSessionsWatcher } from '../../hooks/useGsdSyncSessions'
 import { type MessageKey, useT } from '../../lib/i18n'
+import { evaluateMergeGuard } from '../../lib/pullRequestMerge'
 import {
   detectProjectStack,
   type DiffSummaryEntry,
   gitDiffSummary,
-  gitStatus,
   githubPrFind,
   githubPrMerge,
+  gitStatus,
   type GsdProcedureStep,
   healthProbe,
   type HealthProbeResult,
@@ -26,7 +27,6 @@ import {
   worktreeRemove,
   writePty,
 } from '../../lib/tauri'
-import { evaluateMergeGuard } from '../../lib/pullRequestMerge'
 import type { AgentType } from '../../lib/types'
 import { MERGE_BUSY_PHASES, type MergePhase, useMergeStore } from '../../stores/mergeStore'
 import { getProjectRepoRoot, useProjectsStore } from '../../stores/projectsStore'
@@ -39,7 +39,7 @@ import { MergeTree } from './MergeTree'
 import styles from './SidebarMergePanel.module.css'
 
 /** Initial prompt for the Branch Reviewer — agent-facing (appears in its own
- *  terminal, not in the Alethe UI), so it lives outside i18n, same as
+ *  terminal, not in the Atrium UI), so it lives outside i18n, same as
  *  conflictPrompt() in mergeStore. Doesn't implement/fix anything on its
  *  own — only evaluates and responds to the user in its own terminal. */
 function reviewPrompt(branch: string, target: string): string {
@@ -54,7 +54,7 @@ function reviewPrompt(branch: string, target: string): string {
 }
 
 /** Agent-facing prompt for the PR reviewer (shown in its terminal, not in the
- *  Alethe UI) — out of i18n scope, same convention as reviewPrompt() above.
+ *  Atrium UI) — out of i18n scope, same convention as reviewPrompt() above.
  *  Never commits, pushes, merges, or comments on GitHub by itself. */
 function pullRequestReviewPrompt(branch: string, target: string, pr: PullRequestSummary): string {
   return (
@@ -274,7 +274,7 @@ export function SidebarMergePanel() {
             projectName: proj.name,
             terminalId: term.id,
             worktreeAgentId: term.worktreeAgentId,
-            branchName: `alethe/agent-${term.worktreeAgentId}`,
+            branchName: `atrium/agent-${term.worktreeAgentId}`,
             worktreePath: term.cwd,
             agentName: term.name,
             agentType: activeTab?.type ?? 'shell',
@@ -384,7 +384,6 @@ export function SidebarMergePanel() {
       for (const item of gatedPending) void checkCard(item)
     }, 8000)
     return () => clearInterval(interval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingMerges, gateStatus])
 
   // Isolated child session discovery and status reading (busy/error) —

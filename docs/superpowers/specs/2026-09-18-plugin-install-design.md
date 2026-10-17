@@ -33,7 +33,7 @@ the internet into an application's plugin directory — with no bounds at all.
 
 ## 2. Goals
 
-- Install a catalogued plugin **from inside Alethe**, with the artifact verified against a hash the
+- Install a catalogued plugin **from inside Atrium**, with the artifact verified against a hash the
   catalogue publishes.
 - Keep a door for a plugin that is not catalogued: the person pastes a URL and accepts the risk.
 - Never run anything without consent. A plugin arrives disabled, as an imported folder already does
@@ -55,11 +55,11 @@ the internet into an application's plugin directory — with no bounds at all.
 ### 4.1 Two doors, and telling them apart
 
 **The catalogue door** carries a guarantee: the index publishes a `sha256` for a named artifact, and
-Alethe refuses anything that does not hash to it.
+Atrium refuses anything that does not hash to it.
 
 **The manual door** carries none: the person pastes a direct URL to a zip and accepts that. This is
 the trust level that already exists when someone downloads a folder themselves; what changes is that
-Alethe does the unpacking, under the bounds of §6, instead of the person doing it by hand.
+Atrium does the unpacking, under the bounds of §6, instead of the person doing it by hand.
 
 Because the two doors differ in what they promise, an installed plugin records **where it came
 from** — `catalog`, `url` or `folder` — and the Plugins page shows it. Without that, a verified
@@ -96,7 +96,7 @@ fetched.
 ### 4.3 The trust chain
 
 The index is served over HTTPS from the app's own repository
-(`plugin_catalog.rs:15`), so it is exactly as trustworthy as Alethe itself. It carries the hash. The
+(`plugin_catalog.rs:15`), so it is exactly as trustworthy as Atrium itself. It carries the hash. The
 artifact may live anywhere: the hash, not the host, is what makes it safe to run. An author whose
 account is compromised after publication cannot swap the bytes without the hash failing.
 
@@ -116,7 +116,7 @@ One command does the whole path, in this order:
 2. **Verify**, for the catalogue door only: sha256 over the received bytes, compared to the entry.
    A mismatch refuses, and nothing is written anywhere that survives the call.
 3. **Unpack** into a temporary directory **outside** `plugins/`, under §6's rules. Everything below a
-   plugin directory is served over `alethe-plugin://`; an archive halfway through validation must
+   plugin directory is served over `atrium-plugin://`; an archive halfway through validation must
    never be reachable by URL, not even briefly.
 4. **Import** by handing that directory to the existing `import_dir_into` (`plugins.rs:367`). It
    already reads and validates `plugin.json`, checks the id, the name, the API version, the declared
@@ -176,7 +176,7 @@ on the entry's mode, not inferred from the name.
 
 ### 6.1 One wrapper directory
 
-If the archive holds exactly one top-level directory and no `plugin.json` at its root, Alethe
+If the archive holds exactly one top-level directory and no `plugin.json` at its root, Atrium
 descends one level. That is the shape GitHub produces when it zips a repository, and refusing it
 would be pedantry with no security value — the descent happens before any other rule, and every rule
 then applies to the directory that was descended into.
@@ -244,7 +244,7 @@ update; the provenance labels.
 
 **By hand, and only by a person:** installing the example plugin from B end to end in the running
 app. This doubles as the proof `docs/PLUGIN_ROADMAP.md` §3 records as never having been run — that
-WebView2 serves `alethe-plugin://` the way the CSP expects, so a local plugin's `entry` actually
+WebView2 serves `atrium-plugin://` the way the CSP expects, so a local plugin's `entry` actually
 loads. Until someone does this, that remains read, not executed.
 
 ## 10. i18n, changelog, house rules
@@ -252,7 +252,7 @@ loads. Until someone does this, that remains read, not executed.
 Every visible string goes through `t()` and is registered in both `en.ts` and `pt-BR.ts`; the build
 fails otherwise. Styling stays on CSS Modules and theme tokens. `docs/CHANGELOG.md` gains an
 `[Unreleased]` entry describing, in the person's terms, that plugins can now be installed from
-inside Alethe. `docs/PLUGINS.md` and `docs/PLUGIN_ROADMAP.md` both describe the old rule that
+inside Atrium. `docs/PLUGINS.md` and `docs/PLUGIN_ROADMAP.md` both describe the old rule that
 nothing is downloaded, and both are corrected in the same task — including the module comment at
 `plugin_catalog.rs:4-6` that states it outright.
 

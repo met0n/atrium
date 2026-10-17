@@ -28,7 +28,7 @@ export function isProtectedRuleSet(set: RuleSet): boolean {
   return set.id === GENERAL_RULE_ID
 }
 
-/** How the fetch of Alethe's own sets went. */
+/** How the fetch of Atrium's own sets went. */
 export type DefaultRuleSetsStatus = 'loading' | 'ready' | 'failed'
 
 /**

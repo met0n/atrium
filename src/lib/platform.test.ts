@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { formatShortcut, isMacOS, normalizeCwd, shouldUseNativeBackend } from './platform'
+import {
+  formatShortcut,
+  hasPrimaryModifier,
+  isMacOS,
+  normalizeCwd,
+  shouldUseNativeBackend,
+} from './platform'
 
 function setUserAgent(ua: string) {
   vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue(ua)
@@ -56,8 +62,8 @@ describe('normalizeCwd', () => {
   })
 
   it('remove o prefixo verbatim \\\\?\\ antes de comparar, senão worktrees nunca batem com o path real', () => {
-    expect(normalizeCwd('\\\\?\\D:\\Projetos\\PICLESV2\\.alethe\\worktrees\\opencode-x')).toBe(
-      normalizeCwd('D:\\Projetos\\PICLESV2\\.alethe\\worktrees\\opencode-x'),
+    expect(normalizeCwd('\\\\?\\D:\\Projetos\\PICLESV2\\.atrium\\worktrees\\opencode-x')).toBe(
+      normalizeCwd('D:\\Projetos\\PICLESV2\\.atrium\\worktrees\\opencode-x'),
     )
   })
 
@@ -75,5 +81,21 @@ describe('formatShortcut', () => {
     expect(formatShortcut('Ctrl+T', true)).toBe('⌘T')
     expect(formatShortcut('Ctrl+Shift+P', true)).toBe('⌘⇧P')
     expect(formatShortcut('Ctrl+Shift+G', true)).toBe('⌘⇧G')
+  })
+})
+
+describe('hasPrimaryModifier', () => {
+  const keys = (ctrlKey: boolean, metaKey: boolean) => ({ ctrlKey, metaKey })
+
+  it('uses ⌘ on macOS and leaves Ctrl to the terminal', () => {
+    expect(hasPrimaryModifier(keys(false, true), true)).toBe(true)
+    expect(hasPrimaryModifier(keys(true, false), true)).toBe(false)
+    expect(hasPrimaryModifier(keys(true, true), true)).toBe(false)
+  })
+
+  it('keeps Ctrl (or the Windows key) elsewhere', () => {
+    expect(hasPrimaryModifier(keys(true, false), false)).toBe(true)
+    expect(hasPrimaryModifier(keys(false, true), false)).toBe(true)
+    expect(hasPrimaryModifier(keys(false, false), false)).toBe(false)
   })
 })

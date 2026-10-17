@@ -294,7 +294,7 @@ async function activate(record: PluginRecord): Promise<void> {
     record.module = null
     record.active = false
     record.error = error instanceof Error ? error.message : String(error)
-    if (import.meta.env.DEV) console.error(`[Alethe][plugin:${record.manifest.id}]`, error)
+    if (import.meta.env.DEV) console.error(`[Atrium][plugin:${record.manifest.id}]`, error)
   }
 }
 
@@ -303,7 +303,7 @@ function disposeContext(context: PluginContext) {
     try {
       context.subscriptions[i].dispose()
     } catch (error) {
-      if (import.meta.env.DEV) console.error('[Alethe][plugin dispose]', error)
+      if (import.meta.env.DEV) console.error('[Atrium][plugin dispose]', error)
     }
   }
   context.subscriptions.length = 0
@@ -315,7 +315,7 @@ async function deactivate(record: PluginRecord): Promise<void> {
   try {
     if (context) await module?.deactivate?.(context)
   } catch (error) {
-    if (import.meta.env.DEV) console.error(`[Alethe][plugin:${record.manifest.id}]`, error)
+    if (import.meta.env.DEV) console.error(`[Atrium][plugin:${record.manifest.id}]`, error)
   }
   if (context) disposeContext(context)
   record.context = null
@@ -400,7 +400,7 @@ export async function initPluginHost(): Promise<void> {
   try {
     disabled = new Set(await pluginsDisabled())
   } catch (error) {
-    if (import.meta.env.DEV) console.error('[Alethe][plugin host]', error)
+    if (import.meta.env.DEV) console.error('[Atrium][plugin host]', error)
     disabled = new Set()
   }
 
@@ -447,7 +447,7 @@ async function scanLocalPlugins(): Promise<PluginRecord[]> {
   try {
     installed = await pluginsList()
   } catch (error) {
-    if (import.meta.env.DEV) console.error('[Alethe][plugin host]', error)
+    if (import.meta.env.DEV) console.error('[Atrium][plugin host]', error)
     return []
   }
 

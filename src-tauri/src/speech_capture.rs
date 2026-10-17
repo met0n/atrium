@@ -152,7 +152,7 @@ pub fn start_capture(device_id: Option<String>) -> Result<CaptureSession, String
     let session_samples = Arc::clone(&samples);
 
     let join = std::thread::Builder::new()
-        .name("alethe-speech-capture".into())
+        .name("atrium-speech-capture".into())
         .spawn(move || {
             let device = match resolve_device(device_id.as_deref()) {
                 Ok(device) => device,

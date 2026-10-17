@@ -1,5 +1,5 @@
-import { check, type Update } from '@tauri-apps/plugin-updater'
 import { relaunch } from '@tauri-apps/plugin-process'
+import { check, type Update } from '@tauri-apps/plugin-updater'
 
 import { flushProjectsState } from '../stores/projectsStore'
 
@@ -16,7 +16,14 @@ export type UpdateProgress = { downloaded: number; total: number }
 
 let pending: Update | null = null
 
+// Updates stay off until a release pipeline signs builds with Atrium's own key
+// (`plugins.updater.pubkey` in tauri.conf.json). Release builds set VITE_ATRIUM_UPDATER=1.
+function updaterEnabled(): boolean {
+  return import.meta.env.VITE_ATRIUM_UPDATER === '1'
+}
+
 export async function checkForUpdate(): Promise<UpdateInfo | null> {
+  if (!updaterEnabled()) return null
   const update = await check()
   if (!update) {
     pending = null
@@ -37,6 +44,7 @@ export async function installPendingUpdate(
   // The banner lives in the store and outlives this module: a hot reload in development, or any
   // path that re-evaluates this file, leaves the notice on screen with nothing behind it. Asking
   // again costs one request and keeps the button honest instead of failing on a lost reference.
+  if (!updaterEnabled()) throw new Error('Updates are not configured for this build.')
   if (!pending) pending = await check()
   if (!pending) throw new Error('No update is pending: it may already be installed.')
   let total = 0

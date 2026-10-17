@@ -25,7 +25,7 @@ function skill(agent: string, name: string, overrides: Partial<SkillSummary> = {
     linked: false,
     shared: false,
     bundled: false,
-    fromAlethe: false,
+    fromAtrium: false,
     entryCount: 1,
     ...overrides,
   }
@@ -111,7 +111,7 @@ describe('matchesSkillQuery', () => {
 
 function bundled(states: Record<string, BundledSkillState>): BundledSkill {
   return {
-    name: 'alethe-orchestrate',
+    name: 'atrium-orchestrate',
     description: '',
     version: 1,
     body: '',
@@ -120,13 +120,13 @@ function bundled(states: Record<string, BundledSkillState>): BundledSkill {
 }
 
 describe('bundled skills', () => {
-  it('marks a group as from Alethe when any copy carries the marker', () => {
+  it('marks a group as from Atrium when any copy carries the marker', () => {
     const groups = groupSkillsByName([
-      snapshot('claude', [skill('claude', 'alethe-orchestrate', { fromAlethe: true })]),
+      snapshot('claude', [skill('claude', 'atrium-orchestrate', { fromAtrium: true })]),
       snapshot('codex', [skill('codex', 'brand')]),
     ])
 
-    expect(groups.map((group) => group.fromAlethe)).toEqual([true, false])
+    expect(groups.map((group) => group.fromAtrium)).toEqual([true, false])
     expect(groups[0].removable).toHaveLength(1)
   })
 
@@ -143,7 +143,7 @@ describe('bundled skills', () => {
     expect(hasBundledUpdate(bundled({ claude: 'installed', codex: 'available' }))).toBe(false)
   })
 
-  it('keeps offering the skill until one agent has the Alethe copy', () => {
+  it('keeps offering the skill until one agent has the Atrium copy', () => {
     expect(isBundledSkillOffered(bundled({ claude: 'available', codex: 'conflict' }))).toBe(true)
     expect(isBundledSkillOffered(bundled({ claude: 'installed', codex: 'available' }))).toBe(false)
   })

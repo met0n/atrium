@@ -1,4 +1,4 @@
-# Alethe Plugin System — Design
+# Atrium Plugin System — Design
 
 Date: 2026-09-01
 Status: proposed
@@ -6,7 +6,7 @@ Target: v1.7.0 onward (`apiVersion: 1`)
 
 ## 1. Problem
 
-Alethe is 67k lines of TypeScript and 34k lines of Rust across 264 Tauri commands
+Atrium is 67k lines of TypeScript and 34k lines of Rust across 264 Tauri commands
 and 76 backend modules. Features that serve some users are paid for by all of them:
 git, browser panes, Graphify, todos, Playwright, Spotify, PR review, dictation.
 
@@ -32,8 +32,8 @@ CRUD in the profile directory: three kinds, no loading, no UI, no distribution.
 
 ## 3. Non-goals
 
-- Replacing the core with a plugin composition. Alethe is not becoming Cordis.
-- Letting plugins style or restructure the Alethe shell.
+- Replacing the core with a plugin composition. Atrium is not becoming Cordis.
+- Letting plugins style or restructure the Atrium shell.
 - Running plugin code in the main webview.
 - A hosted marketplace backend. The registry is a file in a git repository.
 - Solving prompt injection by review. It is addressed at runtime or not at all.
@@ -46,7 +46,7 @@ CRUD in the profile directory: three kinds, no loading, no UI, no distribution.
 - Workspace model: groups, projects, containers, panes, sub-tabs, layouts,
   persistence to `projects.json`, profiles.
 - Agent orchestration over MCP (`orchestrator_core.rs`,
-  `bin/alethe-orchestrator-mcp.rs`) and agent runtime adapters.
+  `bin/atrium-orchestrator-mcp.rs`) and agent runtime adapters.
 - Skills (`skills.rs`).
 - The theming engine and design tokens (`styles/theme.css`).
 - The plugin host itself.
@@ -66,7 +66,7 @@ Two systems were studied. The VS Code model is the one adopted.
 from declared dependencies rather than load order, and explicit user approval before an
 untrusted plugin runs.
 
-**VS Code** is closer to Alethe's situation: a desktop app with local process access and
+**VS Code** is closer to Atrium's situation: a desktop app with local process access and
 a large third-party ecosystem. Its rules, and why each matters here:
 
 - Extensions have no DOM access. The documented reason is not only security: *"This
@@ -87,7 +87,7 @@ a large third-party ecosystem. Its rules, and why each matters here:
 
 Two VS Code weaknesses are deliberately not copied. Its extension host is not a security
 sandbox — extensions get full Node, including `child_process` — and its marketplace does
-not deeply review code, which has repeatedly let malicious extensions through. Alethe
+not deeply review code, which has repeatedly let malicious extensions through. Atrium
 isolates plugin code itself, not only its UI, and curates releases.
 
 ## 6. What the spike found
@@ -146,7 +146,7 @@ positioned and evicted by the same code path as `PrivateBrowserSurface`. It also
 no ACL capability.
 
 Declarative views cost no webview at all: the plugin host sends a data model and the
-core renders it with Alethe components, so those views inherit the design system and
+core renders it with Atrium components, so those views inherit the design system and
 survive shell refactors.
 
 ### Message flow
@@ -174,15 +174,15 @@ CSS, and JSON, which is what makes install-from-a-link viable.
 
 ```json
 {
-  "$schema": "https://alethe.app/schemas/plugin-1.json",
-  "id": "alethe-git",
+  "$schema": "https://github.com/met0n/atrium/schemas/plugin-1.json",
+  "id": "atrium-git",
   "name": "Git",
   "version": "1.0.0",
   "apiVersion": 1,
   "publisher": "kc1t",
-  "repository": "https://github.com/Kc1t/alethe-plugin-git",
+  "repository": "https://github.com/Kc1t/atrium-plugin-git",
   "license": "MIT",
-  "engines": { "alethe": "^1.7.0" },
+  "engines": { "atrium": "^1.7.0" },
 
   "activation": ["onView:git.status", "onCommand:git.commit"],
   "permissions": ["git:read", "git:write", "project:active"],
@@ -217,7 +217,7 @@ future `apiVersion` must not load silently under this one.
 
 | Point | Renders where | Notes |
 |---|---|---|
-| `views` (`type: "tree"`) | RightSidebar tab, ProjectSidebar section | Data model in, Alethe components out |
+| `views` (`type: "tree"`) | RightSidebar tab, ProjectSidebar section | Data model in, Atrium components out |
 | `views` (`type: "webview"`) | Pane or sidebar tab | Child webview; the escape hatch |
 | `commands` | Command surfaces, menus | Id, title key, icon |
 | `menus` | `view/title`, `titlebar`, `sidebar/project/context`, `terminal/context` | `when` clauses over context keys |
@@ -227,19 +227,19 @@ future `apiVersion` must not load silently under this one.
 
 `RightSidebar/index.tsx` stops branching on `enabledFeatures` and starts rendering a tab
 list assembled from contributions. Core features keep their tabs by contributing
-through the same registry — the API has to carry Alethe's own weight to be worth
+through the same registry — the API has to carry Atrium's own weight to be worth
 trusting, which is the lesson from VS Code shipping Git as an extension.
 
-**Domain-specific points, phase 4.** Alethe's first-class extension point is not source
+**Domain-specific points, phase 4.** Atrium's first-class extension point is not source
 control; it is terminals and agents. `agentProviders` (a new agent CLI installable as a
 plugin without touching `agentRuntimeAdapter.ts`), `sessionInspectors`, and
-`usageProviders` are where the ecosystem grows along the axis that is actually Alethe's.
+`usageProviders` are where the ecosystem grows along the axis that is actually Atrium's.
 They are deferred until the generic points have shipped and proven.
 
 ## 10. Serving plugin assets
 
 `assetProtocol` stays disabled. The core registers an asynchronous URI scheme in Rust,
-`alethe-plugin://<pluginId>/<path>`, resolving under the installed plugin's directory
+`atrium-plugin://<pluginId>/<path>`, resolving under the installed plugin's directory
 only, with `..` traversal rejected after canonicalisation and a symlink check. This is
 `asWebviewUri` plus `localResourceRoots` with the root fixed per plugin rather than
 configurable. `frame-src` gains the scheme; nothing else does.
@@ -279,13 +279,13 @@ An installed-but-never-opened plugin therefore costs one manifest read.
 
 ## 13. Distribution
 
-**The registry** is `registry/plugins/<id>.json` in a public Alethe repository. A
+**The registry** is `registry/plugins/<id>.json` in a public Atrium repository. A
 version entry is admitted only by merged pull request:
 
 ```json
 {
-  "id": "alethe-git",
-  "repository": "https://github.com/Kc1t/alethe-plugin-git",
+  "id": "atrium-git",
+  "repository": "https://github.com/Kc1t/atrium-plugin-git",
   "versions": [
     {
       "version": "1.0.1",
@@ -301,7 +301,7 @@ version entry is admitted only by merged pull request:
 }
 ```
 
-The entry pins a **commit**, and the artifact is built by Alethe CI from that commit in
+The entry pins a **commit**, and the artifact is built by Atrium CI from that commit in
 a network-isolated sandbox — never downloaded from the publisher's release page. This
 closes the gap Obsidian leaves open, where an initial review is followed by unreviewed
 author-published updates. A committed lockfile is mandatory, since a hermetic build
@@ -322,7 +322,7 @@ The design target is that most patches need no maintainer attention, because a
 marketplace that depends on a human reading every diff dies of backlog.
 
 **Layer 1 — provenance.** Registry pins commit and artifact hash; the artifact is built
-by Alethe CI from source. Reviewed source is the code that ships.
+by Atrium CI from source. Reviewed source is the code that ships.
 
 **Layer 2 — the permission diff.** CI compares the new manifest's `permissions` against
 the last admitted version.
@@ -374,7 +374,7 @@ responsibility and is not delegated to plugins.
   execution. Phase 0 must demonstrate a plugin webview attempting `invoke` and being
   refused, in the running app.
 - **Meta-CSP on custom-scheme documents.** Whether a document served over
-  `alethe-plugin://` can tighten its own policy beyond the app config needs verification
+  `atrium-plugin://` can tighten its own policy beyond the app config needs verification
   in Phase 0; the view-surface design assumes it can.
 - **RAM.** One webview per activated plugin plus one per open webview view. Lazy
   activation and eviction bound it, but this must be measured against the existing
@@ -398,7 +398,7 @@ responsibility and is not delegated to plugins.
   reveal, a granted capability succeeding, an ungranted capability being absent, and a
   revoked hash disabling on next launch.
 - A fixture plugin lives in the repository and is used by the e2e suite, so the public
-  API is exercised by Alethe's own tests.
+  API is exercised by Atrium's own tests.
 
 ## 18. Phasing
 
@@ -411,7 +411,7 @@ plugin reaches for an ungranted capability. Proves §16's first two risks. Revie
 broker, declarative views and commands, menus with `when` clauses, configuration, plugin
 management UI in Preferences. `features.ts` toggles migrate to plugin enablement.
 
-**Phase 2 — rich UI.** `alethe-plugin://` scheme, webview views, eviction. Migrate
+**Phase 2 — rich UI.** `atrium-plugin://` scheme, webview views, eviction. Migrate
 `GitGraph`, `GitGraphList`, `GitGraphCommitDetail`, `DiffPane`.
 
 **Phase 3 — distribution.** Registry format, CI build-and-verify, the four review

@@ -51,7 +51,7 @@ export async function relaunchAgentPty({
     cwd: cwd || undefined,
     extraArgs: launch.args,
     runAsAdmin: agent === 'shell' && runAsAdmin,
-    env: { ...(prepared.env ?? {}), ALETHE_PLANNER: ptyId },
+    env: { ...(prepared.env ?? {}), ATRIUM_PLANNER: ptyId },
   })
   if (extras) recordClaudeLaunch(ptyId, extras.orchestrator)
   return launch

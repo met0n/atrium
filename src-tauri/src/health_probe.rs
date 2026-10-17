@@ -20,15 +20,15 @@ pub struct HealthProbeResult {
     pub status_code: Option<u16>,
     pub elapsed_ms: u64,
     pub output_tail: String,
-    /// `None` = the tested project is not an Alethe core (it has no PTY API,
+    /// `None` = the tested project is not an Atrium core (it has no PTY API,
     /// nothing to verify here — the majority of user projects). Only when
-    /// `/api/health` confirms `service: "alethe-core"` do we actually try to
+    /// `/api/health` confirms `service: "atrium-core"` do we actually try to
     /// open a terminal against the freshly-started instance — `Some` carries
     /// whether that terminal actually came up.
     pub terminal_verified: Option<bool>,
 }
 
-/// Only runs when `/api/health` confirms that what came up is an Alethe
+/// Only runs when `/api/health` confirms that what came up is an Atrium
 /// core — opens a real PTY against the freshly-provisioned instance and
 /// confirms an actual input/output round trip (writes a command with a
 /// unique marker, reads the scrollback back until the marker appears).
@@ -41,14 +41,14 @@ pub struct HealthProbeResult {
 /// `read` confirming the expected content comes back is actual proof.
 /// The PTY spawned here is a child of the process that `health_probe`
 /// already kills unconditionally at the end — it needs no cleanup of its own.
-async fn verify_alethe_terminal(client: &reqwest::Client, base_url: &str) -> Option<bool> {
+async fn verify_atrium_terminal(client: &reqwest::Client, base_url: &str) -> Option<bool> {
     let health = client
         .get(format!("{base_url}/api/health"))
         .send()
         .await
         .ok()?;
     let body: serde_json::Value = health.json().await.ok()?;
-    if body.get("service").and_then(|v| v.as_str()) != Some("alethe-core") {
+    if body.get("service").and_then(|v| v.as_str()) != Some("atrium-core") {
         return None;
     }
 
@@ -87,7 +87,7 @@ async fn verify_alethe_terminal(client: &reqwest::Client, base_url: &str) -> Opt
     // early and get lost.
     tokio::time::sleep(Duration::from_millis(800)).await;
 
-    let marker = format!("ALETHE_HEALTH_PROBE_{}", nanoid::nanoid!(8));
+    let marker = format!("ATRIUM_HEALTH_PROBE_{}", nanoid::nanoid!(8));
     let echo_line = if cfg!(windows) {
         format!("echo {marker}\r\n")
     } else {
@@ -258,7 +258,7 @@ pub async fn health_probe(
     }
 
     let terminal_verified = if responded {
-        verify_alethe_terminal(&client, &format!("http://127.0.0.1:{port}")).await
+        verify_atrium_terminal(&client, &format!("http://127.0.0.1:{port}")).await
     } else {
         None
     };
@@ -327,7 +327,7 @@ mod tests {
         assert!(result.status_code.is_none());
         // Never tries to open a terminal against a process that didn't even
         // respond — `terminal_verified` is only `Some` after a `responded: true`
-        // confirmed as alethe-core.
+        // confirmed as atrium-core.
         assert!(result.terminal_verified.is_none());
     }
 }

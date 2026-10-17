@@ -20,10 +20,10 @@ const ICON_FILES: Record<AppIconTheme, string> = {
 }
 
 export const APP_ICON_OPTIONS: { id: AppIconTheme; label: string }[] = [
-  { id: 'elite-original', label: 'Elite Original' },
-  { id: 'elite-pure-black', label: 'Elite Pure Black' },
-  { id: 'elite-indigo', label: 'Elite Indigo' },
-  { id: 'elite-blush', label: 'Elite Blush' },
+  { id: 'elite-original', label: 'Graphite' },
+  { id: 'elite-pure-black', label: 'Pure Black' },
+  { id: 'elite-indigo', label: 'Indigo' },
+  { id: 'elite-blush', label: 'Blush' },
 ]
 
 export function normalizeAppIconTheme(value: unknown): AppIconTheme {

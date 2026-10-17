@@ -1,4 +1,4 @@
-//! A browser tab rendered inside an Alethe pane.
+//! A browser tab rendered inside an Atrium pane.
 //!
 //! Frames arrive over CDP screencast and are forwarded to the frontend, which paints them on a
 //! canvas; mouse and keyboard go back the same way. Unlike a native child webview, this is ordinary
@@ -886,15 +886,15 @@ mod tests {
     }
 
     /// Needs a real browser and the lab page, so it stays out of the default run:
-    /// `ALETHE_CDP_ENDPOINT=http://127.0.0.1:PORT cargo test --lib browser_pane -- --ignored`
+    /// `ATRIUM_CDP_ENDPOINT=http://127.0.0.1:PORT cargo test --lib browser_pane -- --ignored`
     #[tokio::test]
     #[ignore]
     async fn a_click_sent_to_the_pane_reaches_the_page() {
         use crate::cdp::{browser_ws_url, CdpClient};
 
-        let endpoint = std::env::var("ALETHE_CDP_ENDPOINT")
-            .expect("set ALETHE_CDP_ENDPOINT to a running browser");
-        let page = std::env::var("ALETHE_LAB_URL").expect("set ALETHE_LAB_URL to the lab page");
+        let endpoint = std::env::var("ATRIUM_CDP_ENDPOINT")
+            .expect("set ATRIUM_CDP_ENDPOINT to a running browser");
+        let page = std::env::var("ATRIUM_LAB_URL").expect("set ATRIUM_LAB_URL to the lab page");
 
         let ws = browser_ws_url(&endpoint).await.expect("ws url");
         let client = CdpClient::connect(&ws).await.expect("connect");

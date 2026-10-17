@@ -2,12 +2,12 @@ import type { TFunction } from './i18n'
 import type { OrchestratorJob } from './tauri/orchestrator'
 import type { OrchestratorShortcut } from './types'
 
-/** The branch `alethe_delegate` gives an isolated worker, which the planner merges to apply it. */
+/** The branch `atrium_delegate` gives an isolated worker, which the planner merges to apply it. */
 export function workerBranch(jobId: string): string {
-  return `alethe/agent-${jobId}`
+  return `atrium/agent-${jobId}`
 }
 
-/** Alethe's own shortcuts. Their text lives in the locale files, so they arrive translated. */
+/** Atrium's own shortcuts. Their text lives in the locale files, so they arrive translated. */
 export function builtinShortcuts(t: TFunction): OrchestratorShortcut[] {
   return [
     {

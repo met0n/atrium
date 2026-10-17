@@ -55,7 +55,7 @@ describe('whether starting is offered', () => {
 })
 
 describe('who owns the endpoint', () => {
-  it('names a server Alethe did not start', () => {
+  it('names a server Atrium did not start', () => {
     // Most likely the person's own instance: a reason to leave it alone, not to fight for the bind.
     expect(portOwnedByOther(status({ installed: true, running: true, ours: false }))).toBe(true)
   })

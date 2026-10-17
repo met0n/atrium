@@ -39,7 +39,7 @@ pub struct Router9Install {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Router9Status {
-    /// The copy Alethe installed into its own profile folder.
+    /// The copy Atrium installed into its own profile folder.
     managed: Router9Install,
     /// A 9router the user installed themselves, resolved off PATH.
     external: Router9Install,
@@ -267,7 +267,7 @@ pub fn router9_start(
     command
         .env("PORT", port.to_string())
         .env("NEXT_PUBLIC_BASE_URL", format!("http://127.0.0.1:{port}"))
-        // 9router serves a Next.js app, which binds 0.0.0.0 unless HOSTNAME says otherwise. Alethe
+        // 9router serves a Next.js app, which binds 0.0.0.0 unless HOSTNAME says otherwise. Atrium
         // only ever routes over loopback, so the listener must not be reachable from the LAN.
         .env("HOSTNAME", "127.0.0.1")
         .stdin(Stdio::null())

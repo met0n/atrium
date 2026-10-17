@@ -136,7 +136,7 @@ fn update_metrics(event: &EventBusPayload) {
     };
 
     // Increment the total event count by type.
-    let key = format!("alethe_event_{}", event.event_type.to_lowercase());
+    let key = format!("atrium_event_{}", event.event_type.to_lowercase());
     let entry = metrics.entry(key).or_insert(MetricData {
         count: 0,
         last_value: 0.0,
@@ -149,7 +149,7 @@ fn update_metrics(event: &EventBusPayload) {
         for (field, val) in map {
             if let Some(num) = val.as_f64() {
                 if field == "duration_ms" || field == "cost_usd" || field == "memory_mb" {
-                    let metric_key = format!("alethe_metric_{}", field);
+                    let metric_key = format!("atrium_metric_{}", field);
                     let entry = metrics.entry(metric_key).or_insert(MetricData {
                         count: 0,
                         last_value: 0.0,
@@ -233,7 +233,7 @@ mod tests {
         fn new() -> Self {
             let id = NEXT_TEMP_ID.fetch_add(1, Ordering::Relaxed);
             let path = std::env::temp_dir()
-                .join(format!("alethe-telemetry-test-{}-{id}", std::process::id()));
+                .join(format!("atrium-telemetry-test-{}-{id}", std::process::id()));
             std::fs::create_dir_all(&path).unwrap();
             Self(path)
         }
@@ -386,18 +386,18 @@ mod tests {
         add_trace(payload2.clone());
 
         let metrics = get_telemetry_metrics().unwrap();
-        assert_eq!(metrics.get("alethe_event_taskstarted").unwrap().count, 1);
-        assert_eq!(metrics.get("alethe_event_taskfinished").unwrap().count, 1);
+        assert_eq!(metrics.get("atrium_event_taskstarted").unwrap().count, 1);
+        assert_eq!(metrics.get("atrium_event_taskfinished").unwrap().count, 1);
         assert_eq!(
-            metrics.get("alethe_metric_memory_mb").unwrap().last_value,
+            metrics.get("atrium_metric_memory_mb").unwrap().last_value,
             150.0
         );
         assert_eq!(
-            metrics.get("alethe_metric_duration_ms").unwrap().last_value,
+            metrics.get("atrium_metric_duration_ms").unwrap().last_value,
             1000.0
         );
         assert_eq!(
-            metrics.get("alethe_metric_cost_usd").unwrap().last_value,
+            metrics.get("atrium_metric_cost_usd").unwrap().last_value,
             0.05
         );
 

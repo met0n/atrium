@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import { listen, type UnlistenFn } from '@tauri-apps/api/event'
 
-const OPEN_PATH_EVENT = 'alethe://open-path'
+const OPEN_PATH_EVENT = 'atrium://open-path'
 
 export type CliShimStatus = {
   supported: boolean

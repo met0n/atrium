@@ -39,7 +39,7 @@ export function Router9Settings() {
   const external = status?.external
   const running = Boolean(status?.running)
   const npmReady = toolchain?.npm === true
-  /** Alethe pins one version, so an install that already matches it has nothing to update to. */
+  /** Atrium pins one version, so an install that already matches it has nothing to update to. */
   const managedUpToDate = Boolean(
     managed?.installed && status?.pinnedVersion && managed.version === status.pinnedVersion,
   )

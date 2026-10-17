@@ -2,7 +2,7 @@
 //!
 //! First stage of the safe merge cycle: **this module is the one that decides
 //! whether a conflict exists**, never the agent. The merge trial runs in a
-//! temporary, disposable worktree (`.alethe/merge-envs/analyze-<id>`), so the
+//! temporary, disposable worktree (`.atrium/merge-envs/analyze-<id>`), so the
 //! user's working tree is NEVER touched.
 //!
 //! Flow (blueprint):
@@ -168,7 +168,7 @@ fn ensure_branch(root: &Path, branch: &str) -> Result<(), String> {
 }
 
 pub(crate) fn merge_envs_dir(root: &Path) -> PathBuf {
-    root.join(".alethe").join("merge-envs")
+    root.join(".atrium").join("merge-envs")
 }
 
 /// Lists the non-merged paths (`--diff-filter=U`) of a worktree in conflict.
@@ -276,12 +276,12 @@ pub(crate) mod tests {
     }
 
     pub(crate) fn conflicting_repo() -> (PathBuf, String) {
-        let root = std::env::temp_dir().join(format!("alethe-merge-{}", nanoid::nanoid!(8)));
+        let root = std::env::temp_dir().join(format!("atrium-merge-{}", nanoid::nanoid!(8)));
         fs::create_dir_all(&root).unwrap();
         let run = |args: &[&str]| checked_output(&root, args).unwrap();
         run(&["init", "-b", "main"]);
-        run(&["config", "user.name", "Alethe Test"]);
-        run(&["config", "user.email", "alethe@example.invalid"]);
+        run(&["config", "user.name", "Atrium Test"]);
+        run(&["config", "user.email", "atrium@example.invalid"]);
         fs::write(root.join("shared.ts"), "export const value = 'base'\n").unwrap();
         fs::write(root.join("other.rs"), "fn base() {}\n").unwrap();
         run(&["add", "."]);

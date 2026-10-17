@@ -15,8 +15,8 @@ use crate::paths::{activity_stats_file_path, app_data_dir, projects_file_path};
 use crate::provider_common::now_ms;
 use crate::secure_store::{OsSecretStore, SecretKind, SecretStore};
 
-const GIST_DESCRIPTION: &str = "Alethe sync — projects & activity (managed by the app)";
-const USER_AGENT: &str = "Alethe";
+const GIST_DESCRIPTION: &str = "Atrium sync — projects & activity (managed by the app)";
+const USER_AGENT: &str = "Atrium";
 const GITHUB_API: &str = "https://api.github.com";
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -506,7 +506,7 @@ mod tests {
             .unwrap()
             .as_nanos();
         let directory = std::env::temp_dir().join(format!(
-            "alethe-github-sync-{label}-{}-{suffix}",
+            "atrium-github-sync-{label}-{}-{suffix}",
             std::process::id()
         ));
         fs::create_dir_all(&directory).unwrap();

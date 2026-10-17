@@ -200,7 +200,7 @@ mod tests {
 
     #[test]
     fn a_hash_must_match_exactly_but_not_in_case() {
-        let bytes = b"alethe";
+        let bytes = b"atrium";
         let hash = sha256_hex(bytes);
         assert!(verify_sha256(bytes, &hash).is_ok());
         assert!(verify_sha256(bytes, &hash.to_uppercase()).is_ok());
@@ -273,7 +273,7 @@ mod tests {
 
     #[test]
     fn extracting_writes_files_and_refuses_a_traversing_archive() {
-        let dir = std::env::temp_dir().join(format!("alethe-pkg-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("atrium-pkg-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
 
         let good = zip_of(&[("plugin.json", b"{}"), ("assets/a.js", b"x")]);
@@ -291,7 +291,7 @@ mod tests {
 
     #[test]
     fn a_single_wrapping_folder_is_unwrapped_but_two_are_ambiguous() {
-        let base = std::env::temp_dir().join(format!("alethe-root-{}", std::process::id()));
+        let base = std::env::temp_dir().join(format!("atrium-root-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&base);
 
         let flat = base.join("flat");

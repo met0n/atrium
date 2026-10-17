@@ -1,6 +1,6 @@
 //! RFC-012 — Plugin System, asset resolution.
 //!
-//! Resolution core behind the `alethe-plugin://<pluginId>/<path>` scheme. The
+//! Resolution core behind the `atrium-plugin://<pluginId>/<path>` scheme. The
 //! root is fixed per plugin — `<plugins_root>/<pluginId>/` — so there is no
 //! configurable scope to widen.
 //!
@@ -81,16 +81,16 @@ fn validate_request_path(path: &str) -> Result<(), String> {
 
 /// Splits a request into the plugin id and the path inside that plugin.
 ///
-/// Two URL shapes arrive. Most platforms use `alethe-plugin://<id>/<path>`, so
+/// Two URL shapes arrive. Most platforms use `atrium-plugin://<id>/<path>`, so
 /// the host is the id. Windows and Android reach a custom scheme through
 /// `http://<scheme>.localhost/...`, which Tauri normalizes to
-/// `alethe-plugin://localhost/<id>/<path>` — there the host is the literal
+/// `atrium-plugin://localhost/<id>/<path>` — there the host is the literal
 /// string `localhost` and the id is the first path segment.
 fn split_target(host: Option<&str>, path: &str) -> Option<(String, String)> {
     let path = path.trim_start_matches('/');
     let host = host?;
     if host.eq_ignore_ascii_case("localhost")
-        || host.eq_ignore_ascii_case("alethe-plugin.localhost")
+        || host.eq_ignore_ascii_case("atrium-plugin.localhost")
     {
         return match path.split_once('/') {
             Some((id, rest)) => Some((id.to_string(), rest.to_string())),
@@ -100,7 +100,7 @@ fn split_target(host: Option<&str>, path: &str) -> Option<(String, String)> {
     Some((host.to_string(), path.to_string()))
 }
 
-/// Serves `alethe-plugin://<pluginId>/<path>` out of the active profile's
+/// Serves `atrium-plugin://<pluginId>/<path>` out of the active profile's
 /// plugins directory. Anything the resolver refuses becomes a 403/404 with an
 /// empty body — never a filesystem error leaked to the page.
 pub fn serve(
@@ -208,7 +208,7 @@ mod tests {
 
     fn fixture(tag: &str) -> (PathBuf, PathBuf) {
         let root =
-            std::env::temp_dir().join(format!("alethe-plugin-assets-{tag}-{}", nanoid::nanoid!(8)));
+            std::env::temp_dir().join(format!("atrium-plugin-assets-{tag}-{}", nanoid::nanoid!(8)));
         let plugins = root.join("plugins");
         let dir = plugins.join("demo");
         fs::create_dir_all(dir.join("nested")).unwrap();
@@ -275,7 +275,7 @@ mod tests {
 
         // Dots are allowed inside a namespaced id: this one fails on disk, not on the id.
         assert_eq!(
-            resolve_plugin_asset(&plugins, "alethe.git-control", "main.js").unwrap_err(),
+            resolve_plugin_asset(&plugins, "atrium.git-control", "main.js").unwrap_err(),
             ASSET_NOT_FOUND
         );
 
@@ -411,7 +411,7 @@ mod tests {
             Some(("example.notes".to_string(), "main.js".to_string()))
         );
         assert_eq!(
-            split_target(Some("alethe-plugin.localhost"), "/example.notes/a/b.css"),
+            split_target(Some("atrium-plugin.localhost"), "/example.notes/a/b.css"),
             Some(("example.notes".to_string(), "a/b.css".to_string()))
         );
         // Everywhere else: the host is the plugin id.

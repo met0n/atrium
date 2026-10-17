@@ -1,7 +1,7 @@
 # Orchestrator Roadmap
 
 This is a separate, focused roadmap for the MCP-delegate orchestrator (`orchestrator_core.rs`,
-`OrchestratorPane`) — the planner-calls-`alethe_delegate`, real-process, forest-canvas system built
+`OrchestratorPane`) — the planner-calls-`atrium_delegate`, real-process, forest-canvas system built
 directly. It intentionally does **not** merge with [`ROADMAP.md`](ROADMAP.md), which describes a
 different, task-DAG-first orchestration effort (`scheduler.rs`, GSD-fed, pull-based dispatch) that
 exists in the codebase but is currently disconnected. The two overlap in ambition — both explicitly
@@ -17,7 +17,7 @@ Update the checklist as work lands; update the percentage alongside it in the sa
 
 The orchestrator's differentiation is not "a board that shows agents running" — that is now a
 contested category (Devin Desktop's Agent Command Center, OpenAI's Codex app, Cursor's 8 parallel
-agents). Alethe's edge is **managing several agents from different vendors so you never run out of
+agents). Atrium's edge is **managing several agents from different vendors so you never run out of
 usage**, and steering work to whichever tool is actually the right (and cheapest) fit. That pain is
 real and documented: Claude Code's 5-hour + weekly caps, Codex's own plan caps, and a third-party
 tool (CAAM) that exists solely to swap CLI accounts on limit. No major competitor manages usage
@@ -27,7 +27,7 @@ tool (CAAM) that exists solely to swap CLI accounts on limit. No major competito
 
 | Capability | State |
 |---|---|
-| Claude as planner (calls `alethe_delegate`) | Shipped |
+| Claude as planner (calls `atrium_delegate`) | Shipped |
 | Codex as worker (spawned, steerable, approvable) | Shipped |
 | Codex as planner (delegates to another Codex) | Unverified — never tested this session |
 | Claude as worker (executes delegated work) | Backend implemented and unit-tested (fake CLI) — not yet run end-to-end against the real `claude` binary in the app |
@@ -91,15 +91,15 @@ options, not yet decided:
       - `interrupt_receipt_v1` is what puts `still_queued` on that payload — the uuids of async user
         messages that survive the abort and *will* run. `interrupt_cancel_queued_v1` is what honours
         `cancel_queued:true`, which kills them instead and lists them under `cancelled`
-        (probed: `still_queued: []`, `cancelled: ["alethe-job-07-steer-1"]`).
+        (probed: `still_queued: []`, `cancelled: ["atrium-job-07-steer-1"]`).
       - The aborted turn still emits a normal `result`. Its `terminal_reason` comes from the
         `interrupted`/`aborted_streaming`/`aborted_tools`/`cancelled` family, but which one is not
         worth guessing at, so the job carries an `awaiting_steer` flag instead and the `result` that
-        only acknowledges an interrupt Alethe itself asked for is not reported to the planner as a
+        only acknowledges an interrupt Atrium itself asked for is not reported to the planner as a
         finished turn.
-      - Shipped on top of this: `alethe_steer` on a running Claude worker pushes the correction to
+      - Shipped on top of this: `atrium_steer` on a running Claude worker pushes the correction to
         the front of the inbox and interrupts, so `finish_turn` hands it straight back as the next
-        turn; `alethe_cancel` sends the same request with `cancel_queued:true` instead of the Codex
+        turn; `atrium_cancel` sends the same request with `cancel_queued:true` instead of the Codex
         `turn/interrupt` JSON-RPC, which a Claude worker never understood.
       - Covered by two new Rust tests (a running worker is interrupted, an idle one still queues).
         The no-announce path on the aborted `result` is **not** unit-covered — the fake CLI replays a
@@ -114,7 +114,7 @@ options, not yet decided:
       `spawn_worker` looks up by `job.agent` and branches its handshake (Claude: no
       `initialize`/`thread/start`, the first stdin line is the first turn) and its reader loop
       (`on_worker_message_claude` vs. the existing Codex-shaped `on_worker_message`).
-- [x] Implement the Claude backend: spawn ✓, send message ✓ (`alethe_send` writes the next turn
+- [x] Implement the Claude backend: spawn ✓, send message ✓ (`atrium_send` writes the next turn
       directly to stdin when idle), steer ✓ (queues for the next turn — see note above, true
       mid-turn interrupt stayed unverified after a probe-environment hiccup, not attempted blind),
       read tokens/cost ✓ (`result.usage`), resume after restart ✓ (`--resume <session_id>`),
@@ -134,7 +134,7 @@ options, not yet decided:
       workaround; a green run does not prove it fixed, and a red one does not prove a regression.
 - [x] A Codex planner can target a Claude worker — `codex_mcp_config_write` (`agent_events.rs`)
       registers a Codex terminal as a planner and points `.codex/config.toml`'s
-      `[mcp_servers.alethe]` at a generated stdio-to-http bridge script (Codex's MCP client only
+      `[mcp_servers.atrium]` at a generated stdio-to-http bridge script (Codex's MCP client only
       declares servers via `command`/`args`, confirmed by the pre-existing `graphify` integration
       using the same shape). Wired into `useXtermSession.ts` alongside the existing hooks wiring.
       Not yet run against a real Codex terminal — the bridge script's behavior is inferred from the
@@ -197,7 +197,7 @@ already got, not an assumption. `get_antigravity_usage` already exists for the q
 
 ## Phase 4 — OpenCode
 
-Same shape again. OpenCode already has partial integration in Alethe (MCP config writers,
+Same shape again. OpenCode already has partial integration in Atrium (MCP config writers,
 GSD hooks) — worth mapping what's reusable before writing anything new.
 
 **Checklist**
@@ -229,7 +229,7 @@ reading shows why the shapes cannot be compared field-by-field:
 
 On the 5-hour window they are tied (20 vs 22) and the choice looks arbitrary. On the week, Codex is
 three times closer to its ceiling. Codex is the one running out, and the 5-hour window hides it
-completely. So "running out" means *the worst window that agent has*, and Alethe resolves it before
+completely. So "running out" means *the worst window that agent has*, and Atrium resolves it before
 the planner ever sees it — the planner must not have to know that one vendor has three windows and
 the other has two.
 
@@ -250,7 +250,7 @@ wrote:
    actively refusing work at 10% beat one at 99%. Rate-limited is not "nearly gone", it is gone, and
    it now outranks any number.
 
-**Notify, do not reroute (decided).** Alethe surfaces the numbers and names which side has headroom;
+**Notify, do not reroute (decided).** Atrium surfaces the numbers and names which side has headroom;
 the planner still chooses. No server-side substitution, no preference toggle, in this phase.
 
 **Why this phase, why now**: the product thesis above already names this the differentiator —
@@ -276,7 +276,7 @@ reconciliation is a future decision, not assumed here (a pointer is left in `ROA
 **A constraint this design has to respect**: `orchestrator_core.rs` is deliberately "free of Tauri
 and of anything else in this crate" (its own module doc comment) so `tests/orchestrator.rs` can
 compile it standalone. `getClaudeUsage`/`getCodexUsage` are `#[tauri::command]`s living in the full
-crate — `alethe_delegate`'s handler cannot call them directly without breaking that boundary. The
+crate — `atrium_delegate`'s handler cannot call them directly without breaking that boundary. The
 fix reuses the shape `Core.launchers` already uses: the app layer pushes state in, the core never
 reaches out for it. Concretely: a new `Core::set_agent_fitness(agent, snapshot)` alongside the
 existing launcher map, filled by a small Tauri command that the existing
@@ -310,7 +310,7 @@ part of this phase, not a separate cleanup.
   `used_percent: Option<f64>`, `plan: Option<String>`) derived from the two usage polls above,
   pushed into `Core` as described. Deliberately a raw signal, not a single computed "score" the
   planner has to trust blind — the guardrail below is what interprets it.
-- **Enforcement, not prose** — `alethe_delegate`'s handler reads the fitness snapshot for the
+- **Enforcement, not prose** — `atrium_delegate`'s handler reads the fitness snapshot for the
   requested `agent` at call time, in two stages:
   - **Suggest-only (ships first, no preference required)**: when the requested agent is
     rate-limited or past a fixed threshold (reuse `USAGE_FALLBACK_THRESHOLD = 80`) and the other of
@@ -323,12 +323,12 @@ part of this phase, not a separate cleanup.
     while and the signal has proven itself — mirrors Phase 2's own reopening bar. When enabled, and
     the requested agent is exhausted while the other is fully available, the handler substitutes
     the agent server-side and returns `{"rerouted": true, "from": ..., "to": ..., "reason": ...}` in
-    the same response shape `alethe_delegate` already returns — visible, not silent, logged like any
+    the same response shape `atrium_delegate` already returns — visible, not silent, logged like any
     other job.
 - **Awareness rides on every tool response, because it is the only channel that exists** — not just
-  `alethe_delegate`'s `costHint`. `alethe_status`, `alethe_check`, `alethe_send` and `alethe_steer`
+  `atrium_delegate`'s `costHint`. `atrium_status`, `atrium_check`, `atrium_send` and `atrium_steer`
   all return JSON the planner reads, so each carries the same compact block: per-agent utilization
-  and reset time, `rate_limited`, detected plan, and the run's spend so far. `alethe_check` matters
+  and reset time, `rate_limited`, detected plan, and the run's spend so far. `atrium_check` matters
   most — its description already obliges the planner to process every delivery, so that is the one
   response guaranteed to be read.
 - **Why not a `tools/list_changed` notification** — settled, do not re-open without changing the
@@ -356,7 +356,7 @@ part of this phase, not a separate cleanup.
   own explicit non-goal ("No hosted orchestration. Everything stays local-first") and with the
   visible/take-over-able local terminal promise Phase 1's Claude worker already provides. Scope as
   an opt-in prototype to evaluate, not a commitment.
-- **Consent** — a new orchestrator preference, off by default: "let Alethe redirect work to a
+- **Consent** — a new orchestrator preference, off by default: "let Atrium redirect work to a
   cheaper agent automatically." Not folded into an existing on-by-default toggle — auto-switch
   changes which vendor sees a user's code and prompts for a given task, a decision the user should
   make explicitly, not one this phase makes for them.
@@ -373,7 +373,7 @@ part of this phase, not a separate cleanup.
       warning chip read one number at one cadence. The core stores it and never reaches out for it,
       keeping this module Tauri-free. **Also fixed the chip itself**: it compared only
       `five_hour`, so a worker exhausted on the weekly window raised no warning at all.
-- [x] `alethe_delegate`'s result carries `headroomHint` when the requested agent is past
+- [x] `atrium_delegate`'s result carries `headroomHint` when the requested agent is past
       `HEADROOM_THRESHOLD` (80, matching the frontend's `USAGE_FALLBACK_THRESHOLD`) or rate-limited
       and the other side is not — naming the agent and the numbers it is grounded in. Renamed from
       `costHint`: the signal is remaining limit, not money.
@@ -419,7 +419,7 @@ part of this phase, not a separate cleanup.
       - **It buys enforcement we just decided against.** Its real advantage over
         `economy_agents.rs` is the *enforced* `budget.max_list_cost` and typed `usage.list_cost`.
         This phase deliberately chose notify-only; a hard spend ceiling is not a capability gap
-        today. Revisit only if Alethe ever wants an enforced cap, and then as its own decision.
+        today. Revisit only if Atrium ever wants an enforced cap, and then as its own decision.
 - [ ] Manual test: force one side past the threshold, confirm the hint names the other side and
       that the worst window is the one being compared
 
@@ -430,7 +430,7 @@ part of this phase, not a separate cleanup.
 Same shape as Phase 5, one agent at a time, each gated on that agent having a live rate-limit/usage
 signal at all. Today only Claude, Codex and Antigravity have one (`get_antigravity_usage`) — and
 Antigravity has none of Phase 3's worker-backend wiring yet, so its fitness signal can exist before
-it can ever be a valid `alethe_delegate` target. Kiro, OpenCode, Copilot, Mimo and Freebuff have
+it can ever be a valid `atrium_delegate` target. Kiro, OpenCode, Copilot, Mimo and Freebuff have
 neither a usage signal nor a worker backend today; each needs its own detection work first, the same
 empirical-probe shape Phase 3/4 already use for backend wiring — this is not a batch of registry
 entries, it is five small research passes.
@@ -455,7 +455,7 @@ entries, it is five small research passes.
 - [ ] Mimo: pricing/plan/free-tier entry
 - [ ] Freebuff: usage/rate-limit polling
 - [ ] Freebuff: pricing/plan/free-tier entry
-- [ ] Extend `alethe_delegate`'s `agent` enum and the guardrail logic to cover whichever of the
+- [ ] Extend `atrium_delegate`'s `agent` enum and the guardrail logic to cover whichever of the
       above already has a worker backend by the time this lands
 
 **Phase progress: 0/13 (0%)**
@@ -473,7 +473,7 @@ sits behind Phases 1, 2 and 5, which are the ones with live work.
 
 | Persona | Default? | Writes to disk | What it is for |
 |---|---|---|---|
-| `planner` | Yes | No | Decomposes the request, calls `alethe_delegate`, reconciles what comes back. What the lead agent already does today, made explicit and reusable. |
+| `planner` | Yes | No | Decomposes the request, calls `atrium_delegate`, reconciles what comes back. What the lead agent already does today, made explicit and reusable. |
 | `brainstorm` | No | No | Divergent, read-only. Returns options with tradeoffs and an argued recommendation, never an edit. |
 | `executor` | No | Yes | One self-contained unit of work, carried to a diff. The closest thing to today's default worker behaviour. |
 
@@ -484,7 +484,7 @@ sits behind Phases 1, 2 and 5, which are the ones with live work.
   in the preset text. Whether Codex and Claude can both be spawned genuinely write-blocked needs the
   same empirical probe Phase 1 used — do not assume the CLI flags do what their docs say.
 - `planner` being the default is a **statement about the lead**, not about workers: an undeclared
-  `alethe_delegate` call keeps spawning today's worker behaviour, so adding personas cannot silently
+  `atrium_delegate` call keeps spawning today's worker behaviour, so adding personas cannot silently
   change the meaning of every existing delegation.
 - Personas imply defaults on the flags that already exist (`brainstorm` → `webSearch` on, no
   worktree; `executor` → `isolate` on when the repo allows it). Those are defaults the caller can
@@ -494,7 +494,7 @@ sits behind Phases 1, 2 and 5, which are the ones with live work.
 
 - Where the preset is injected per backend — Claude takes an appended system prompt; Codex's
   equivalent is unverified and is the first thing to probe.
-- Fixed set versus user-editable. A fixed set ships faster and keeps the `alethe_delegate` schema
+- Fixed set versus user-editable. A fixed set ships faster and keeps the `atrium_delegate` schema
   description honest; editable personas are the obvious follow-up request.
 - Whether a persona is visible on the canvas card, and whether that is a badge or the card's whole
   visual treatment.
@@ -504,7 +504,7 @@ sits behind Phases 1, 2 and 5, which are the ones with live work.
       way Phase 1 probed the worker protocol
 - [ ] Probe whether a genuinely write-blocked worker is spawnable per backend, for `brainstorm`
 - [ ] Define the three presets as skill files, versioned in the repo, English-only
-- [ ] `persona` property on `alethe_delegate`'s schema — optional, absent means today's behaviour
+- [ ] `persona` property on `atrium_delegate`'s schema — optional, absent means today's behaviour
 - [ ] Carry `persona` onto `Job` and into the snapshot so the UI can read it
 - [ ] Apply the per-persona flag defaults, overridable by the caller
 - [ ] Surface the persona on the worker's canvas card
@@ -518,12 +518,12 @@ sits behind Phases 1, 2 and 5, which are the ones with live work.
 ## Track — Apply worktree back to its branch (shipped)
 
 Closes the loop an isolated (`isolate: true`) job otherwise left open: you could see the diff, but
-landing it meant leaving Alethe for raw git. Reconciled in two parts:
+landing it meant leaving Atrium for raw git. Reconciled in two parts:
 
 - **Rust**: `isolate_worktree` in `orchestrator_core.rs` now creates worktrees at the exact same
   path/branch convention `worktrees.rs`'s RFC-003 manager already uses
-  (`<repo>/.alethe/worktrees/<job_id>/`, branch `alethe/agent-<job_id>`, was
-  `<parent>/.alethe-worktrees/...` on a **detached** HEAD — no branch at all, so a worker's commits
+  (`<repo>/.atrium/worktrees/<job_id>/`, branch `atrium/agent-<job_id>`, was
+  `<parent>/.atrium-worktrees/...` on a **detached** HEAD — no branch at all, so a worker's commits
   were only reachable by SHA). `orchestrator_core.rs` stays crate-free on purpose (so
   `tests/orchestrator.rs` can compile it standalone) — reconciliation is by on-disk convention, not
   by calling `worktrees.rs` directly.
@@ -576,7 +576,7 @@ Space for brainstorming beyond the phases above. Nothing here is committed.
 ## Explicitly out of scope for now
 
 - ~~Automatic switching on quota exhaustion~~ — **superseded by Phase 5**: staged as a `costHint` in
-  `alethe_delegate`'s own response first (no preference needed), with the actual switch itself
+  `atrium_delegate`'s own response first (no preference needed), with the actual switch itself
   behind an explicit opt-in preference, never a silent default. Still gated on Phase 2's detection
   having run in practice, per this same condition — Phase 5 doesn't skip that bar, it is what acts
   once it's cleared.
@@ -584,7 +584,7 @@ Space for brainstorming beyond the phases above. Nothing here is committed.
   routing, touches credential switching, needs its own study.
 - **A generic model router (OpenRouter/LiteLLM-style)** — hypothesis is that OpenCode (Phase 4)
   already covers this once it's a backend, since it routes multiple providers/models on its own.
-  Don't build a duplicate inside Alethe without confirming a real gap first.
+  Don't build a duplicate inside Atrium without confirming a real gap first.
 - ~~Applying an isolated worktree back to its branch~~ — **done**, see "Track — Apply worktree"
   below. Turned out not to need `mergeStore.ts` at all — its underlying Tauri commands
   (`mergeAnalyze`/`mergePrepare`/`mergeFinalize`) are plain functions with no dependency on a

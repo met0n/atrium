@@ -1,12 +1,11 @@
 import { applyBootAppearance } from './lib/bootAppearance'
 
 if (import.meta.env.DEV) {
-  document.title = '(DEV) Alethe'
+  document.title = '(DEV) Atrium'
 }
 
-// Mark the platform as soon as the bundled entry starts evaluating, before
-// styles and React, to avoid an opaque first paint behind rounded macOS window
-// corners. App.tsx confirms the value later; see reset.css.
+// Mark the platform as soon as the bundled entry starts evaluating, before styles and React,
+// so platform-specific styles (such as the macOS traffic-light inset) apply on the first paint.
 document.documentElement.dataset.platform = /Macintosh|Mac OS X/i.test(navigator.userAgent)
   ? 'macos'
   : 'other'

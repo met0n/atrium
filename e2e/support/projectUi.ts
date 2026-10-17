@@ -1,6 +1,6 @@
 /**
  * Helpers that drive the git pipeline through real CLICK/TYPING in the
- * UI — not via `window.__ALETHE_E2E__` (which only calls store/API
+ * UI — not via `window.__ATRIUM_E2E__` (which only calls store/API
  * actions directly). Explicit request from the owner after seeing, live, real
  * bugs that a hook-driven test would NEVER catch:
  *
@@ -24,7 +24,7 @@
  *    of that specific modal (found via `h2*=Nova sessão`), never a
  *    loose search on the whole page.
  *
- * `__ALETHE_E2E_QUERY__` (see `src/lib/e2eHooks.ts`) is used only to READ
+ * `__ATRIUM_E2E_QUERY__` (see `src/lib/e2eHooks.ts`) is used only to READ
  * IDs the UI already created (real clicks don't return IDs to the test) — never
  * to trigger the creation itself.
  */
@@ -32,7 +32,7 @@ import { captureScreenshot, markScreenshotAndClick } from './screenshot'
 import { withIdleScreenshot } from './uiKit'
 
 type QueryWindow = {
-  __ALETHE_E2E_QUERY__?: {
+  __ATRIUM_E2E_QUERY__?: {
     findProjectIdByName: (name: string) => string | null
     findLatestTerminal: (
       projectId: string,
@@ -47,8 +47,8 @@ type QueryWindow = {
  *  persisted in the store after the click. */
 export async function getConflictAgentProvider(projectId: string): Promise<string | null> {
   return browser.execute((id) => {
-    const query = (window as unknown as QueryWindow).__ALETHE_E2E_QUERY__
-    if (!query) throw new Error('__ALETHE_E2E_QUERY__ is not ready yet')
+    const query = (window as unknown as QueryWindow).__ATRIUM_E2E_QUERY__
+    if (!query) throw new Error('__ATRIUM_E2E_QUERY__ is not ready yet')
     return query.getConflictAgentProvider(id)
   }, projectId) as unknown as Promise<string | null>
 }
@@ -61,8 +61,8 @@ function nextShotName(label: string): string {
 
 export async function findProjectId(name: string): Promise<string> {
   const id = await browser.execute((projectName) => {
-    const query = (window as unknown as QueryWindow).__ALETHE_E2E_QUERY__
-    if (!query) throw new Error('__ALETHE_E2E_QUERY__ is not ready yet')
+    const query = (window as unknown as QueryWindow).__ATRIUM_E2E_QUERY__
+    if (!query) throw new Error('__ATRIUM_E2E_QUERY__ is not ready yet')
     return query.findProjectIdByName(projectName)
   }, name)
   if (!id) throw new Error(`findProjectId: project "${name}" not found in the store`)
@@ -79,8 +79,8 @@ export async function findLatestTerminal(
   await browser.waitUntil(
     async () => {
       result = (await browser.execute((id) => {
-        const query = (window as unknown as QueryWindow).__ALETHE_E2E_QUERY__
-        if (!query) throw new Error('__ALETHE_E2E_QUERY__ is not ready yet')
+        const query = (window as unknown as QueryWindow).__ATRIUM_E2E_QUERY__
+        if (!query) throw new Error('__ATRIUM_E2E_QUERY__ is not ready yet')
         return query.findLatestTerminal(id)
       }, projectId)) as unknown as { ptyId: string; worktreeAgentId: string | null } | null
       return result !== null
@@ -478,11 +478,11 @@ async function selectAgentInOpenNewTerminalModal(agentLabel: string): Promise<vo
   await modalTitle.waitForDisplayed({ timeout: 10_000 })
 
   // The agent is a row select: open the field, then pick the option from the portaled menu.
-  const agentField = await modal.$('[data-alethe-field="agent"]')
+  const agentField = await modal.$('[data-atrium-field="agent"]')
   await agentField.waitForClickable({ timeout: 10_000 })
   await markScreenshotAndClick(agentField, nextShotName(`abrir-lista-agentes-${agentLabel}`))
 
-  const agentOption = await $(`[data-alethe-dropdown-menu] button*=${agentLabel}`)
+  const agentOption = await $(`[data-atrium-dropdown-menu] button*=${agentLabel}`)
   await agentOption.waitForClickable({ timeout: 10_000 })
   await markScreenshotAndClick(agentOption, nextShotName(`selecionar-agente-${agentLabel}`))
 

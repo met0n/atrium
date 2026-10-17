@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { agentLabel as agentTypeLabel } from '../../../lib/agentProviders'
 import { useT } from '../../../lib/i18n'
 import {
   groupSkillsByName,
@@ -18,20 +19,19 @@ import {
   pendingBundledAgents,
   type SkillGroup,
 } from '../../../lib/skills'
+import { scanSkills } from '../../../lib/skillsScan'
 import {
-  skillsCatalog,
-  skillsDetail,
-  skillsInstallBundled,
-  skillsUninstall,
   type BundledSkill,
   type BundledSkillState,
   type SkillAgentSnapshot,
   type SkillDetail,
   type SkillNode,
+  skillsCatalog,
+  skillsDetail,
+  skillsInstallBundled,
   type SkillSummary,
+  skillsUninstall,
 } from '../../../lib/tauri'
-import { scanSkills } from '../../../lib/skillsScan'
-import { agentLabel as agentTypeLabel } from '../../../lib/agentProviders'
 import { useUiStore } from '../../../stores/uiStore'
 import { EmptyState } from '../../EmptyState'
 import { MarkdownRenderer } from '../../MarkdownPane/MarkdownRenderer'
@@ -95,7 +95,7 @@ export function SkillsBrowser({ dark }: { dark: boolean }) {
   const active = activeOffer
     ? null
     : (groups.find((group) => group.name === selected) ?? groups[0] ?? null)
-  const activeBundled = active?.fromAlethe
+  const activeBundled = active?.fromAtrium
     ? (catalog.find((skill) => skill.name === active.name) ?? null)
     : null
 
@@ -201,7 +201,7 @@ export function SkillsBrowser({ dark }: { dark: boolean }) {
       <aside className={styles.list}>
         {offers.length > 0 ? (
           <>
-            <div className={styles.listTitle}>{t('skills.fromAlethe')}</div>
+            <div className={styles.listTitle}>{t('skills.fromAtrium')}</div>
             {offers.map((skill) => (
               <button
                 key={skill.name}
@@ -349,7 +349,7 @@ function BundledSkillView({
       <header className={styles.detailHead}>
         <div className={styles.detailTitleRow}>
           <span className={styles.detailName}>{skill.name}</span>
-          <span className={styles.badge}>{t('skills.badgeAlethe')}</span>
+          <span className={styles.badge}>{t('skills.badgeAtrium')}</span>
           <InstallButton skill={skill} busy={busy} onInstall={onInstall} />
         </div>
         {skill.description ? <p className={styles.description}>{skill.description}</p> : null}
@@ -411,8 +411,8 @@ function SkillDetailView({
       <header className={styles.detailHead}>
         <div className={styles.detailTitleRow}>
           <span className={styles.detailName}>{group.name}</span>
-          {group.fromAlethe ? (
-            <span className={styles.badge}>{t('skills.badgeAlethe')}</span>
+          {group.fromAtrium ? (
+            <span className={styles.badge}>{t('skills.badgeAtrium')}</span>
           ) : null}
           {bundledSkill ? (
             <InstallButton

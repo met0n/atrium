@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { ensureAgentReady, readPtyScrollback, sendPtyLine, waitUntil } from './ptyAgent'
 import { sendOpenCodePrompt } from './openCodePrompt'
 
-const RULE_PREFIX = 'ALETHE_E2E_RULE: '
+const RULE_PREFIX = 'ATRIUM_E2E_RULE: '
 
 export type ContinuityResult = {
   file1Path: string
@@ -52,8 +52,8 @@ export async function verifyAgentSessionContinuity(
   await ensureAgentReady(ptyId, { timeoutMs: 60_000 })
 
   const tag = Math.random().toString(36).slice(2, 8)
-  const file1Name = `alethe-e2e-file1-${tag}.txt`
-  const file2Name = `alethe-e2e-file2-${tag}.txt`
+  const file1Name = `atrium-e2e-file1-${tag}.txt`
+  const file2Name = `atrium-e2e-file2-${tag}.txt`
   const file1Path = join(worktreePath, file1Name)
   const file2Path = join(worktreePath, file2Name)
 

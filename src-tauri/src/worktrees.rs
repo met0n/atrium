@@ -3,7 +3,7 @@
 
 //!
 
-//!   `<repo>/.alethe/worktrees/<id>/`, compartilhando o `.git` do repo. Nesse
+//!   `<repo>/.atrium/worktrees/<id>/`, compartilhando o `.git` do repo. Nesse
 
 //! - **LocalCopy** (pesado/mais funcional): `git clone --local` gera um repo
 
@@ -48,7 +48,7 @@ fn sanitize_id(agent_id: &str) -> Result<String, String> {
 }
 
 fn worktrees_base(root: &Path) -> PathBuf {
-    root.join(".alethe").join("worktrees")
+    root.join(".atrium").join("worktrees")
 }
 
 pub(crate) fn git_arg(path: &Path) -> String {
@@ -100,7 +100,7 @@ pub(crate) fn worktree_provision_inner(
     if dest.exists() {
         return Err("worktree_exists".to_string());
     }
-    let branch = format!("alethe/agent-{id}");
+    let branch = format!("atrium/agent-{id}");
     let dest_arg = git_arg(&dest);
 
     match mode {
@@ -185,7 +185,7 @@ pub(crate) fn worktree_remove_inner(
         return Err("worktree_not_found".to_string());
     }
 
-    // que o destino esteja dentro de `<repo>/.alethe/worktrees`.
+    // que o destino esteja dentro de `<repo>/.atrium/worktrees`.
     let canon_base = base
         .canonicalize()
         .map_err(|_| "invalid_worktree_path".to_string())?;
@@ -284,7 +284,7 @@ pub(crate) fn worktree_fetch_branch_inner(repo: String, agent_id: String) -> Res
     let root = repository_root(&repo)?;
     let id = sanitize_id(&agent_id)?;
     let env = worktrees_base(&root).join(&id);
-    let branch = format!("alethe/agent-{id}");
+    let branch = format!("atrium/agent-{id}");
 
     match detect_mode(&env) {
         Some(WorktreeMode::LocalCopy) => {
@@ -334,9 +334,9 @@ fn resolve_worktree_env(repo: &str, agent_id: &str) -> Result<PathBuf, String> {
     Ok(env)
 }
 
-/// Mirrors `isRealWork()` in `assets/opencode-plugins/alethe-gsd-state.ts` —
-/// Alethe's own infrastructure (GSD plugin in `.opencode/`, GSD Sync state in
-/// `.planning/`, the `opencode.json` Alethe writes on every spawn) is never
+/// Mirrors `isRealWork()` in `assets/opencode-plugins/atrium-gsd-state.ts` —
+/// Atrium's own infrastructure (GSD plugin in `.opencode/`, GSD Sync state in
+/// `.planning/`, the `opencode.json` Atrium writes on every spawn) is never
 /// real agent work in this worktree and must not be auto-committed/merged.
 fn is_real_work(path: &str) -> bool {
     !path.is_empty()
@@ -375,7 +375,7 @@ fn commit_all_pending(env: &Path, message: &str) -> Result<bool, String> {
     } else {
         message
     };
-    // Never `add -A`: stage only the real paths (filtered above) so Alethe's
+    // Never `add -A`: stage only the real paths (filtered above) so Atrium's
     // own infrastructure never rides along into the commit.
     let mut add_args: Vec<&str> = vec!["add", "--"];
     add_args.extend(changes.iter().map(|change| change.path.as_str()));
@@ -461,12 +461,12 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let root = std::env::temp_dir().join(format!("alethe-worktrees-{suffix}"));
+        let root = std::env::temp_dir().join(format!("atrium-worktrees-{suffix}"));
         fs::create_dir_all(&root).unwrap();
         let run = |args: &[&str]| checked_output(&root, args).unwrap();
         run(&["init"]);
-        run(&["config", "user.name", "Alethe Test"]);
-        run(&["config", "user.email", "alethe@example.invalid"]);
+        run(&["config", "user.name", "Atrium Test"]);
+        run(&["config", "user.email", "atrium@example.invalid"]);
         fs::write(root.join("file.txt"), "one\n").unwrap();
         run(&["add", "file.txt"]);
         run(&["commit", "-m", "init"]);
@@ -492,13 +492,13 @@ mod tests {
         let env = Path::new(&lc.path);
 
         fs::write(env.join("file.txt"), "changed in copy\n").unwrap();
-        checked_output(env, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(env, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(env, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(env, &["config", "user.email", "atrium@example.invalid"]).unwrap();
         checked_output(env, &["commit", "-am", "copy work"]).unwrap();
 
         let missing = git_command(
             &root,
-            &["rev-parse", "--verify", "refs/heads/alethe/agent-fetchme"],
+            &["rev-parse", "--verify", "refs/heads/atrium/agent-fetchme"],
         )
         .unwrap();
         assert!(
@@ -509,7 +509,7 @@ mod tests {
         worktree_fetch_branch(root_str.clone(), "fetchme".into()).unwrap();
         let present = git_command(
             &root,
-            &["rev-parse", "--verify", "refs/heads/alethe/agent-fetchme"],
+            &["rev-parse", "--verify", "refs/heads/atrium/agent-fetchme"],
         )
         .unwrap();
         assert!(
@@ -538,8 +538,8 @@ mod tests {
         let wt =
             worktree_provision(root_str.clone(), "op1".into(), WorktreeMode::GitWorktree).unwrap();
         let env = Path::new(&wt.path);
-        checked_output(env, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(env, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(env, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(env, &["config", "user.email", "atrium@example.invalid"]).unwrap();
 
         // Nothing pending yet — no-op, no new commit.
         assert!(!worktree_commit_pending(root_str.clone(), "op1".into()).unwrap());
@@ -576,8 +576,8 @@ mod tests {
         let wt =
             worktree_provision(root_str.clone(), "op2".into(), WorktreeMode::GitWorktree).unwrap();
         let env = Path::new(&wt.path);
-        checked_output(env, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(env, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(env, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(env, &["config", "user.email", "atrium@example.invalid"]).unwrap();
 
         assert!(worktree_pending_changes(root_str.clone(), "op2".into())
             .unwrap()
@@ -632,17 +632,17 @@ mod tests {
         let wt =
             worktree_provision(root_str.clone(), "op3".into(), WorktreeMode::GitWorktree).unwrap();
         let env = Path::new(&wt.path);
-        checked_output(env, &["config", "user.name", "Alethe Test"]).unwrap();
-        checked_output(env, &["config", "user.email", "alethe@example.invalid"]).unwrap();
+        checked_output(env, &["config", "user.name", "Atrium Test"]).unwrap();
+        checked_output(env, &["config", "user.email", "atrium@example.invalid"]).unwrap();
 
-        // Only Alethe infrastructure pending (GSD plugin + OpenCode config
+        // Only Atrium infrastructure pending (GSD plugin + OpenCode config
         // auto-written on spawn) — no real agent work.
         fs::create_dir_all(env.join(".opencode").join("plugins")).unwrap();
         fs::write(
             env.join(".opencode")
                 .join("plugins")
-                .join("alethe-gsd-state.ts"),
-            "// alethe-managed: v1\n",
+                .join("atrium-gsd-state.ts"),
+            "// atrium-managed: v1\n",
         )
         .unwrap();
         fs::create_dir_all(env.join(".planning")).unwrap();
@@ -653,7 +653,7 @@ mod tests {
             worktree_pending_changes(root_str.clone(), "op3".into())
                 .unwrap()
                 .is_empty(),
-            "Alethe infrastructure files must not show up as pending"
+            "Atrium infrastructure files must not show up as pending"
         );
         assert!(
             !worktree_commit_worktree(root_str.clone(), "op3".into(), "infra only".into()).unwrap(),
@@ -727,7 +727,7 @@ mod tests {
         .unwrap();
 
         // Real administrative lock via `git worktree lock --reason`, like a
-        // user would do outside Alethe.
+        // user would do outside Atrium.
         checked_output(
             &root,
             &[

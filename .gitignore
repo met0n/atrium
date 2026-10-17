@@ -21,7 +21,7 @@ Thumbs.db
 src-tauri/target/
 # npm run test:e2e:build sets CARGO_TARGET_DIR=target-e2e (multi-GB).
 src-tauri/target-e2e/
-# Tests run here while `tauri dev` holds a lock on target/'s alethe.exe.
+# Tests run here while `tauri dev` holds a lock on target/'s atrium.exe.
 src-tauri/target-test/
 src-tauri/gen/
 
@@ -40,7 +40,7 @@ src-tauri/**/*.deb
 src-tauri/**/*.rpm
 
 # App-written project marker: dev-server logs and worktree state.
-.alethe/
+.atrium/
 
 # Logs
 *.log

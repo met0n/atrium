@@ -102,7 +102,7 @@ export function useRouter9Install(onSettled?: () => void) {
         ptyIdRef.current = spawned.id
         timerRef.current = window.setTimeout(() => {
           if (stale() || ptyIdRef.current !== spawned.id) return
-          setLog((current) => trimInstallLog(`${current}\n[alethe] timed out; stopping.`))
+          setLog((current) => trimInstallLog(`${current}\n[atrium] timed out; stopping.`))
           setStatus('failed')
           teardown()
         }, INSTALL_TIMEOUT_MS)

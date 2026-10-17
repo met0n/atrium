@@ -1,6 +1,8 @@
+import { useProjectsStore } from '../stores/projectsStore'
+import { useTerminalsStore } from '../stores/terminalsStore'
 import { claudeLaunchExtras, graphifyRepoOf, recordClaudeLaunch } from './claudeMcpConfigs'
-import { claudeLaunchFlags } from './sessionLaunch'
 import { isSessionClaimed } from './sessionDiscovery'
+import { claudeLaunchFlags } from './sessionLaunch'
 import { conversationFields, getActiveSessions, saveSession } from './sessionResume'
 import { acquireSpawnSlot, releaseSpawnSlot } from './spawnQueue'
 import {
@@ -12,8 +14,6 @@ import {
   snapshotOpenCodeSessions,
 } from './tauri'
 import type { AgentType } from './types'
-import { useProjectsStore } from '../stores/projectsStore'
-import { useTerminalsStore } from '../stores/terminalsStore'
 
 const RESUMABLE: AgentType[] = ['claude', 'codex', 'cursor', 'opencode', 'antigravity']
 
@@ -205,11 +205,11 @@ export async function resetLastSession(): Promise<ResetLastSessionResult> {
         command: target.agent,
         cwd: cwd || undefined,
         extraArgs,
-        env: { ALETHE_PLANNER: target.ptyId },
+        env: { ATRIUM_PLANNER: target.ptyId },
       })
       if (claudeExtras) recordClaudeLaunch(target.ptyId, claudeExtras.orchestrator)
       window.dispatchEvent(
-        new CustomEvent('alethe:terminal-resize-request', { detail: { ptyId: target.ptyId } }),
+        new CustomEvent('atrium:terminal-resize-request', { detail: { ptyId: target.ptyId } }),
       )
 
       saveSession(target.ptyId, {

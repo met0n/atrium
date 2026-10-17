@@ -23,7 +23,7 @@ export type BuiltinAgentType =
  */
 export type AgentType = BuiltinAgentType | (string & {})
 
-/** Providers whose subscription usage Alethe can read. */
+/** Providers whose subscription usage Atrium can read. */
 export type UsageProviderId = 'claude' | 'codex' | 'antigravity' | 'kimi'
 
 export const AGENT_TYPE_LABELS: Record<BuiltinAgentType, string> = {
@@ -603,7 +603,7 @@ export type RuleSet = {
   text: string
 }
 
-/** Which 9router install Alethe runs: the one it manages, or one the user installed themselves. */
+/** Which 9router install Atrium runs: the one it manages, or one the user installed themselves. */
 export type Router9Source = 'managed' | 'external'
 
 /** Local 9router proxy. Opt-in and off by default — nothing is installed or started implicitly. */
@@ -680,7 +680,7 @@ export type OrchestrationSettings = {
   defaultTimeoutSeconds: number
   /** Codex plugin ids (`name@marketplace`) turned off in worker threads. */
   workerDisabledPlugins: string[]
-  /** Kind/effort/quota rules that pick a role when the planner leaves the choice to Alethe. */
+  /** Kind/effort/quota rules that pick a role when the planner leaves the choice to Atrium. */
   routing: RoutingSettings
   /** Portable preferences exported for the bundled MCP-free orchestration skill. */
   skill: OrchestrationSkillSettings
@@ -793,7 +793,7 @@ export type Preferences = {
   spotifyClientId: string
   /** Runtime-only input. Persistence strips it after the backend migrates legacy values. */
   spotifyClientSecret: string
-  /** Exibe a atividade atual do Alethe no perfil do Discord. */
+  /** Exibe a atividade atual do Atrium no perfil do Discord. */
   discordRichPresenceEnabled: boolean
   /**
    * Consent to read each provider's usage: doing so uses the credentials of the installed CLI and
@@ -894,10 +894,10 @@ export type Preferences = {
 
   gsdSyncModelChain?: string[]
 
-  /** `null` means "use Alethe's built-ins"; any array — including an empty one — is the person's own list. */
+  /** `null` means "use Atrium's built-ins"; any array — including an empty one — is the person's own list. */
   orchestratorShortcuts: OrchestratorShortcut[] | null
 
-  /** null means "use Alethe's"; any array — empty included — is the person's own list. */
+  /** null means "use Atrium's"; any array — empty included — is the person's own list. */
   workerRuleSets: RuleSet[] | null
 
   router9?: Router9Preferences

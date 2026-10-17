@@ -1,4 +1,4 @@
-//! Shells a planner asks Alethe to keep running: a dev server, `docker compose up`, a watcher.
+//! Shells a planner asks Atrium to keep running: a dev server, `docker compose up`, a watcher.
 //!
 //! Tauri-free on purpose, like `orchestrator_core`, which declares this module: both compile inside
 //! the orchestrator tests and the standalone MCP binary. The app supplies the `ShellHost`.
@@ -101,7 +101,7 @@ pub fn is_equivalent_running(existing: &Shell, command: &str, cwd: &str) -> bool
     existing.status == SHELL_RUNNING && existing.command == command && existing.cwd == cwd
 }
 
-/// Finds a running shell equivalent to `command`/`cwd`, so a duplicate `alethe_open_shell` call can
+/// Finds a running shell equivalent to `command`/`cwd`, so a duplicate `atrium_open_shell` call can
 /// adopt it instead of starting a second process for the same thing.
 pub fn find_equivalent_running<'a>(
     shells: &'a [Shell],

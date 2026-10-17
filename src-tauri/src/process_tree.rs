@@ -238,7 +238,7 @@ pub fn sweep_orphans_from_previous_session() -> usize {
 /// happens while an installer replaces a running build.
 pub fn start_orphan_sweeper() {
     let _ = std::thread::Builder::new()
-        .name("alethe-orphan-sweeper".to_string())
+        .name("atrium-orphan-sweeper".to_string())
         .spawn(|| loop {
             std::thread::sleep(Duration::from_secs(30));
             let _ = sweep_orphans_from_previous_session();

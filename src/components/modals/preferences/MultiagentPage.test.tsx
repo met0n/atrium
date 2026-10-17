@@ -94,7 +94,7 @@ afterEach(() => {
 const setName = () => screen.getAllByLabelText('Set name')
 const addButton = () => screen.getByRole('button', { name: 'Add set' })
 
-describe('rule sets when Alethe’s own could not be loaded', () => {
+describe('rule sets when Atrium’s own could not be loaded', () => {
   it('says so instead of claiming the person chose to have none, and refuses to add a set', async () => {
     // An empty editor here would be a lie: the core never received a list, so it is still serving
     // ours — and a set added now would be stored as a list with no General in it at all.

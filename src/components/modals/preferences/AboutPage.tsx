@@ -66,8 +66,8 @@ export function AboutPage() {
       >
         <div className={styles.versionCard}>
           <div className={styles.versionCardCopy}>
-            <strong>Alethe</strong>
-            <span>com.kc1t.alethe</span>
+            <strong>Atrium</strong>
+            <span>com.met0n.atrium</span>
           </div>
           <span className={styles.versionCardNumber}>{version ? `v${version}` : '—'}</span>
         </div>

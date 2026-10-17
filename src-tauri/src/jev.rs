@@ -778,7 +778,7 @@ mod tests {
     fn a_shell_pane_is_described_as_not_an_agent() {
         let t = TerminalRef {
             id: "t9".into(),
-            project: "alethe".into(),
+            project: "atrium".into(),
             agent: "shell".into(),
             cwd: "/repo".into(),
             busy: false,
@@ -835,7 +835,7 @@ mod tests {
     fn terminal_description_carries_state() {
         let t = TerminalRef {
             id: "t1".into(),
-            project: "alethe".into(),
+            project: "atrium".into(),
             agent: "claude".into(),
             cwd: "/repo".into(),
             busy: true,

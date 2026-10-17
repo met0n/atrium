@@ -129,7 +129,7 @@ export type OrchestratorShellStatus = 'running' | 'exited' | 'stopped'
 /** Who opened a shell. Only planners do today; a worker-owned shell needs no type change. */
 export type OrchestratorShellOwner = { kind: 'planner' | 'worker'; id: string }
 
-/** A long-running command a planner started, owned by Alethe rather than by the planner. */
+/** A long-running command a planner started, owned by Atrium rather than by the planner. */
 export type OrchestratorShell = {
   id: string
   name: string
@@ -218,7 +218,7 @@ export async function orchestratorDefaultRuleSets(): Promise<RuleSet[]> {
   return invoke<RuleSet[]>('orchestrator_default_rule_sets')
 }
 
-/** The unified diff a worker has produced so far — the same text `alethe_diff` hands the planner. */
+/** The unified diff a worker has produced so far — the same text `atrium_diff` hands the planner. */
 export async function orchestratorJobDiff(jobId: string): Promise<string> {
   return invoke<string>('orchestrator_job_diff', { jobId })
 }
@@ -240,7 +240,7 @@ export async function orchestratorMessage(
   return invoke<unknown>('orchestrator_message', { jobId, message, steer })
 }
 
-/** Interrupts a running worker and settles it as cancelled — the same path `alethe_cancel` takes. */
+/** Interrupts a running worker and settles it as cancelled — the same path `atrium_cancel` takes. */
 export async function orchestratorCancelJob(jobId: string): Promise<unknown> {
   return invoke<unknown>('orchestrator_cancel_job', { jobId })
 }

@@ -27,7 +27,7 @@ import {
 } from '../../lib/codexSessionTracking'
 import { getLocale, translate } from '../../lib/i18n'
 import { isOrchestratorShellPty } from '../../lib/orchestratorShells'
-import { isWindows } from '../../lib/platform'
+import { hasPrimaryModifier, isMacOS, isWindows } from '../../lib/platform'
 import { ptyLaunchTarget } from '../../lib/ptyLaunchTarget'
 import { usePtyPanelVisible } from '../../lib/ptyVisibility'
 import { router9EnvFor } from '../../lib/router9'
@@ -111,6 +111,7 @@ import {
   getLogicalTerminalLine,
   makeXtermLink,
 } from './terminalLinks'
+import { captureTerminalPaste } from './terminalPaste'
 import {
   TERMINAL_WRITE_FALLBACK_MS,
   TERMINAL_WRITE_FRAME_BUDGET,
@@ -118,7 +119,6 @@ import {
   writePtyChunked,
   writePtyWithTimeout,
 } from './terminalWrite'
-import { captureTerminalPaste } from './terminalPaste'
 import { getXtermTheme, type LinkActionState } from './xtermThemes'
 
 // Early exits trigger a single fresh-session retry.
@@ -261,7 +261,7 @@ export function useXtermSession(params: {
     if (!container) return
 
     if (import.meta.env.DEV) {
-      console.debug('[Alethe][xterm] mount', {
+      console.debug('[Atrium][xterm] mount', {
         sessionPersistenceKey,
         retryKey,
         ptyId: ptyIdRef.current,
@@ -555,7 +555,7 @@ export function useXtermSession(params: {
       if (disposed || writeRecoveryPending || id !== ptyIdRef.current) return
       writeRecoveryPending = true
       window.dispatchEvent(
-        new CustomEvent('alethe:terminal-restart-request', { detail: { ptyId: id } }),
+        new CustomEvent('atrium:terminal-restart-request', { detail: { ptyId: id } }),
       )
       window.setTimeout(() => {
         writeRecoveryPending = false
@@ -620,12 +620,33 @@ export function useXtermSession(params: {
       })
       .catch(() => {})
 
+    const macShortcuts = isMacOS()
+    // A second Ctrl+C within 1.5s force-kills the PTY; the first one still reaches the shell.
+    const forceKillOnRepeatedInterrupt = (): boolean => {
+      const now = Date.now()
+      const id = ptyIdRef.current
+      if (id && now - lastCtrlCRef.current < 1500) {
+        lastCtrlCRef.current = 0
+        terminal.write('\r\n\x1b[33m[force kill — PTY terminated]\x1b[0m\r\n')
+        void killPty(id)
+        return true
+      }
+      lastCtrlCRef.current = now
+      return false
+    }
+
     terminal.attachCustomKeyEventHandler((event) => {
       if (event.type !== 'keydown') return true
-      const ctrl = event.ctrlKey || event.metaKey
-      if (!ctrl || event.altKey) return true
-
       const key = event.key.toLowerCase()
+
+      // On macOS app shortcuts use ⌘, so every Ctrl chord belongs to the shell.
+      if (macShortcuts && event.ctrlKey && !event.metaKey && !event.altKey) {
+        if (key === 'c' && !readOnly && forceKillOnRepeatedInterrupt()) return false
+        return true
+      }
+
+      const ctrl = hasPrimaryModifier(event, macShortcuts)
+      if (!ctrl || event.altKey) return true
 
       if (
         key === '+' ||
@@ -648,16 +669,8 @@ export function useXtermSession(params: {
           return false
         }
       }
-      if (key === 'c' && !readOnly) {
-        const now = Date.now()
-        const id = ptyIdRef.current
-        if (id && now - lastCtrlCRef.current < 1500) {
-          lastCtrlCRef.current = 0
-          terminal.write('\r\n\x1b[33m[force kill — PTY terminated]\x1b[0m\r\n')
-          void killPty(id)
-          return false
-        }
-        lastCtrlCRef.current = now
+      if (key === 'c' && !readOnly && !macShortcuts && forceKillOnRepeatedInterrupt()) {
+        return false
       }
 
       if (key === 'v' && !readOnly) {
@@ -671,7 +684,7 @@ export function useXtermSession(params: {
         return false
       }
 
-      // Ctrl+B toggles the left sidebar; the shell must not also receive it.
+      // Ctrl+B (⌘B on macOS) toggles the left sidebar; the shell must not also receive it.
       if (key === 'b' && !event.shiftKey) return false
 
       if (!readOnly && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
@@ -784,7 +797,7 @@ export function useXtermSession(params: {
       try {
         fitAddon.fit()
       } catch (error) {
-        if (import.meta.env.DEV) console.error('[Alethe][xterm] fit failed', error)
+        if (import.meta.env.DEV) console.error('[Atrium][xterm] fit failed', error)
 
         return
       }
@@ -794,7 +807,7 @@ export function useXtermSession(params: {
       try {
         terminal.refresh(0, Math.max(0, terminal.rows - 1))
       } catch (error) {
-        if (import.meta.env.DEV) console.error('[Alethe][xterm] refresh failed', error)
+        if (import.meta.env.DEV) console.error('[Atrium][xterm] refresh failed', error)
       }
       clampHorizontalScroll()
       const force = forceNextResize
@@ -844,9 +857,9 @@ export function useXtermSession(params: {
     }
     const onZoomChanged = remeasureFont
     const onFontChanged = remeasureFont
-    window.addEventListener('alethe:zoom-changed', onZoomChanged)
-    window.addEventListener('alethe:terminal-font-changed', onFontChanged)
-    window.addEventListener('alethe:terminal-resize-request', onResizeRequest)
+    window.addEventListener('atrium:zoom-changed', onZoomChanged)
+    window.addEventListener('atrium:terminal-font-changed', onFontChanged)
+    window.addEventListener('atrium:terminal-resize-request', onResizeRequest)
 
     const initialFitTimer = window.setTimeout(() => {
       scheduleResize()
@@ -1247,7 +1260,7 @@ export function useXtermSession(params: {
         const launchEnv = {
           ...(preparedRuntime.env ?? {}),
           ...router9Env,
-          ALETHE_PLANNER: ptyId,
+          ATRIUM_PLANNER: ptyId,
         }
 
         // Prepare optional integrations before spawning.
@@ -1310,7 +1323,7 @@ export function useXtermSession(params: {
           await codexHooksConfigWrite(cwd, ptyId).catch(() => undefined)
           if (disposed) return
 
-          // Registers this Codex terminal as a planner too, so it can call alethe_delegate.
+          // Registers this Codex terminal as a planner too, so it can call atrium_delegate.
           await codexMcpConfigWrite(cwd, ptyId, plannerLabelFor(ptyId, command), command).catch(
             () => undefined,
           )
@@ -1496,7 +1509,7 @@ export function useXtermSession(params: {
           removeSession(sessionPersistenceKey)
           emitSessionId?.(undefined)
           terminal.write(
-            '\r\n\x1b[33m[alethe] Codex session is busy — opening a fresh session…\x1b[0m\r\n',
+            '\r\n\x1b[33m[atrium] Codex session is busy — opening a fresh session…\x1b[0m\r\n',
           )
           void killPty(response.id).catch(() => {})
           setRetryKey((value) => value + 1)
@@ -1580,7 +1593,7 @@ export function useXtermSession(params: {
             removeSession(sessionPersistenceKey)
             emitSessionId?.(undefined)
             terminal.write(
-              '\r\n\x1b[33m[alethe] sessão anterior indisponível — reabrindo sessão nova…\x1b[0m\r\n',
+              '\r\n\x1b[33m[atrium] sessão anterior indisponível — reabrindo sessão nova…\x1b[0m\r\n',
             )
             setRetryKey((v) => v + 1)
             return
@@ -1591,7 +1604,7 @@ export function useXtermSession(params: {
               `[pty-launch] ${command} exited after ${elapsed}ms (code ${payload.code ?? '—'}) — no retry`,
             )
             terminal.write(
-              `\r\n\x1b[31m[alethe] ${command} encerrou imediatamente (code ${payload.code ?? '—'}).\x1b[0m\r\n` +
+              `\r\n\x1b[31m[atrium] ${command} encerrou imediatamente (code ${payload.code ?? '—'}).\x1b[0m\r\n` +
                 '\x1b[90mVerifique a instalação do CLI ou configure o caminho nas preferências.\x1b[0m\r\n',
             )
           }
@@ -1728,7 +1741,7 @@ export function useXtermSession(params: {
 
     return () => {
       if (import.meta.env.DEV) {
-        console.debug('[Alethe][xterm] unmount', {
+        console.debug('[Atrium][xterm] unmount', {
           sessionPersistenceKey,
           retryKey,
           ptyId: ptyIdRef.current,
@@ -1746,9 +1759,9 @@ export function useXtermSession(params: {
       window.removeEventListener('focus', restoreLastTerminalFocus)
       document.removeEventListener('visibilitychange', restoreLastTerminalFocus)
       container.removeEventListener('contextmenu', onContextMenu)
-      window.removeEventListener('alethe:zoom-changed', onZoomChanged)
-      window.removeEventListener('alethe:terminal-font-changed', onFontChanged)
-      window.removeEventListener('alethe:terminal-resize-request', onResizeRequest)
+      window.removeEventListener('atrium:zoom-changed', onZoomChanged)
+      window.removeEventListener('atrium:terminal-font-changed', onFontChanged)
+      window.removeEventListener('atrium:terminal-resize-request', onResizeRequest)
       ro.disconnect()
       if (resizeTimer !== null) window.clearTimeout(resizeTimer)
       cancelScheduledFlush()
@@ -1773,8 +1786,6 @@ export function useXtermSession(params: {
       if (panelSyncRef.current === panelSync) panelSyncRef.current = null
       terminal.dispose()
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionPersistenceKey, retryKey])
 
   useEffect(() => {

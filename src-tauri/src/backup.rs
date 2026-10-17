@@ -225,7 +225,7 @@ mod tests {
     #[test]
     fn exported_backup_excludes_spotify_plaintext() {
         let root = std::env::temp_dir().join(format!(
-            "alethe-spotify-backup-{}-{}",
+            "atrium-spotify-backup-{}-{}",
             std::process::id(),
             nanoid::nanoid!(8)
         ));

@@ -4,9 +4,11 @@ export const TERMINAL_FONT_SIZE = 14
 
 export const TERMINAL_FONT_FAMILY = [
   '"Caskaydia Cove Nerd Font Mono"',
-  '"Alethe Terminal Symbols"',
+  '"Atrium Terminal Symbols"',
   '"Cascadia Mono"',
   'Consolas',
+  '"SF Mono"',
+  'Menlo',
   '"DejaVu Sans Mono"',
   '"Noto Sans Mono"',
   '"Liberation Mono"',
@@ -16,7 +18,7 @@ export const TERMINAL_FONT_FAMILY = [
 const TERMINAL_FONT_FACES = [
   `400 ${TERMINAL_FONT_SIZE}px "Caskaydia Cove Nerd Font Mono"`,
   `700 ${TERMINAL_FONT_SIZE}px "Caskaydia Cove Nerd Font Mono"`,
-  `400 ${TERMINAL_FONT_SIZE}px "Alethe Terminal Symbols"`,
+  `400 ${TERMINAL_FONT_SIZE}px "Atrium Terminal Symbols"`,
 ]
 
 export function terminalFontsReady(): boolean {

@@ -1,18 +1,23 @@
-# Alethe Brand and Design Tokens
+# Atrium Brand and Design Tokens
 
 This file documents the public app assets and the core design tokens used by the interface.
 
 ## Logo and Icons
 
-- Main mark: [src/assets/alethe-mark.svg](../src/assets/alethe-mark.svg)
-- Loading mark: [src/assets/alethe-loading-mark.png](../src/assets/alethe-loading-mark.png)
-- Default profile avatar: [src/assets/default-profile.svg](../src/assets/default-profile.svg)
-- App icons: [src-tauri/icons/](../src-tauri/icons/)
+The Atrium mark is four panes around an open courtyard: the workspace and the agents arranged
+around it.
 
-To regenerate Tauri app icons from a new source image:
+- Mark (single color, used as a CSS mask): [src/assets/atrium-mark.svg](../src/assets/atrium-mark.svg)
+- App icon source: [src/assets/brand/atrium-app-icon.svg](../src/assets/brand/atrium-app-icon.svg)
+  (macOS icon grid: 824px artwork on a 1024px canvas)
+- Window icon variants (Graphite, Pure Black, Indigo, Blush):
+  [src/assets/theme-icons/](../src/assets/theme-icons/)
+- Bundle icons: [src-tauri/icons/](../src-tauri/icons/)
+
+To regenerate the bundle icons after changing the app icon, render the SVG to a 1024px PNG and run:
 
 ```sh
-npx tauri icon ./logo.png
+npx tauri icon ./atrium-app-icon-1024.png -o src-tauri/icons
 ```
 
 ## Agent Assets
@@ -111,4 +116,4 @@ Common usage:
 
 ## Trademark
 
-The Alethe name, logo, and official branding are reserved for official builds. See [TRADEMARK.md](../TRADEMARK.md).
+The Atrium name, logo, and official branding are reserved for official builds. See [TRADEMARK.md](../TRADEMARK.md).

@@ -1,6 +1,6 @@
 //! Drives the delegation core through the same MCP entry point Claude Code uses.
 //!
-//! The core is compiled directly rather than linked from `alethe_lib`: a Rust test binary carries
+//! The core is compiled directly rather than linked from `atrium_lib`: a Rust test binary carries
 //! no application manifest, so linking the GUI stack makes it fail to start on Windows.
 //!
 //! Worker tests spawn real Codex processes and are ignored by default:
@@ -37,7 +37,7 @@ fn call(core: &Core, name: &str, arguments: Value) -> Value {
 }
 
 /// Like `call`, but on behalf of a named planner - for tools whose behaviour depends on which
-/// planner is calling, such as `alethe_open_shell` adopting an already-running shell.
+/// planner is calling, such as `atrium_open_shell` adopting an already-running shell.
 fn call_as(core: &Core, planner: Option<&str>, name: &str, arguments: Value) -> Value {
     let response = rpc_as(
         core,
@@ -62,7 +62,7 @@ fn check_until_settled(core: &Core) -> (Value, Vec<Value>) {
     let mut deliveries = Vec::new();
     let mut ack = Value::Null;
     loop {
-        let checked = call(core, "alethe_check", json!({ "wait": true, "ack": ack }));
+        let checked = call(core, "atrium_check", json!({ "wait": true, "ack": ack }));
         deliveries.extend(checked["deliveries"].as_array().expect("deliveries").iter().cloned());
         ack = checked["ack"].clone();
         if checked["workersStillBusy"] == json!(0) {
@@ -119,7 +119,7 @@ fn tool_names(listed: &Value) -> Vec<String> {
 }
 
 fn open_npm(core: &Core) -> Value {
-    call(core, "alethe_open_shell", json!({ "command": "npm run dev", "cwd": "C:\\app" }))
+    call(core, "atrium_open_shell", json!({ "command": "npm run dev", "cwd": "C:\\app" }))
 }
 
 fn codex_launcher() -> Launcher {
@@ -137,7 +137,7 @@ fn codex_launcher() -> Launcher {
 }
 
 fn workspace(tag: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!("alethe-orch-{tag}-{}", std::process::id()));
+    let dir = std::env::temp_dir().join(format!("atrium-orch-{tag}-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("workspace");
     dir
@@ -208,12 +208,12 @@ fn the_core_serves_the_shipped_rules_until_the_app_injects_its_own() {
 fn shells_are_offered_only_where_something_can_run_them() {
     let bare = Core::default();
     let names = tool_names(&rpc(&bare, 1, "tools/list", json!({})));
-    assert!(!names.iter().any(|name| name == "alethe_open_shell"), "{names:?}");
+    assert!(!names.iter().any(|name| name == "atrium_open_shell"), "{names:?}");
 
     let (core, _) = shell_core();
     let names = tool_names(&rpc(&core, 1, "tools/list", json!({})));
-    assert!(names.iter().any(|name| name == "alethe_open_shell"), "{names:?}");
-    assert!(names.iter().any(|name| name == "alethe_shell_output"), "{names:?}");
+    assert!(names.iter().any(|name| name == "atrium_open_shell"), "{names:?}");
+    assert!(names.iter().any(|name| name == "atrium_shell_output"), "{names:?}");
 }
 
 #[test]
@@ -252,7 +252,7 @@ fn the_output_is_the_clean_tail() {
     open_npm(&core);
     *host.printed.lock().expect("printed") =
         "\u{1b}[32mcompiled\u{1b}[0m\r\nlistening on :3000\r\n".to_string();
-    let read = call(&core, "alethe_shell_output", json!({ "shellId": "shell-01", "lines": 1 }));
+    let read = call(&core, "atrium_shell_output", json!({ "shellId": "shell-01", "lines": 1 }));
     assert_eq!(read["output"], "listening on :3000", "{read}");
     assert_eq!(read["status"], "running", "{read}");
 }
@@ -260,7 +260,7 @@ fn the_output_is_the_clean_tail() {
 #[test]
 fn an_unknown_shell_is_refused() {
     let (core, _) = shell_core();
-    let read = call(&core, "alethe_shell_output", json!({ "shellId": "shell-99" }));
+    let read = call(&core, "atrium_shell_output", json!({ "shellId": "shell-99" }));
     assert!(
         read["error"].as_str().unwrap_or_default().contains("unknown shell"),
         "{read}"
@@ -279,7 +279,7 @@ fn an_exit_report_marks_the_shell_exited_and_keeps_what_it_printed() {
     assert_eq!(shell["exitCode"], 1, "{shell}");
 
     *host.printed.lock().expect("printed") = String::new();
-    let read = call(&core, "alethe_shell_output", json!({ "shellId": "shell-01" }));
+    let read = call(&core, "atrium_shell_output", json!({ "shellId": "shell-01" }));
     assert_eq!(read["output"], "Error: port 3000 is taken", "{read}");
 }
 
@@ -342,7 +342,7 @@ fn a_second_open_with_the_same_command_and_cwd_adopts_the_running_shell() {
     let first = call_as(
         &core,
         Some("planner-a"),
-        "alethe_open_shell",
+        "atrium_open_shell",
         json!({ "command": "npm run dev", "cwd": "C:\\app" }),
     );
     assert_eq!(first["shellId"], "shell-01", "{first}");
@@ -351,7 +351,7 @@ fn a_second_open_with_the_same_command_and_cwd_adopts_the_running_shell() {
     let second = call_as(
         &core,
         Some("planner-b"),
-        "alethe_open_shell",
+        "atrium_open_shell",
         json!({ "command": "npm run dev", "cwd": "C:\\app" }),
     );
     assert_eq!(second["shellId"], "shell-01", "a second call must adopt the same shell: {second}");
@@ -404,7 +404,7 @@ fn shells_come_back_stopped_after_a_restart_and_keep_counting() {
     assert_eq!(reopened.snapshot()["shells"][0]["status"], "stopped");
     let next = call(
         &reopened,
-        "alethe_open_shell",
+        "atrium_open_shell",
         json!({ "command": "cargo watch", "cwd": "C:\\app" }),
     );
     assert_eq!(next["shellId"], "shell-02", "{next}");
@@ -416,7 +416,7 @@ fn shells_come_back_stopped_after_a_restart_and_keep_counting() {
 fn the_handshake_advertises_every_tool() {
     let core = Core::default();
     let initialized = rpc(&core, 1, "initialize", json!({}));
-    assert_eq!(initialized["result"]["serverInfo"]["name"], json!("alethe"));
+    assert_eq!(initialized["result"]["serverInfo"]["name"], json!("atrium"));
 
     let listed = rpc(&core, 2, "tools/list", json!({}));
     let names: Vec<&str> = listed["result"]["tools"]
@@ -427,21 +427,21 @@ fn the_handshake_advertises_every_tool() {
         .collect();
 
     for expected in [
-        "alethe_delegate",
-        "alethe_check",
-        "alethe_status",
-        "alethe_steer",
-        "alethe_send",
-        "alethe_cancel",
-        "alethe_release",
-        "alethe_diff",
+        "atrium_delegate",
+        "atrium_check",
+        "atrium_status",
+        "atrium_steer",
+        "atrium_send",
+        "atrium_cancel",
+        "atrium_release",
+        "atrium_diff",
     ] {
         assert!(names.contains(&expected), "missing {expected} in {names:?}");
     }
 }
 
 #[test]
-fn the_handshake_tells_the_planner_it_is_inside_alethe() {
+fn the_handshake_tells_the_planner_it_is_inside_atrium() {
     let core = Core::default();
     core.set_launcher(silent_launcher());
     let initialized = rpc(&core, 1, "initialize", json!({}));
@@ -449,8 +449,8 @@ fn the_handshake_tells_the_planner_it_is_inside_alethe() {
         .as_str()
         .expect("server instructions");
 
-    assert!(text.contains("inside Alethe"), "{text}");
-    assert!(text.contains("alethe_delegate"), "{text}");
+    assert!(text.contains("inside Atrium"), "{text}");
+    assert!(text.contains("atrium_delegate"), "{text}");
     assert!(text.contains("Workers available now: codex."), "{text}");
     assert!(text.contains("Up to 4 run at once"), "{text}");
 }
@@ -476,7 +476,7 @@ fn the_guide_tool_answers_in_plain_markdown() {
             .as_array()
             .expect("tools")
             .iter()
-            .any(|tool| tool["name"] == "alethe_guide"),
+            .any(|tool| tool["name"] == "atrium_guide"),
         "{listed}"
     );
 
@@ -484,7 +484,7 @@ fn the_guide_tool_answers_in_plain_markdown() {
         &core,
         2,
         "tools/call",
-        json!({ "name": "alethe_guide", "arguments": {} }),
+        json!({ "name": "atrium_guide", "arguments": {} }),
     );
     let text = response["result"]["content"][0]["text"]
         .as_str()
@@ -515,7 +515,7 @@ fn the_briefing_names_the_rule_sets_and_says_to_choose_one() {
     let alone = instructions_of(&core);
     assert!(alone.contains("General (always applied)"), "{alone}");
     assert!(!alone.contains("name the set"), "nothing to name: {alone}");
-    assert!(alone.contains("alethe_rules"), "reading one still applies: {alone}");
+    assert!(alone.contains("atrium_rules"), "reading one still applies: {alone}");
 }
 
 #[test]
@@ -560,7 +560,7 @@ fn without_a_general_set_the_briefing_does_not_claim_one_applies() {
 #[test]
 fn the_rules_tool_lists_names_and_returns_one_set() {
     let core = Core::default();
-    let listed = call(&core, "alethe_rules", json!({}));
+    let listed = call(&core, "atrium_rules", json!({}));
     let names = listed["sets"].as_array().expect("names");
     assert!(names.iter().any(|value| value == "Frontend"), "{listed}");
 
@@ -568,7 +568,7 @@ fn the_rules_tool_lists_names_and_returns_one_set() {
         &core,
         2,
         "tools/call",
-        json!({ "name": "alethe_rules", "arguments": { "name": "frontend" } }),
+        json!({ "name": "atrium_rules", "arguments": { "name": "frontend" } }),
     );
     let text = one["result"]["content"][0]["text"].as_str().expect("text");
     assert!(text.starts_with("# Frontend"), "plain markdown, not escaped JSON: {text}");
@@ -577,7 +577,7 @@ fn the_rules_tool_lists_names_and_returns_one_set() {
 #[test]
 fn the_rules_tool_refuses_an_unknown_name() {
     let core = Core::default();
-    let result = call(&core, "alethe_rules", json!({ "name": "Backhand" }));
+    let result = call(&core, "atrium_rules", json!({ "name": "Backhand" }));
     let text = result["error"].as_str().unwrap_or_default();
     assert!(text.contains("unknown rule set"), "the call must be refused: {result}");
     assert!(text.contains("Backend"), "the refusal lists what exists: {text}");
@@ -591,20 +591,20 @@ fn instructions_of(core: &Core) -> String {
 }
 
 #[test]
-fn the_instructions_send_questions_about_alethe_to_the_guide() {
+fn the_instructions_send_questions_about_atrium_to_the_guide() {
     let core = Core::default();
     let text = instructions_of(&core);
-    assert!(text.contains("alethe_guide"), "{text}");
+    assert!(text.contains("atrium_guide"), "{text}");
 }
 
 #[test]
 fn the_instructions_teach_shells_only_where_they_exist() {
     let bare = instructions_of(&Core::default());
-    assert!(!bare.contains("alethe_open_shell"), "{bare}");
+    assert!(!bare.contains("atrium_open_shell"), "{bare}");
 
     let (core, _) = shell_core();
     let text = instructions_of(&core);
-    assert!(text.contains("alethe_open_shell"), "{text}");
+    assert!(text.contains("atrium_open_shell"), "{text}");
     assert!(text.contains("in two ways"), "{text}");
     assert!(text.contains("up -d"), "{text}");
 }
@@ -626,7 +626,7 @@ fn history_outlives_the_process_and_in_flight_work_is_not_reported_as_running() 
     first.set_launcher(silent_launcher());
     call(
         &first,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["keep this"], "cwd": dir.to_string_lossy(), "label": "a run" }),
     );
     std::thread::sleep(std::time::Duration::from_millis(300));
@@ -666,7 +666,7 @@ fn a_new_id_never_collides_with_a_restored_one() {
     first.set_launcher(silent_launcher());
     call(
         &first,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["one", "two"], "cwd": dir.to_string_lossy() }),
     );
     std::thread::sleep(std::time::Duration::from_millis(300));
@@ -677,7 +677,7 @@ fn a_new_id_never_collides_with_a_restored_one() {
     second.set_launcher(silent_launcher());
     let created = call(
         &second,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["three"], "cwd": dir.to_string_lossy() }),
     );
     let id = created["jobs"][0]["id"].as_str().expect("an id");
@@ -692,7 +692,7 @@ fn delegate_as(core: &Core, planner: &str, arguments: Value) -> String {
         "jsonrpc": "2.0",
         "id": 10,
         "method": "tools/call",
-        "params": { "name": "alethe_delegate", "arguments": arguments }
+        "params": { "name": "atrium_delegate", "arguments": arguments }
     });
     let raw = handle_mcp_body(core, &body.to_string(), Some(planner)).expect("a response");
     let response: Value = serde_json::from_str(&raw).expect("valid json");
@@ -706,7 +706,7 @@ fn delegate_as(core: &Core, planner: &str, arguments: Value) -> String {
         .to_string();
     call(
         core,
-        "alethe_check",
+        "atrium_check",
         json!({ "wait": true, "timeoutMs": 5000 }),
     );
     id
@@ -817,16 +817,16 @@ fn a_superseded_worker_that_gets_more_work_is_current_again() {
     let task =
         json!({ "tasks": ["go somewhere"], "cwd": dir.to_string_lossy(), "agent": "claude" });
 
-    call(&core, "alethe_delegate", task.clone());
+    call(&core, "atrium_delegate", task.clone());
     std::thread::sleep(std::time::Duration::from_millis(600));
-    call(&core, "alethe_cancel", json!({ "jobIds": ["job-01"] }));
+    call(&core, "atrium_cancel", json!({ "jobIds": ["job-01"] }));
     assert_eq!(job_field(&core, "job-01", "status"), "cancelled");
-    call(&core, "alethe_delegate", task);
+    call(&core, "atrium_delegate", task);
     assert_eq!(job_field(&core, "job-01", "supersededBy"), json!("job-02"));
 
     let sent = call(
         &core,
-        "alethe_send",
+        "atrium_send",
         json!({ "jobId": "job-01", "message": "pick it up again" }),
     );
     assert_eq!(sent["revived"], json!("job-01"), "{sent}");
@@ -846,7 +846,7 @@ fn a_superseded_worker_that_gets_more_work_is_current_again() {
 
     let _ = call(
         &core,
-        "alethe_cancel",
+        "atrium_cancel",
         json!({ "jobIds": ["job-01", "job-02"] }),
     );
     let _ = std::fs::remove_dir_all(&dir);
@@ -859,7 +859,7 @@ fn a_settled_worker_reports_its_own_outcome() {
     core.set_launcher(silent_launcher());
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["do the thing"], "cwd": dir.to_string_lossy(), "timeoutSeconds": 1 }),
     );
     // The fake worker never speaks, so the watchdog is what settles it. Even then the job must
@@ -888,13 +888,13 @@ fn the_handshake_offers_a_way_to_answer_a_blocked_worker() {
         .iter()
         .filter_map(|tool| tool["name"].as_str())
         .collect();
-    assert!(names.contains(&"alethe_answer"));
+    assert!(names.contains(&"atrium_answer"));
 
     let delegate = tools["result"]["tools"]
         .as_array()
         .expect("tools")
         .iter()
-        .find(|tool| tool["name"] == "alethe_delegate")
+        .find(|tool| tool["name"] == "atrium_delegate")
         .expect("the delegate tool");
     assert!(
         delegate["inputSchema"]["properties"]["askForApproval"].is_object(),
@@ -909,7 +909,7 @@ fn answering_is_refused_when_nothing_is_waiting() {
     core.set_launcher(silent_launcher());
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["work"], "cwd": dir.to_string_lossy() }),
     );
     std::thread::sleep(std::time::Duration::from_millis(300));
@@ -931,7 +931,7 @@ fn answering_is_refused_when_nothing_is_waiting() {
 #[test]
 fn delegating_nothing_is_an_error() {
     let core = Core::default();
-    let result = call(&core, "alethe_delegate", json!({ "tasks": [] }));
+    let result = call(&core, "atrium_delegate", json!({ "tasks": [] }));
     assert!(
         result["error"]
             .as_str()
@@ -946,7 +946,7 @@ fn steering_an_unknown_job_is_refused() {
     let core = Core::default();
     let result = call(
         &core,
-        "alethe_steer",
+        "atrium_steer",
         json!({ "jobId": "job-99", "message": "turn left" }),
     );
     assert!(
@@ -961,7 +961,7 @@ fn steering_an_unknown_job_is_refused() {
 #[test]
 fn checking_with_no_work_returns_at_once() {
     let core = Core::default();
-    let result = call(&core, "alethe_check", json!({ "wait": true }));
+    let result = call(&core, "atrium_check", json!({ "wait": true }));
     assert_eq!(result["workersStillBusy"], json!(0), "{result}");
     assert_eq!(
         result["deliveries"].as_array().expect("deliveries").len(),
@@ -975,14 +975,14 @@ fn a_job_fails_cleanly_when_no_launcher_is_configured() {
     let dir = workspace("nolauncher");
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": ["anything"] }),
     );
     assert_eq!(delegated["accepted"], json!(1), "{delegated}");
 
     let checked = call(
         &core,
-        "alethe_check",
+        "atrium_check",
         json!({ "wait": true, "timeoutMs": 5000 }),
     );
     let deliveries = checked["deliveries"].as_array().expect("deliveries");
@@ -1005,23 +1005,23 @@ fn a_delivery_stays_until_the_planner_acknowledges_it() {
     let dir = workspace("ack");
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": ["anything"] }),
     );
 
-    let first = call(&core, "alethe_check", json!({ "wait": true, "timeoutMs": 5000 }));
+    let first = call(&core, "atrium_check", json!({ "wait": true, "timeoutMs": 5000 }));
     let seq = first["deliveries"][0]["seq"].as_u64().expect("a delivery");
     assert_eq!(first["deliveries"][0]["repeat"], json!(false), "{first}");
     assert_eq!(first["ack"], json!(seq), "the response names what to acknowledge: {first}");
 
     // The client gave up before that response arrived, so the planner never saw it.
-    let retried = call(&core, "alethe_check", json!({}));
+    let retried = call(&core, "atrium_check", json!({}));
     let again = retried["deliveries"].as_array().expect("deliveries");
     assert_eq!(again.len(), 1, "an unacknowledged delivery was dropped: {retried}");
     assert_eq!(again[0]["seq"], json!(seq), "{retried}");
     assert_eq!(again[0]["repeat"], json!(true), "{retried}");
 
-    let acked = call(&core, "alethe_check", json!({ "ack": seq }));
+    let acked = call(&core, "atrium_check", json!({ "ack": seq }));
     assert_eq!(
         acked["deliveries"].as_array().expect("deliveries").len(),
         0,
@@ -1039,12 +1039,12 @@ fn a_blocking_check_returns_before_the_mcp_client_gives_up() {
     let dir = workspace("cap");
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": ["hold"], "timeoutSeconds": 120 }),
     );
 
     let started = std::time::Instant::now();
-    let checked = call(&core, "alethe_check", json!({ "wait": true, "timeoutMs": 600000 }));
+    let checked = call(&core, "atrium_check", json!({ "wait": true, "timeoutMs": 600000 }));
     let waited = started.elapsed();
 
     // Claude Code drops an MCP call somewhere past 45 seconds. A check still blocked by then
@@ -1063,21 +1063,21 @@ fn an_unacknowledged_delivery_does_not_cut_short_a_wait_for_the_next_one() {
     // One worker holds its slot; the other fails at once, since no Claude launcher is set.
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": ["hold"], "timeoutSeconds": 120 }),
     );
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "agent": "claude", "tasks": ["fail"] }),
     );
 
     let wait_for_first = json!({ "wait": true, "untilAllSettled": false, "timeoutMs": 2000 });
-    let first = call(&core, "alethe_check", wait_for_first.clone());
+    let first = call(&core, "atrium_check", wait_for_first.clone());
     assert_eq!(first["deliveries"].as_array().expect("deliveries").len(), 1, "{first}");
 
     let started = std::time::Instant::now();
-    let second = call(&core, "alethe_check", wait_for_first);
+    let second = call(&core, "atrium_check", wait_for_first);
     assert!(
         started.elapsed() >= Duration::from_millis(1500),
         "returned at once on a delivery it had already handed out: {second}"
@@ -1098,7 +1098,7 @@ fn the_observer_sees_every_state_change() {
     let dir = workspace("observer");
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": ["anything"] }),
     );
 
@@ -1141,7 +1141,7 @@ fn two_workers_overlap_and_check_waits_for_both() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({
             "cwd": dir.to_string_lossy(),
             "tasks": [
@@ -1187,7 +1187,7 @@ fn the_queue_never_breaches_the_concurrency_limit() {
         .collect();
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": tasks }),
     );
     assert_eq!(delegated["accepted"], json!(4), "{delegated}");
@@ -1206,7 +1206,7 @@ fn the_queue_never_breaches_the_concurrency_limit() {
 }
 
 /// A worker that starts, holds its pipes open and never speaks the protocol. It exercises the
-/// watchdog without spending a real Codex turn. Registered under the "codex" kind: `alethe_delegate`
+/// watchdog without spending a real Codex turn. Registered under the "codex" kind: `atrium_delegate`
 /// defaults a job's agent to "codex" when the call does not name one, same as these tests do.
 fn silent_launcher() -> Launcher {
     #[cfg(windows)]
@@ -1274,7 +1274,7 @@ fn a_claude_worker_reports_its_result_and_tokens() {
 
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["do something"], "cwd": dir.to_string_lossy(), "agent": "claude" }),
     );
     std::thread::sleep(std::time::Duration::from_millis(500));
@@ -1339,7 +1339,7 @@ fn a_claude_worker_picks_up_its_own_uncommitted_changes_as_a_diff() {
 
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["edit file.txt"], "cwd": dir.to_string_lossy(), "agent": "claude" }),
     );
     std::thread::sleep(std::time::Duration::from_millis(500));
@@ -1360,14 +1360,14 @@ fn delegating_to_an_unconfigured_agent_fails_cleanly_like_any_other_agent() {
     // `a_job_fails_cleanly_when_no_launcher_is_configured`, just naming a different agent.
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["anything"], "cwd": dir.to_string_lossy(), "agent": "claude" }),
     );
     assert_eq!(delegated["accepted"], json!(1), "{delegated}");
 
     let checked = call(
         &core,
-        "alethe_check",
+        "atrium_check",
         json!({ "wait": true, "timeoutMs": 5000 }),
     );
     let deliveries = checked["deliveries"].as_array().expect("deliveries");
@@ -1391,7 +1391,7 @@ fn a_worker_that_never_finishes_is_stopped_by_its_budget() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({
             "cwd": dir.to_string_lossy(),
             "tasks": ["hang forever"],
@@ -1403,7 +1403,7 @@ fn a_worker_that_never_finishes_is_stopped_by_its_budget() {
 
     let checked = call(
         &core,
-        "alethe_check",
+        "atrium_check",
         json!({ "wait": true, "timeoutMs": 30000 }),
     );
     let deliveries = checked["deliveries"].as_array().expect("deliveries");
@@ -1425,7 +1425,7 @@ fn a_delegated_job_records_the_rule_set_it_was_given() {
     let dir = workspace("rules-name");
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": ["one"], "rules": "backend" }),
     );
 
@@ -1441,7 +1441,7 @@ fn delegating_without_a_rule_set_records_none() {
     let core = Core::default();
     core.set_launcher(silent_launcher());
     let dir = workspace("rules-none");
-    call(&core, "alethe_delegate", json!({ "cwd": dir.to_string_lossy(), "tasks": ["one"] }));
+    call(&core, "atrium_delegate", json!({ "cwd": dir.to_string_lossy(), "tasks": ["one"] }));
 
     assert_eq!(core.snapshot()["jobs"][0]["rules"], json!(null));
 
@@ -1455,7 +1455,7 @@ fn an_unknown_rule_set_refuses_the_call_and_starts_no_worker() {
     let dir = workspace("rules-unknown");
     let result = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": ["one"], "rules": "Backhand" }),
     );
 
@@ -1481,7 +1481,7 @@ fn a_worker_stopped_by_its_budget_hands_over_what_it_had_written() {
 
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({
             "cwd": dir.to_string_lossy(),
             "tasks": ["read five sources"],
@@ -1491,7 +1491,7 @@ fn a_worker_stopped_by_its_budget_hands_over_what_it_had_written() {
     );
     let checked = call(
         &core,
-        "alethe_check",
+        "atrium_check",
         json!({ "wait": true, "timeoutMs": 30000 }),
     );
     let deliveries = checked["deliveries"].as_array().expect("deliveries");
@@ -1591,7 +1591,7 @@ fn a_claude_worker_keeps_what_it_wrote_when_a_steer_interrupts_it() {
 
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({
             "cwd": dir.to_string_lossy(),
             "tasks": ["write section B1"],
@@ -1602,13 +1602,13 @@ fn a_claude_worker_keeps_what_it_wrote_when_a_steer_interrupts_it() {
     std::thread::sleep(std::time::Duration::from_millis(1500));
     let steered = call(
         &core,
-        "alethe_steer",
+        "atrium_steer",
         json!({ "jobId": "job-01", "message": "cover section B2 too" }),
     );
     assert_eq!(steered["steered"], json!("job-01"), "{steered}");
     let checked = call(
         &core,
-        "alethe_check",
+        "atrium_check",
         json!({ "wait": true, "timeoutMs": 30000 }),
     );
     let deliveries = checked["deliveries"].as_array().expect("deliveries");
@@ -1637,7 +1637,7 @@ fn a_revived_worker_gets_its_own_budget_not_the_one_before() {
 
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({
             "cwd": dir.to_string_lossy(),
             "tasks": ["long task"],
@@ -1646,10 +1646,10 @@ fn a_revived_worker_gets_its_own_budget_not_the_one_before() {
         }),
     );
     std::thread::sleep(std::time::Duration::from_millis(800));
-    call(&core, "alethe_cancel", json!({ "jobIds": ["job-01"] }));
+    call(&core, "atrium_cancel", json!({ "jobIds": ["job-01"] }));
     let sent = call(
         &core,
-        "alethe_send",
+        "atrium_send",
         json!({ "jobId": "job-01", "message": "carry on" }),
     );
     assert_eq!(sent["revived"], json!("job-01"), "{sent}");
@@ -1662,7 +1662,7 @@ fn a_revived_worker_gets_its_own_budget_not_the_one_before() {
         "stopped on the budget of the run before: {at_five}"
     );
 
-    let _ = call(&core, "alethe_cancel", json!({ "jobIds": ["job-01"] }));
+    let _ = call(&core, "atrium_cancel", json!({ "jobIds": ["job-01"] }));
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -1674,7 +1674,7 @@ fn isolating_outside_a_repository_says_so() {
 
     let result = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": ["anything"], "isolate": true }),
     );
     assert!(
@@ -1718,7 +1718,7 @@ fn isolating_gives_each_worker_its_own_worktree() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({
             "cwd": dir.to_string_lossy(),
             "tasks": ["one", "two"],
@@ -1747,7 +1747,7 @@ fn isolating_gives_each_worker_its_own_worktree() {
 
     let _ = call(
         &core,
-        "alethe_check",
+        "atrium_check",
         json!({ "wait": true, "timeoutMs": 30000 }),
     );
     for path in &paths {
@@ -1758,7 +1758,7 @@ fn isolating_gives_each_worker_its_own_worktree() {
     }
     let _ = std::fs::remove_dir_all(&dir);
     if let Some(parent) = dir.parent() {
-        let _ = std::fs::remove_dir_all(parent.join(".alethe-worktrees"));
+        let _ = std::fs::remove_dir_all(parent.join(".atrium-worktrees"));
     }
 }
 
@@ -1813,7 +1813,7 @@ fn steering_a_running_claude_worker_interrupts_instead_of_waiting_out_the_turn()
 
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["go somewhere"], "cwd": dir.to_string_lossy(), "agent": "claude" }),
     );
     std::thread::sleep(std::time::Duration::from_millis(600));
@@ -1826,7 +1826,7 @@ fn steering_a_running_claude_worker_interrupts_instead_of_waiting_out_the_turn()
 
     let steered = call(
         &core,
-        "alethe_steer",
+        "atrium_steer",
         json!({ "jobId": &job_id, "message": "turn around" }),
     );
     assert_eq!(steered["steered"], json!(job_id), "{steered}");
@@ -1840,7 +1840,7 @@ fn steering_a_running_claude_worker_interrupts_instead_of_waiting_out_the_turn()
         "the interrupt settled the job instead of restarting it"
     );
 
-    let _ = call(&core, "alethe_cancel", json!({ "jobIds": [&job_id] }));
+    let _ = call(&core, "atrium_cancel", json!({ "jobIds": [&job_id] }));
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -1851,7 +1851,7 @@ fn cancelling_through_the_core_settles_the_worker() {
     let dir = workspace("cancel-method");
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": ["hold"], "timeoutSeconds": 120 }),
     );
     let job_id = core.snapshot()["jobs"][0]["id"].as_str().expect("a job").to_string();
@@ -1879,7 +1879,7 @@ fn steering_a_settled_claude_worker_queues_the_next_turn() {
 
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["finish quickly"], "cwd": dir.to_string_lossy(), "agent": "claude" }),
     );
     std::thread::sleep(std::time::Duration::from_millis(500));
@@ -1892,7 +1892,7 @@ fn steering_a_settled_claude_worker_queues_the_next_turn() {
 
     let steered = call(
         &core,
-        "alethe_steer",
+        "atrium_steer",
         json!({ "jobId": &job_id, "message": "one more thing" }),
     );
     assert_eq!(steered["queued"], json!(job_id), "{steered}");
@@ -1913,14 +1913,14 @@ fn every_tool_response_carries_the_current_headroom() {
         json!({ "worst": "week", "used": 60, "plan": "plus", "rateLimited": false }),
     );
 
-    let status = call(&core, "alethe_status", json!({}));
+    let status = call(&core, "atrium_status", json!({}));
     assert_eq!(status["fitness"]["headroom"], "claude", "{status}");
     assert_eq!(status["fitness"]["codex"]["plan"], "plus", "{status}");
 
-    let checked = call(&core, "alethe_check", json!({}));
+    let checked = call(&core, "atrium_check", json!({}));
     assert_eq!(
         checked["fitness"]["headroom"], "claude",
-        "alethe_check is the one response the planner must read: {checked}"
+        "atrium_check is the one response the planner must read: {checked}"
     );
 }
 
@@ -1931,11 +1931,11 @@ fn a_null_snapshot_forgets_an_agent_whose_usage_is_no_longer_read() {
         "claude",
         json!({ "worst": "week", "used": 95, "rateLimited": false }),
     );
-    assert!(call(&core, "alethe_status", json!({}))["fitness"]["claude"].is_object());
+    assert!(call(&core, "atrium_status", json!({}))["fitness"]["claude"].is_object());
 
     core.set_agent_fitness("claude", Value::Null);
 
-    let status = call(&core, "alethe_status", json!({}));
+    let status = call(&core, "atrium_status", json!({}));
     assert!(status["fitness"]["claude"].is_null(), "{status}");
 }
 
@@ -1951,7 +1951,7 @@ fn the_worst_window_decides_headroom_even_when_the_five_hour_ones_are_tied() {
         json!({ "worst": "week", "used": 60, "rateLimited": false }),
     );
 
-    let status = call(&core, "alethe_status", json!({}));
+    let status = call(&core, "atrium_status", json!({}));
     assert_eq!(status["fitness"]["headroom"], "claude", "{status}");
 }
 
@@ -1971,7 +1971,7 @@ fn delegating_to_an_exhausted_agent_names_the_other_side() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["something"], "cwd": dir.to_string_lossy(), "agent": "codex" }),
     );
     assert_eq!(delegated["headroomHint"]["agent"], "claude", "{delegated}");
@@ -1985,7 +1985,7 @@ fn delegating_to_an_exhausted_agent_names_the_other_side() {
 
     let _ = call(
         &core,
-        "alethe_cancel",
+        "atrium_cancel",
         json!({ "jobIds": [delegated["jobs"][0]["id"].clone()] }),
     );
     let _ = std::fs::remove_dir_all(&dir);
@@ -2007,7 +2007,7 @@ fn a_rested_agent_gets_no_hint() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["something"], "cwd": dir.to_string_lossy(), "agent": "codex" }),
     );
     assert!(
@@ -2017,7 +2017,7 @@ fn a_rested_agent_gets_no_hint() {
 
     let _ = call(
         &core,
-        "alethe_cancel",
+        "atrium_cancel",
         json!({ "jobIds": [delegated["jobs"][0]["id"].clone()] }),
     );
     let _ = std::fs::remove_dir_all(&dir);
@@ -2039,12 +2039,12 @@ fn the_board_records_why_a_worker_ran_where_it_ran() {
 
     let ignored = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["into the strained side"], "cwd": dir.to_string_lossy(), "agent": "codex" }),
     );
     let chosen = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["into the rested side"], "cwd": dir.to_string_lossy(), "agent": "claude" }),
     );
 
@@ -2068,7 +2068,7 @@ fn the_board_records_why_a_worker_ran_where_it_ran() {
     assert_eq!(routing_of(&first)["used"], 91.0);
     assert_eq!(routing_of(&second)["verdict"], "chosen");
 
-    let _ = call(&core, "alethe_cancel", json!({ "jobIds": [first, second] }));
+    let _ = call(&core, "atrium_cancel", json!({ "jobIds": [first, second] }));
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -2088,7 +2088,7 @@ fn a_board_with_room_on_both_sides_records_no_reason_at_all() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["nothing notable"], "cwd": dir.to_string_lossy(), "agent": "codex" }),
     );
     let id = delegated["jobs"][0]["id"]
@@ -2107,7 +2107,7 @@ fn a_board_with_room_on_both_sides_records_no_reason_at_all() {
         "labelled an edge that had nothing to say: {job}"
     );
 
-    let _ = call(&core, "alethe_cancel", json!({ "jobIds": [id] }));
+    let _ = call(&core, "atrium_cancel", json!({ "jobIds": [id] }));
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -2130,7 +2130,7 @@ fn with_both_sides_strained_the_board_blames_the_worse_one_every_time() {
     for _ in 0..5 {
         let delegated = call(
             &core,
-            "alethe_delegate",
+            "atrium_delegate",
             json!({ "tasks": ["work"], "cwd": dir.to_string_lossy(), "agent": "codex" }),
         );
         let id = delegated["jobs"][0]["id"]
@@ -2152,7 +2152,7 @@ fn with_both_sides_strained_the_board_blames_the_worse_one_every_time() {
         assert_eq!(job["routing"]["verdict"], "ignored", "{job}");
         ids.push(id);
     }
-    let _ = call(&core, "alethe_cancel", json!({ "jobIds": ids }));
+    let _ = call(&core, "atrium_cancel", json!({ "jobIds": ids }));
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -2172,7 +2172,7 @@ fn a_hint_never_presents_an_equally_exhausted_agent_as_the_way_out() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["work"], "cwd": dir.to_string_lossy(), "agent": "codex" }),
     );
     let hint = &delegated["headroomHint"];
@@ -2186,7 +2186,7 @@ fn a_hint_never_presents_an_equally_exhausted_agent_as_the_way_out() {
 
     let _ = call(
         &core,
-        "alethe_cancel",
+        "atrium_cancel",
         json!({ "jobIds": [delegated["jobs"][0]["id"].clone()] }),
     );
     let _ = std::fs::remove_dir_all(&dir);
@@ -2204,7 +2204,7 @@ fn a_rate_limited_agent_outranks_any_percentage() {
         json!({ "worst": "5h", "used": 10, "rateLimited": true }),
     );
 
-    let status = call(&core, "alethe_status", json!({}));
+    let status = call(&core, "atrium_status", json!({}));
     assert_eq!(
         status["fitness"]["headroom"], "claude",
         "sent work to a side that is already refusing it: {status}"
@@ -2219,8 +2219,8 @@ fn the_delegate_schema_points_at_the_live_reading_instead_of_quoting_numbers() {
         .as_array()
         .expect("tools")
         .iter()
-        .find(|tool| tool["name"] == "alethe_delegate")
-        .expect("alethe_delegate")["inputSchema"]["properties"]["agent"]["description"]
+        .find(|tool| tool["name"] == "atrium_delegate")
+        .expect("atrium_delegate")["inputSchema"]["properties"]["agent"]["description"]
         .as_str()
         .expect("a description")
         .to_string();
@@ -2235,7 +2235,7 @@ fn the_delegate_schema_points_at_the_live_reading_instead_of_quoting_numbers() {
     );
 }
 
-// What alethe_status returns has to fit a planner; the UI keeps reading the full snapshot (#258).
+// What atrium_status returns has to fit a planner; the UI keeps reading the full snapshot (#258).
 #[test]
 fn the_status_stays_small_however_long_the_tasks_are() {
     let dir = workspace("status-small");
@@ -2246,18 +2246,18 @@ fn the_status_stays_small_however_long_the_tasks_are() {
     call_as(
         &core,
         Some("planner-a"),
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": tasks, "cwd": dir.to_string_lossy() }),
     );
     // No launcher is registered, so every worker settles at once.
     call_as(
         &core,
         Some("planner-a"),
-        "alethe_check",
+        "atrium_check",
         json!({ "wait": true, "timeoutMs": 5000 }),
     );
 
-    let status = call_as(&core, Some("planner-a"), "alethe_status", json!({}));
+    let status = call_as(&core, Some("planner-a"), "atrium_status", json!({}));
     let size = status.to_string().chars().count();
     assert!(size < 12_000, "the status has {size} characters");
     let jobs = status["jobs"].as_array().expect("jobs");
@@ -2299,23 +2299,23 @@ fn a_planner_sees_its_own_workers_and_a_count_of_the_rest() {
     call_as(
         &core,
         Some("planner-a"),
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["task of a"], "cwd": cwd }),
     );
     call_as(
         &core,
         Some("planner-b"),
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["task of b"], "cwd": cwd }),
     );
 
-    let mine = call_as(&core, Some("planner-a"), "alethe_status", json!({}));
+    let mine = call_as(&core, Some("planner-a"), "atrium_status", json!({}));
     let jobs = mine["jobs"].as_array().expect("jobs");
     assert_eq!(jobs.len(), 1, "{mine}");
     assert_eq!(jobs[0]["plannerId"], "planner-a");
     assert_eq!(mine["omitted"], json!(1), "{mine}");
 
-    let all = call_as(&core, Some("planner-a"), "alethe_status", json!({ "all": true }));
+    let all = call_as(&core, Some("planner-a"), "atrium_status", json!({ "all": true }));
     assert_eq!(all["jobs"].as_array().map(Vec::len), Some(2), "{all}");
     assert_eq!(all["omitted"], json!(0), "{all}");
 
@@ -2332,7 +2332,7 @@ fn a_worker_keeps_the_model_effort_and_read_only_it_was_delegated_with() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({
             "tasks": ["review the diff"],
             "cwd": dir.to_string_lossy(),
@@ -2345,7 +2345,7 @@ fn a_worker_keeps_the_model_effort_and_read_only_it_was_delegated_with() {
     // No launcher is registered, so the worker settles at once; what matters is what it was given.
     call(
         &core,
-        "alethe_check",
+        "atrium_check",
         json!({ "wait": true, "timeoutMs": 5000 }),
     );
 
@@ -2374,7 +2374,7 @@ fn a_worker_delegated_without_model_options_runs_as_before() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["anything"], "cwd": dir.to_string_lossy() }),
     );
     assert_eq!(delegated["accepted"], json!(1), "{delegated}");
@@ -2419,7 +2419,7 @@ fn model_options_that_cannot_hold_are_refused_without_creating_a_job() {
         for (key, value) in options.as_object().expect("options") {
             arguments[key] = value.clone();
         }
-        let result = call(&core, "alethe_delegate", arguments);
+        let result = call(&core, "atrium_delegate", arguments);
         assert!(
             result.get("error").is_some(),
             "{case} must be refused: {result}"
@@ -2462,7 +2462,7 @@ fn a_role_decides_what_its_workers_run_on() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["review the diff"], "cwd": dir.to_string_lossy(), "role": "reviewer" }),
     );
     assert_eq!(delegated["accepted"], json!(1), "{delegated}");
@@ -2502,12 +2502,12 @@ fn a_role_is_the_only_source_for_what_it_sets() {
         for (key, value) in options.as_object().expect("options") {
             arguments[key] = value.clone();
         }
-        let result = call(&core, "alethe_delegate", arguments);
+        let result = call(&core, "atrium_delegate", arguments);
         assert!(result.get("error").is_some(), "{case} must be refused: {result}");
     }
     let unknown = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["anything"], "cwd": cwd, "role": "auditor" }),
     );
     assert!(
@@ -2532,13 +2532,13 @@ fn editing_a_role_changes_the_next_delegation_but_not_one_already_made() {
     core.apply_settings(reviewer_on("gpt-6-astra"));
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["first"], "cwd": cwd, "role": "reviewer" }),
     );
     core.apply_settings(reviewer_on("gpt-6.1-sol"));
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["second"], "cwd": cwd, "role": "reviewer" }),
     );
 
@@ -2554,7 +2554,7 @@ fn the_status_lists_the_roles_a_planner_can_ask_for() {
     let core = Core::default();
     core.apply_settings(reviewer_on("gpt-6.1-sol"));
 
-    let status = call(&core, "alethe_status", json!({}));
+    let status = call(&core, "atrium_status", json!({}));
     let roles = status["roles"].as_array().expect("roles in the status");
     assert_eq!(roles.len(), 1, "{status}");
     assert_eq!(roles[0]["name"], "reviewer");
@@ -2574,7 +2574,7 @@ fn the_limits_from_preferences_reach_the_orchestrator() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["anything"], "cwd": dir.to_string_lossy() }),
     );
     assert_eq!(delegated["concurrencyLimit"], json!(2), "{delegated}");
@@ -2591,7 +2591,7 @@ fn a_claude_worker_keeps_the_effort_it_was_delegated_with() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({
             "tasks": ["implement it"],
             "cwd": dir.to_string_lossy(),
@@ -2631,7 +2631,7 @@ fn a_claude_role_runs_on_its_model_and_effort() {
 
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["implement it"], "cwd": dir.to_string_lossy(), "role": "executor-t2" }),
     );
     assert_eq!(delegated["accepted"], json!(1), "{delegated}");
@@ -2706,7 +2706,7 @@ fn delegate_role_as(
     let delegated = call_as(
         core,
         planner,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["do the work"], "cwd": dir.to_string_lossy(), "role": role }),
     );
     let snapshot = core.snapshot();
@@ -2903,12 +2903,12 @@ fn a_role_with_no_row_for_the_planner_is_refused() {
     with_planners(&core);
     let cwd = dir.to_string_lossy().into_owned();
 
-    // No planner, or one Alethe does not know, only reaches the rows for any orchestrator.
+    // No planner, or one Atrium does not know, only reaches the rows for any orchestrator.
     for planner in [None, Some("unregistered-pane")] {
         let refused = call_as(
             &core,
             planner,
-            "alethe_delegate",
+            "atrium_delegate",
             json!({ "tasks": ["anything"], "cwd": cwd, "role": "executor-t2" }),
         );
         assert_eq!(
@@ -2919,7 +2919,7 @@ fn a_role_with_no_row_for_the_planner_is_refused() {
     let unknown = call_as(
         &core,
         Some("claude-pane"),
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "tasks": ["anything"], "cwd": cwd, "role": "auditor" }),
     );
     assert_eq!(
@@ -3052,7 +3052,7 @@ fn a_codex_thread_that_fails_to_open_fails_its_worker() {
     });
     let delegated = call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({
             "tasks": ["review the diff"],
             "cwd": dir.to_string_lossy(),

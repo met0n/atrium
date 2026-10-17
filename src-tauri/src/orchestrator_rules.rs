@@ -1,4 +1,4 @@
-//! The engineering rules Alethe hands to the workers it delegates to.
+//! The engineering rules Atrium hands to the workers it delegates to.
 //!
 //! Tauri-free like `orchestrator_core`, which declares this module: both compile inside the
 //! orchestrator tests and the standalone MCP binary. The app injects the person's own sets.
@@ -17,7 +17,7 @@ const GENERAL: &str = include_str!("../assets/rules/general.md");
 const BACKEND: &str = include_str!("../assets/rules/backend.md");
 const FRONTEND: &str = include_str!("../assets/rules/frontend.md");
 
-/// What ships with Alethe. The person edits these or replaces them entirely.
+/// What ships with Atrium. The person edits these or replaces them entirely.
 pub fn default_rule_sets() -> Vec<RuleSet> {
     vec![
         RuleSet { id: GENERAL_ID.into(), name: "General".into(), text: GENERAL.into() },
@@ -78,7 +78,7 @@ pub fn find_set<'a>(sets: &'a [RuleSet], name: &str) -> Option<&'a RuleSet> {
 }
 
 /// Wording shared by every call site that refuses an unknown rule-set name, so a planner sees the
-/// same message whether the refusal came from delegating, from `rules_block`, or from `alethe_rules`.
+/// same message whether the refusal came from delegating, from `rules_block`, or from `atrium_rules`.
 pub fn unknown_set_error(sets: &[RuleSet], name: &str) -> String {
     let names: Vec<&str> = sets.iter().map(|set| set.name.as_str()).collect();
     format!(
@@ -87,7 +87,7 @@ pub fn unknown_set_error(sets: &[RuleSet], name: &str) -> String {
     )
 }
 
-const PRECEDENCE: &str = "These are Alethe's working rules for this task. If this repository states something different (CLAUDE.md, AGENTS.md, CONTRIBUTING.md), the repository wins.";
+const PRECEDENCE: &str = "These are Atrium's working rules for this task. If this repository states something different (CLAUDE.md, AGENTS.md, CONTRIBUTING.md), the repository wins.";
 
 /// The block prefixed to a worker's first message: the general set, then the named one if there is
 /// one. An unknown name is refused rather than silently ignored — a worker running with the wrong
@@ -111,7 +111,7 @@ pub fn rules_block(sets: &[RuleSet], named: Option<&str>) -> Result<String, Stri
         .map(|set| set.text.trim())
         .collect::<Vec<_>>()
         .join("\n\n");
-    Ok(format!("<alethe-rules>\n{PRECEDENCE}\n\n{body}\n</alethe-rules>\n\n"))
+    Ok(format!("<atrium-rules>\n{PRECEDENCE}\n\n{body}\n</atrium-rules>\n\n"))
 }
 
 #[cfg(test)]

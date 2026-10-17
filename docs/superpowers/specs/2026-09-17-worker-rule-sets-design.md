@@ -5,7 +5,7 @@ Status: approved in conversation, pending spec review
 
 ## 1. Problem
 
-Alethe delegates work to other agents, and what comes back is only as good as what they were told.
+Atrium delegates work to other agents, and what comes back is only as good as what they were told.
 Today a worker receives the task text and nothing else: no standard for how code is written here, no
 reminder to verify before reporting, no shared idea of what "done" means. Every worker improvises,
 and the person reviewing the board pays for it.
@@ -16,12 +16,12 @@ nothing.
 
 ## 2. Goals
 
-- Alethe ships **good engineering rules of its own**, handed to every worker it starts.
+- Atrium ships **good engineering rules of its own**, handed to every worker it starts.
 - Rules are **named sets** (General, Backend, Frontend, plus any the person creates), so a worker
   gets what its work needs and nothing else.
 - The **planner picks the set** when it delegates, because it knows what the task is.
 - The person **edits ours and adds their own**, per user, from Preferences.
-- A repository's own conventions always **win** over Alethe's.
+- A repository's own conventions always **win** over Atrium's.
 
 ## 3. Non-goals
 
@@ -60,7 +60,7 @@ keystroke away from a failed call.
 `Preferences.workerRuleSets: RuleSet[] | null`, default `null`, saved per user with the rest of the
 preferences.
 
-`null` means "never customized: use Alethe's". Any array — **including an empty one** — is the
+`null` means "never customized: use Atrium's". Any array — **including an empty one** — is the
 person's own list. This is the same distinction the message shortcuts learned the hard way: an empty
 array that means "use ours" makes deleting the last item silently resurrect everything.
 
@@ -101,7 +101,7 @@ Built from live state, so a set the person deleted is never advertised.
 
 ### 5.2 Delegation
 
-`alethe_delegate` gains an optional `rules` parameter: one set name for the whole call.
+`atrium_delegate` gains an optional `rules` parameter: one set name for the whole call.
 
 - **Named and known:** that set plus General goes to every worker in the call.
 - **Omitted:** General only.
@@ -113,8 +113,8 @@ A mixed batch is two calls. That reads better on the board too: one run per area
 
 ### 5.3 Reading a set on demand
 
-`alethe_rules` returns a set's text by name, or the list of names when called without one — the same
-shape as `alethe_guide`. This is how the planner follows the rules when it writes code itself,
+`atrium_rules` returns a set's text by name, or the list of names when called without one — the same
+shape as `atrium_guide`. This is how the planner follows the rules when it writes code itself,
 without every planner prompt paying for rule text it usually does not need.
 
 ### 5.4 On the board
@@ -132,8 +132,8 @@ implying General was absent.
 Prefixed to the **first message only**, delimited:
 
 ```
-<alethe-rules>
-These are Alethe's working rules for this task. If this repository states something different
+<atrium-rules>
+These are Atrium's working rules for this task. If this repository states something different
 (CLAUDE.md, AGENTS.md, CONTRIBUTING.md), the repository wins.
 
 # General
@@ -141,14 +141,14 @@ These are Alethe's working rules for this task. If this repository states someth
 
 # Frontend
 …
-</alethe-rules>
+</atrium-rules>
 
 <task>
 …
 </task>
 ```
 
-Follow-up messages to the same worker (`alethe_send`, `alethe_steer`) repeat nothing: the rules are
+Follow-up messages to the same worker (`atrium_send`, `atrium_steer`) repeat nothing: the rules are
 already in that conversation.
 
 **Why a prefix and not a system prompt.** Both worker backends receive work over stdin — Codex as an
@@ -259,7 +259,7 @@ Decisions live in pure functions with unit tests; the UI and the core plumbing s
 ## 9. i18n, changelog, house rules
 
 UI labels go in `en.ts` and `pt-BR.ts`. The rule assets are English prose the person may rewrite.
-`docs/CHANGELOG.md` gains an `[Unreleased]` entry describing, in the person's terms, that Alethe now
+`docs/CHANGELOG.md` gains an `[Unreleased]` entry describing, in the person's terms, that Atrium now
 hands its own engineering rules to the agents it delegates to, and where to edit them. Styling stays
 on CSS Modules and theme tokens.
 
@@ -268,7 +268,7 @@ on CSS Modules and theme tokens.
 - **Rules per task instead of per delegation call.** More flexible, but it turns the task list into
   objects and gives the planner one more thing to get wrong for a case that splits cleanly into two
   calls.
-- **Alethe guesses the area from the task text.** No friction and no reliability: a task mentioning
+- **Atrium guesses the area from the task text.** No friction and no reliability: a task mentioning
   "the API component" picks the wrong set and nobody notices.
 - **One big rule set instead of named ones.** Cheapest to author, worst to use: a frontend worker
   reads database migration rules forever.

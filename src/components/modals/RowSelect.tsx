@@ -154,7 +154,7 @@ export function RowSelect({
         ref={triggerRef}
         type="button"
         className={styles.trigger}
-        data-alethe-field={field}
+        data-atrium-field={field}
         data-autofocus={autoFocus ? '' : undefined}
         aria-label={ariaLabel}
         aria-haspopup="listbox"
@@ -186,7 +186,7 @@ export function RowSelect({
             <div
               ref={menuRef}
               className={styles.menu}
-              data-alethe-dropdown-menu=""
+              data-atrium-dropdown-menu=""
               id={listboxId}
               role="listbox"
               aria-label={ariaLabel}
@@ -210,7 +210,7 @@ export function RowSelect({
                     role="option"
                     aria-selected={selected}
                     tabIndex={-1}
-                    data-alethe-option={option.value}
+                    data-atrium-option={option.value}
                     className={`${styles.option} ${selected ? styles.optionSelected : ''} ${index === activeIndex ? styles.optionActive : ''}`}
                     onMouseEnter={() => setActiveIndex(index)}
                     onClick={(event) => {

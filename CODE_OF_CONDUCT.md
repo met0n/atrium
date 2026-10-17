@@ -59,8 +59,8 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-**contact@kc1t.com**.
+reported privately to the Atrium maintainers through the repository's GitHub
+profile contact or a private security advisory.
 
 All complaints will be reviewed and investigated promptly and fairly.
 

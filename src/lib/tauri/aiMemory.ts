@@ -2,16 +2,16 @@ import { invoke } from '@tauri-apps/api/core'
 
 export type AiMemoryStatus = {
   installed: boolean
-  /** Something answers on the loopback endpoint — not necessarily a server Alethe started. */
+  /** Something answers on the loopback endpoint — not necessarily a server Atrium started. */
   running: boolean
   command: string
   endpoint: string
   version: string | null
-  /** The binary is the copy Alethe installed, not one found on PATH. */
+  /** The binary is the copy Atrium installed, not one found on PATH. */
   managed: boolean
   /** Upstream publishes a build for this machine. False on Windows ARM64. */
   supported: boolean
-  /** The server behind `endpoint`, if any, is the child process Alethe itself started. */
+  /** The server behind `endpoint`, if any, is the child process Atrium itself started. */
   ours: boolean
 }
 

@@ -36,7 +36,7 @@ export function graphifyRepoOf(project: Project | undefined, terminalCwd?: strin
 export type ClaudeLaunchExtras = {
   mcpConfigPaths: string[]
   hooksSettingsPath: string | undefined
-  /** Whether the MCP servers include the orchestrator's `alethe_*` tools. */
+  /** Whether the MCP servers include the orchestrator's `atrium_*` tools. */
   orchestrator: boolean
 }
 

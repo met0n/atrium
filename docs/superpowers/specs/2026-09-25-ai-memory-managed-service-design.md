@@ -5,7 +5,7 @@ Status: approved in conversation, pending spec review
 
 ## 1. What this replaces
 
-The first version of this spec opened by saying Alethe and
+The first version of this spec opened by saying Atrium and
 [ai-memory](https://github.com/akitaonrails/ai-memory) "know nothing about each other". That was
 false, and it was found out one task into implementation: `src-tauri/src/ai_memory.rs` already
 existed — 195 lines from `main`, declared at `lib.rs:5` — and the integration is live. The spec was
@@ -37,11 +37,11 @@ So querying memory already works, end to end, for three agents. Nothing in this 
 
 ## 3. The problem
 
-You can turn the feature on with nothing installed. Alethe accepts the switch, writes no config, and
+You can turn the feature on with nothing installed. Atrium accepts the switch, writes no config, and
 tells you once — in a toast, from inside a terminal, after the fact. The person who wanted memory is
 left with a feature that says "enabled" and does nothing, and no route to fixing it.
 
-9router set the pattern for the opposite: an external binary Alethe helps install, keeps in the
+9router set the pattern for the opposite: an external binary Atrium helps install, keeps in the
 profile folder, reports the state of, and can start and stop. ai-memory needs the same, and one
 thing more that 9router has no equivalent of — the capture side, which is hooks.
 
@@ -51,7 +51,7 @@ thing more that 9router has no equivalent of — the capture side, which is hook
 - Start it and stop it, and say whether it is running.
 - Capture what agents do, not just answer their queries — the hooks half of ai-memory.
 - Say what capture means before it starts.
-- Work on every platform Alethe supports that upstream publishes a build for.
+- Work on every platform Atrium supports that upstream publishes a build for.
 
 ## 5. Non-goals
 
@@ -64,7 +64,7 @@ thing more that 9router has no equivalent of — the capture side, which is hook
 - **Not a plugin.** A plugin cannot spawn a process, write a settings file or open a port —
   `spawn_pty`, `write_pty`, `write_text_file` and `delete_filesystem_entry` are all in
   `FORBIDDEN_COMMANDS` (`src/lib/plugins/permissions.ts:32`).
-- **Not `ai-memory run`.** That subcommand launches the agent itself; Alethe is the launcher.
+- **Not `ai-memory run`.** That subcommand launches the agent itself; Atrium is the launcher.
 
 ## 6. The design
 
@@ -90,8 +90,8 @@ Preferences.
 ### 6.2 One switch
 
 Turning the feature on is the consent. The copy under the switch says what gets recorded — every
-prompt and every tool call from agents Alethe launches — and where it lives: a git-versioned
-markdown wiki plus a SQLite index, both on this machine, both readable without Alethe.
+prompt and every tool call from agents Atrium launches — and where it lives: a git-versioned
+markdown wiki plus a SQLite index, both on this machine, both readable without Atrium.
 
 Two switches for one decision was the first version's mistake. A person who turns on "AI Memory" and
 then has to find "let agents capture to memory" has been asked the same question twice, and the
@@ -99,7 +99,7 @@ second one reads like a trap.
 
 ### 6.3 Install
 
-`AiMemoryStatus` gains what the panel needs: whether the copy is one Alethe installed or one found on
+`AiMemoryStatus` gains what the panel needs: whether the copy is one Atrium installed or one found on
 `PATH`, and whether upstream publishes a build for this machine at all.
 
 The asset is chosen by platform **and** architecture, verified against the `.sha256` the release
@@ -108,17 +108,17 @@ the panel says upstream publishes no build for this machine and offers no button
 downloading a 404.
 
 **A copy the person installed themselves wins.** `ai_memory_detect` already resolves a command off
-`PATH`; when it finds one, Alethe uses it and says so. Someone already running this service has a
+`PATH`; when it finds one, Atrium uses it and says so. Someone already running this service has a
 data directory and a configuration, and shadowing it with our own copy would split their memory in
-two. Only a copy Alethe installed is told where to keep its data.
+two. Only a copy Atrium installed is told where to keep its data.
 
 ### 6.4 Lifecycle
 
 `serve --transport http --bind 127.0.0.1:<port>`, started and stopped from the panel. The counts come
 from the binary's own `status` — pages, sessions, observations — so the panel reports what the
-service says rather than what Alethe assumes.
+service says rather than what Atrium assumes.
 
-The port is configurable. Something already answering on it, that Alethe did not start, is reported
+The port is configurable. Something already answering on it, that Atrium did not start, is reported
 as exactly that: most likely the person's own instance, which is a reason to leave it alone rather
 than fight for the bind.
 
@@ -126,13 +126,13 @@ than fight for the bind.
 
 This is the half that does not exist, and the reason the whole design is worth building.
 
-Alethe already writes a Claude settings file per terminal — namespaced by listener port and planner
-id, with `"type": "http"` hooks carrying a token back to Alethe — and launches Claude with
+Atrium already writes a Claude settings file per terminal — namespaced by listener port and planner
+id, with `"type": "http"` hooks carrying a token back to Atrium — and launches Claude with
 `--settings <that file>` (`agent_events.rs:71`, `sessionLaunch.ts:79`). ai-memory's
 `install-hooks --agent claude-code` prints `"type": "command"` hooks that run
 `ai-memory hook --event <event>`.
 
-So Alethe composes those into its own file, and never runs `install-hooks --apply`.
+So Atrium composes those into its own file, and never runs `install-hooks --apply`.
 
 One writer owns that file; the person's `~/.claude/settings.json` is never touched; the scope is per
 terminal, so memory can be on for one project and off for another; and stopping the integration
@@ -162,13 +162,13 @@ ai-memory **2.4.0**, on this machine:
   `PreCompact`, `Stop`, `SessionEnd`, `SubagentStart`, `SubagentStop`.
 
 **Not verified:** the `http` + `command` combination specifically — the test used two `command`
-hooks, because Alethe's listener was not running; hook *type* takes no part in the merge. Nothing was
+hooks, because Atrium's listener was not running; hook *type* takes no part in the merge. Nothing was
 run on Linux or macOS.
 
 ## 8. Testing
 
 - Pure functions, unit-tested: the asset for a platform and architecture, including the case with
-  none; composing ai-memory's hook entries into Alethe's hooks object without losing either side's;
+  none; composing ai-memory's hook entries into Atrium's hooks object without losing either side's;
   choosing between a managed copy and one on `PATH`; whether the panel offers Install, Start, or
   neither.
 - Rust: the download verifies the published hash and refuses a mismatch without leaving a file
@@ -186,7 +186,7 @@ run on Linux or macOS.
 - **A separate consent switch.** Asks one question twice.
 - **Registering through `mcp_store` as well.** A second mechanism writing the same registration,
   competing with the `--mcp-config` file the existing code already writes.
-- **Bundling the binary.** No install step, and Alethe ships and answers for a 46 MB third-party
+- **Bundling the binary.** No install step, and Atrium ships and answers for a 46 MB third-party
   binary.
 - **Docker only.** Requires Docker Desktop on Windows and macOS for no gain: native builds exist for
-  every platform Alethe supports but one.
+  every platform Atrium supports but one.

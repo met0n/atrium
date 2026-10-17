@@ -738,8 +738,8 @@ mod encode_cwd_tests {
     #[test]
     fn folds_spaces_underscores_and_punctuation() {
         assert_eq!(
-            encode_cwd_for_claude(r"D:\kauam\Documents\Github\Projects\Alethe Game"),
-            "D--kauam-Documents-Github-Projects-Alethe-Game"
+            encode_cwd_for_claude(r"D:\kauam\Documents\Github\Projects\Atrium Game"),
+            "D--kauam-Documents-Github-Projects-Atrium-Game"
         );
         assert_eq!(
             encode_cwd_for_claude(r"D:\kauam\Documents\Github\Verzel\app_cartao_avenida"),
@@ -763,7 +763,7 @@ mod encode_cwd_tests {
     #[test]
     fn finds_the_hashed_directory_of_an_overlong_path() {
         let root = std::env::temp_dir().join(format!(
-            "alethe-claude-dirs-{}-{:?}",
+            "atrium-claude-dirs-{}-{:?}",
             std::process::id(),
             std::thread::current().id()
         ));
@@ -782,8 +782,8 @@ mod encode_cwd_tests {
     #[test]
     fn folds_the_dot_of_a_worktree_path() {
         assert_eq!(
-            encode_cwd_for_claude("/home/user/repo/.alethe/worktrees/cl-a1b2c3"),
-            "-home-user-repo--alethe-worktrees-cl-a1b2c3"
+            encode_cwd_for_claude("/home/user/repo/.atrium/worktrees/cl-a1b2c3"),
+            "-home-user-repo--atrium-worktrees-cl-a1b2c3"
         );
     }
 

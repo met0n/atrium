@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Alethe — prévia da UI de voz</title>
+<title>Atrium — prévia da UI de voz</title>
 <style>
 :root,
 [data-theme='dark'] {
@@ -31,7 +31,7 @@
   --text-tertiary: #8b8b95;
   --text-quaternary: #6b6b75;
 
-  /* accent (off-white em dark — segue Alethe) */
+  /* accent (off-white em dark — segue Atrium) */
   --accent: #f3f4f6;
   --accent-strong: #ffffff;
   --accent-on: #101114;
@@ -95,7 +95,7 @@
   --project-gray: #64748b;
   --project-black: #0a0a0a;
 
-  /* foco dotted (Alethe focus mode) */
+  /* foco dotted (Atrium focus mode) */
   --focus-ring: #38bdf8;
 
   /* shape-tabs-lane casa com chrome do pane */
@@ -548,19 +548,19 @@
 .previewHeader{padding:24px 32px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:20px;flex-wrap:wrap}.previewHeader h1{font-size:16px;margin:0}.previewHeader p{color:var(--fg-faint);font-size:12px;margin:6px 0 0}.controls{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}.controls button{border:1px solid var(--border);background:var(--bg-elevated);color:var(--fg-muted);border-radius:var(--radius-md);padding:8px 12px;cursor:pointer}.controls button[aria-pressed=true]{color:var(--accent);border-color:var(--accent)}.workspace{padding:24px 32px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;height:calc(100vh - 230px)}.terminal{border:1px solid var(--border);border-radius:var(--radius-md);background:var(--bg-sunken);overflow:hidden}.terminal header{font-size:12px;color:var(--fg-muted);padding:12px;border-bottom:1px solid var(--border)}.terminal pre{margin:16px;color:var(--fg-faint);font:12px/1.8 var(--font-mono);white-space:pre-wrap}.terminal:first-child{border-color:var(--border-strong)}.toast{position:fixed;right:24px;top:110px;max-width:320px;padding:16px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);font-size:13px}.toast p{font-size:12px;color:var(--fg-muted);margin:8px 0 0}svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.anchor{z-index:10}.hint,.blocked{max-width:calc(100vw - 48px)}@media(max-width:700px){.previewHeader{padding:20px}.controls{margin-left:0}.workspace{padding:20px;grid-template-columns:1fr}.terminal:nth-child(n+2){display:none}.micSelect{max-width:90px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <header class="previewHeader">
-  <div><h1>Alethe · UI de voz</h1><p>Prévia interativa · comandos e áudio simulados</p></div>
+  <div><h1>Atrium · UI de voz</h1><p>Prévia interativa · comandos e áudio simulados</p></div>
   <nav class="controls" aria-label="Estado da prévia">
     <button data-state="idle" aria-pressed="true">Pronta</button><button data-state="listening" aria-pressed="false">Escutando</button><button data-state="deciding" aria-pressed="false">Processando</button><button data-state="confirm" aria-pressed="false">Confirmação</button><button data-state="success" aria-pressed="false">Sucesso</button><button data-state="error" aria-pressed="false">Erro</button>
   </nav>
 </header>
 <main class="workspace" aria-label="Contexto ilustrativo do workspace">
-  <section class="terminal"><header>1 · Claude Code</header><pre>Workspace / Alethe
+  <section class="terminal"><header>1 · Claude Code</header><pre>Workspace / Atrium
 
 › Aguardando seu próximo comando</pre></section>
-  <section class="terminal"><header>2 · Codex</header><pre>Workspace / Alethe
+  <section class="terminal"><header>2 · Codex</header><pre>Workspace / Atrium
 
 › Pronto</pre></section>
-  <section class="terminal" id="target"><header>3 · Terminal</header><pre>PS D:\projects\alethe&gt;</pre></section>
+  <section class="terminal" id="target"><header>3 · Terminal</header><pre>PS D:\projects\atrium&gt;</pre></section>
 </main>
 <aside class="toast" id="toast" role="status" hidden><strong>Comando de voz executado</strong><p>Terminal 3 em foco.</p></aside>
 <div class="anchor" id="anchor">

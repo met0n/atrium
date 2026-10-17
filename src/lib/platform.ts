@@ -24,6 +24,18 @@ export function normalizeCwd(path: string): string {
   return unprefixed
 }
 
+/**
+ * Whether a key event carries the app-shortcut modifier: ⌘ on macOS, Ctrl (or the Windows key)
+ * elsewhere. On macOS Ctrl stays with the terminal, where Ctrl+P, Ctrl+K, Ctrl+W and the like are
+ * shell editing keys.
+ */
+export function hasPrimaryModifier(
+  event: Pick<KeyboardEvent, 'ctrlKey' | 'metaKey'>,
+  mac: boolean = isMacOS(),
+): boolean {
+  return mac ? event.metaKey && !event.ctrlKey : event.ctrlKey || event.metaKey
+}
+
 export function formatShortcut(shortcut: string, mac: boolean = isMacOS()): string {
   if (!mac) return shortcut
   return shortcut

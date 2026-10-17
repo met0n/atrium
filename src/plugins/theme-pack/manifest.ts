@@ -1,7 +1,7 @@
 import type { PluginManifest } from '../../lib/tauri'
 
 export const THEME_PACK_MANIFEST: PluginManifest = {
-  id: 'alethe.theme-pack',
+  id: 'atrium.theme-pack',
   name: 'Theme Pack',
   version: '1.0.0',
   kind: 'theme',

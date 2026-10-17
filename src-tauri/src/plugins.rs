@@ -486,7 +486,7 @@ pub fn plugin_import_dir(app: AppHandle, source: String) -> Result<PluginManifes
 }
 
 /// A plugin's own data. Deliberately outside `plugins/`: everything under a
-/// plugin directory is reachable over `alethe-plugin://`, and a reimport
+/// plugin directory is reachable over `atrium-plugin://`, and a reimport
 /// replaces that directory, which would take the user's data with it.
 fn plugin_data_root(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(crate::paths::profile_data_dir(app)?.join(PLUGIN_DATA_DIR))
@@ -592,7 +592,7 @@ mod tests {
     }
 
     fn temp_root(tag: &str) -> PathBuf {
-        std::env::temp_dir().join(format!("alethe-plugins-{tag}-{}", nanoid::nanoid!(8)))
+        std::env::temp_dir().join(format!("atrium-plugins-{tag}-{}", nanoid::nanoid!(8)))
     }
 
     #[test]
@@ -644,8 +644,8 @@ mod tests {
         assert!(install_in(&root, &manifest("..", PluginKind::Skill)).is_err());
         assert!(set_enabled_in(&root, "../evil", false).is_err());
 
-        // Dots are allowed inside a namespaced id like `alethe.git-control`.
-        assert!(validate_id("alethe.git-control").is_ok());
+        // Dots are allowed inside a namespaced id like `atrium.git-control`.
+        assert!(validate_id("atrium.git-control").is_ok());
 
         let mut with_asset = manifest("assets", PluginKind::Ui);
         with_asset.entry = Some("../../evil.js".to_string());
@@ -685,8 +685,8 @@ mod tests {
         assert!(!list_in(&root).unwrap()[0].enabled);
 
         // A bundled plugin has no directory here but its choice is still stored.
-        set_enabled_in(&root, "alethe.git-control", false).unwrap();
-        assert!(read_state(&root).disabled.contains("alethe.git-control"));
+        set_enabled_in(&root, "atrium.git-control", false).unwrap();
+        assert!(read_state(&root).disabled.contains("atrium.git-control"));
 
         // Uninstalling clears both leftover entries for that id.
         set_enabled_in(&root, "local-one", true).unwrap();
@@ -696,7 +696,7 @@ mod tests {
         assert!(!state.disabled.contains("local-one"));
         assert_eq!(
             state.disabled.into_iter().collect::<Vec<_>>(),
-            vec!["alethe.git-control".to_string()]
+            vec!["atrium.git-control".to_string()]
         );
 
         fs::remove_dir_all(root).unwrap();
@@ -705,7 +705,7 @@ mod tests {
     #[test]
     fn declared_contributions_round_trip_and_validate() {
         let raw = r#"{
-            "id": "alethe.git-control",
+            "id": "atrium.git-control",
             "name": "Git Control",
             "version": "1.0.0",
             "kind": "ui",

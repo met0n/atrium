@@ -14,7 +14,7 @@ use crate::cli_resolver;
 use crate::orchestrator_core::{Core, Launcher, OrchestrationSettings, Planner};
 
 const JOBS_EVENT: &str = "orchestrator://jobs";
-const SKILL_POLICY_FILE: &str = "alethe-orchestrate.json";
+const SKILL_POLICY_FILE: &str = "atrium-orchestrate.json";
 
 #[derive(Default)]
 pub struct OrchestratorState {
@@ -94,13 +94,13 @@ pub fn orchestrator_mcp_config_path(
     let token = crate::agent_events::agent_hooks_token();
     let config = json!({
         "mcpServers": {
-            "alethe": {
+            "atrium": {
                 "type": "http",
                 "url": format!("{endpoint}/mcp"),
                 "headers": {
-                    "X-Alethe-Token": token,
+                    "X-Atrium-Token": token,
                     // One config per terminal, so a request says which session it came from.
-                    "X-Alethe-Planner": planner_id
+                    "X-Atrium-Planner": planner_id
                 }
             }
         }
@@ -112,7 +112,7 @@ pub fn orchestrator_mcp_config_path(
         .chars()
         .map(|c| if c.is_ascii_alphanumeric() { c } else { '-' })
         .collect();
-    let path = std::env::temp_dir().join(format!("alethe-orchestrator-mcp-{port}-{safe}.json"));
+    let path = std::env::temp_dir().join(format!("atrium-orchestrator-mcp-{port}-{safe}.json"));
     let body = serde_json::to_string_pretty(&config).map_err(|error| error.to_string())?;
     std::fs::write(&path, body).map_err(|error| format!("write_failed:{error}"))?;
     Ok(path.to_string_lossy().into_owned())
@@ -138,7 +138,7 @@ fn skill_policy_path() -> Result<PathBuf, String> {
                 .map(|path| path.join("AppData").join("Roaming"))
         })
         .ok_or_else(|| "orchestrator_skill_policy_home_missing".to_string())?
-        .join("Alethe");
+        .join("Atrium");
 
     #[cfg(not(windows))]
     let base = std::env::var_os("XDG_CONFIG_HOME")
@@ -149,7 +149,7 @@ fn skill_policy_path() -> Result<PathBuf, String> {
                 .map(|path| path.join(".config"))
         })
         .ok_or_else(|| "orchestrator_skill_policy_home_missing".to_string())?
-        .join("alethe");
+        .join("atrium");
 
     Ok(base.join(SKILL_POLICY_FILE))
 }
@@ -278,7 +278,7 @@ pub fn orchestrator_set_rule_sets(
     );
 }
 
-/// What ships with Alethe, so the editor can show ours and restore one.
+/// What ships with Atrium, so the editor can show ours and restore one.
 #[tauri::command]
 pub fn orchestrator_default_rule_sets() -> Value {
     json!(crate::orchestrator_core::default_rule_sets()
@@ -305,7 +305,7 @@ pub fn orchestrator_job_diff(
     state.core.job_diff(&job_id)
 }
 
-/// Interrupts a running worker and settles it as cancelled — the same path `alethe_cancel` takes.
+/// Interrupts a running worker and settles it as cancelled — the same path `atrium_cancel` takes.
 #[tauri::command]
 pub fn orchestrator_cancel_job(state: tauri::State<'_, OrchestratorState>, job_id: String) -> Value {
     json!({ "cancelled": state.core.cancel_jobs(&[job_id]) })
@@ -337,7 +337,7 @@ pub async fn open_orchestration_window(app: AppHandle, terminal_id: String) -> R
         return window.set_focus().map_err(|error| error.to_string());
     }
     tauri::WebviewWindowBuilder::new(&app, &label, tauri::WebviewUrl::App("index.html".into()))
-        .title("Alethe")
+        .title("Atrium")
         .inner_size(1180.0, 780.0)
         .min_inner_size(640.0, 420.0)
         .build()
@@ -357,7 +357,7 @@ pub fn orchestrator_message(
     let mut arguments = serde_json::Map::new();
     arguments.insert("jobId".into(), Value::String(job_id));
     arguments.insert("message".into(), Value::String(message));
-    let tool = if steer { "alethe_steer" } else { "alethe_send" };
+    let tool = if steer { "atrium_steer" } else { "atrium_send" };
     crate::orchestrator_core::call_tool(&state.core, tool, &arguments, None)
 }
 

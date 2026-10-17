@@ -8,7 +8,7 @@ description: Query the Graphify knowledge graph (graphify-out/) for this repo's 
 This project has a knowledge graph at `graphify-out/` with god nodes, community structure, and
 cross-file relationships.
 
-Universal across the 3 agent providers Alethe spawns (Claude Code, Codex, OpenCode) when the
+Universal across the 3 agent providers Atrium spawns (Claude Code, Codex, OpenCode) when the
 project has Graphify enabled: each gets the Graphify MCP server wired into its session
 automatically (Claude via `--mcp-config`; Codex/OpenCode via `.codex/config.toml`/`opencode.json`
 in the project root — see `graphify_codex_config_write`/`graphify_opencode_config_write` in

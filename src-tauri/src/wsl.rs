@@ -195,7 +195,7 @@ fn query_installed_distros() -> Vec<String> {
     parse_distro_list(&output.stdout)
 }
 
-pub const PROBE_MARKER: &str = "__alethe_probe__";
+pub const PROBE_MARKER: &str = "__atrium_probe__";
 
 pub fn probe_value(probe_output: &str) -> Option<String> {
     let mut lines = probe_output
@@ -770,7 +770,7 @@ mod tests {
         assert_eq!(
             home_unc(
                 "Ubuntu",
-                "Welcome to Ubuntu 22.04\n__alethe_probe__/home/dev\n"
+                "Welcome to Ubuntu 22.04\n__atrium_probe__/home/dev\n"
             ),
             Some(r"\\wsl.localhost\Ubuntu\home\dev".to_string())
         );
@@ -784,7 +784,7 @@ mod tests {
     fn reads_the_login_shell_past_a_login_profile_banner() {
         assert_eq!(
             parse_login_shell(
-                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games\n__alethe_probe__dev:x:1000:1000::/home/dev:/usr/bin/zsh\n"
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games\n__atrium_probe__dev:x:1000:1000::/home/dev:/usr/bin/zsh\n"
             ),
             Some("/usr/bin/zsh".to_string())
         );
@@ -917,7 +917,7 @@ mod tests {
 
     #[cfg(unix)]
     fn probe_home_dir(name: &str) -> std::path::PathBuf {
-        let dir = std::env::temp_dir().join(format!("alethe-probe-{}-{name}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("atrium-probe-{}-{name}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).expect("the probe home must be creatable");
         dir
@@ -1004,12 +1004,12 @@ mod tests {
     fn the_cli_probe_reads_the_resolved_path_past_rc_file_chatter() {
         assert_eq!(
             probe_resolved_path(
-                "direnv: loading ~/.envrc\n/home/dev\n__alethe_probe__/home/dev/.local/bin/opencode\n"
+                "direnv: loading ~/.envrc\n/home/dev\n__atrium_probe__/home/dev/.local/bin/opencode\n"
             ),
             Some("/home/dev/.local/bin/opencode".to_string())
         );
         // A shell builtin or an alias is not a binary this launcher can exec.
-        assert_eq!(probe_resolved_path("__alethe_probe__opencode\n"), None);
+        assert_eq!(probe_resolved_path("__atrium_probe__opencode\n"), None);
         assert_eq!(probe_resolved_path("mise: no such command\n"), None);
     }
 
@@ -1018,11 +1018,11 @@ mod tests {
         // Interop puts the Windows PATH on the guest PATH, so `command -v` can answer with the
         // Windows npm-global install, which ships the win32 binary and dies inside the distro.
         assert_eq!(
-            probe_resolved_path("__alethe_probe__/mnt/c/Users/dev/AppData/Roaming/npm/codex\n"),
+            probe_resolved_path("__atrium_probe__/mnt/c/Users/dev/AppData/Roaming/npm/codex\n"),
             None
         );
         assert_eq!(
-            probe_resolved_path("__alethe_probe__/mnt/D/tools/codex\n"),
+            probe_resolved_path("__atrium_probe__/mnt/D/tools/codex\n"),
             None
         );
     }
@@ -1031,7 +1031,7 @@ mod tests {
     fn the_cli_probe_still_resolves_a_guest_install() {
         assert_eq!(
             probe_resolved_path(
-                "direnv: loading ~/.envrc\n__alethe_probe__/home/dev/.local/share/pi-node/node-v22/bin/codex\n"
+                "direnv: loading ~/.envrc\n__atrium_probe__/home/dev/.local/share/pi-node/node-v22/bin/codex\n"
             ),
             Some("/home/dev/.local/share/pi-node/node-v22/bin/codex".to_string())
         );
@@ -1044,11 +1044,11 @@ mod tests {
     #[test]
     fn the_cli_probe_keeps_an_ordinary_multi_character_mount() {
         assert_eq!(
-            probe_resolved_path("__alethe_probe__/mnt/data/tools/codex\n"),
+            probe_resolved_path("__atrium_probe__/mnt/data/tools/codex\n"),
             Some("/mnt/data/tools/codex".to_string())
         );
         assert_eq!(
-            probe_resolved_path("__alethe_probe__/mnt/nas/bin/codex\n"),
+            probe_resolved_path("__atrium_probe__/mnt/nas/bin/codex\n"),
             Some("/mnt/nas/bin/codex".to_string())
         );
     }
@@ -1210,7 +1210,7 @@ mod tests {
         let _guard = ENV_LOCK.lock().unwrap();
         std::env::set_var("WSLENV", "EXISTING::EXISTING");
         let mut env = HashMap::new();
-        env.insert("ALETHE_PANE".to_string(), "42".to_string());
+        env.insert("ATRIUM_PANE".to_string(), "42".to_string());
 
         let builder = command_builder_for_wsl(&ubuntu(), None, &[], Some(&env));
         let value = |key: &str| {
@@ -1221,10 +1221,10 @@ mod tests {
 
         assert_eq!(value("TERM"), Some("xterm-256color".to_string()));
         assert_eq!(value("COLORTERM"), Some("truecolor".to_string()));
-        assert_eq!(value("ALETHE_PANE"), Some("42".to_string()));
+        assert_eq!(value("ATRIUM_PANE"), Some("42".to_string()));
         assert_eq!(
             value("WSLENV"),
-            Some("EXISTING:TERM:COLORTERM:ALETHE_PANE".to_string())
+            Some("EXISTING:TERM:COLORTERM:ATRIUM_PANE".to_string())
         );
     }
 

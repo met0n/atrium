@@ -276,7 +276,7 @@ export function Dropdown({
             <div
               ref={menuRef}
               className={styles.menu}
-              data-alethe-dropdown-menu=""
+              data-atrium-dropdown-menu=""
               style={{
                 left: position.left,
                 top: position.top,

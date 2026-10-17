@@ -1,6 +1,6 @@
 /**
  * Explicit request: tests run isolated in two language profiles — en
- * (default) or pt-BR via `ALETHE_E2E_LOCALE=pt-BR` (see the
+ * (default) or pt-BR via `ATRIUM_E2E_LOCALE=pt-BR` (see the
  * `test:e2e:pt-br`/`test:e2e:git-pipeline:pt-br` scripts in package.json).
  *
  * Applied inside the `before()` of EACH spec (mocha), never in the WDIO
@@ -13,14 +13,14 @@
  * hooks) has already finished — mocha guarantees this.
  */
 export const E2E_LOCALE: 'en' | 'pt-BR' | 'zh-CN' =
-  process.env.ALETHE_E2E_LOCALE === 'pt-BR'
+  process.env.ATRIUM_E2E_LOCALE === 'pt-BR'
     ? 'pt-BR'
-    : process.env.ALETHE_E2E_LOCALE === 'zh-CN'
+    : process.env.ATRIUM_E2E_LOCALE === 'zh-CN'
       ? 'zh-CN'
       : 'en'
 
 export async function applyE2eLocale(): Promise<void> {
   await browser.execute((locale) => {
-    window.__ALETHE_E2E__?.setLanguage(locale as 'en' | 'pt-BR' | 'zh-CN')
+    window.__ATRIUM_E2E__?.setLanguage(locale as 'en' | 'pt-BR' | 'zh-CN')
   }, E2E_LOCALE)
 }

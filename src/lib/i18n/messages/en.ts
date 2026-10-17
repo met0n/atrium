@@ -60,7 +60,7 @@ export const en = {
   'onboarding.agentReady': 'ready',
   'onboarding.usageTitle': 'Show your usage limits?',
   'onboarding.usageSubtitle':
-    'Alethe can show how much of each plan you have used. To read it, Alethe uses the credentials of the CLI already installed on this computer and contacts the provider. Everything is off until you turn it on.',
+    'Atrium can show how much of each plan you have used. To read it, Atrium uses the credentials of the CLI already installed on this computer and contacts the provider. Everything is off until you turn it on.',
   'onboarding.usageFooter': 'Nothing is read while a provider is off · change later in Preferences',
   'onboarding.featuresTitle': 'Choose your features',
   'onboarding.featuresSubtitle':
@@ -157,7 +157,7 @@ export const en = {
   'profiles.switchError': 'Could not safely switch accounts: {error}',
   'profiles.switchBusy': 'Parking terminals before switching…',
   'profiles.backupDialogTitle': 'Export account backup',
-  'profiles.backupFileType': 'Alethe account backup',
+  'profiles.backupFileType': 'Atrium account backup',
   'profiles.exportBackup': 'Export backup before deleting',
   'profiles.backupDone': 'Backup exported',
   'profiles.backupReady': 'Backup exported. You can now confirm deletion.',
@@ -174,7 +174,7 @@ export const en = {
   'menu.agentSandbox': 'Agent Sandbox',
   'menu.remoteControl': 'Remote control',
   'menu.audit': 'Audit Center',
-  'audit.title': 'Alethe Audit & Diagnostics Center',
+  'audit.title': 'Atrium Audit & Diagnostics Center',
   'audit.searchPlaceholder': 'Search audit logs (message, category, or stack)…',
   'audit.filterAll': 'All ({count})',
   'audit.filterErrors': 'Errors ({count})',
@@ -199,7 +199,7 @@ export const en = {
   'menu.factoryReset': 'Erase all data (fresh install)…',
   'menu.exportBackupTitle': 'Export backup',
   'menu.importBackupTitle': 'Import backup',
-  'menu.backupFilter': 'Alethe backup',
+  'menu.backupFilter': 'Atrium backup',
   'menu.confirmReset':
     'Erase ALL app state (projects, scrollback, settings)? This cannot be undone.',
   'menu.confirmFactoryReset':
@@ -217,33 +217,33 @@ export const en = {
   'remote.tutorialStep4':
     'From the paired device you can view live output and, unless Read-only is on, send one message at a time to a shared terminal.',
   'remote.tutorialStep5':
-    'To reach Alethe from outside your Wi-Fi, install Tailscale on this PC and your phone, then set Reach to Tailscale below — see docs/REMOTE_CONTROL_TAILSCALE.md for the full guide.',
+    'To reach Atrium from outside your Wi-Fi, install Tailscale on this PC and your phone, then set Reach to Tailscale below — see docs/REMOTE_CONTROL_TAILSCALE.md for the full guide.',
   'remote.title': 'Remote control',
   'remote.enabled': 'Remote control is available',
   'remote.disabled': 'Remote control is turned off',
-  'remote.description': 'Scan this QR code from a phone on the same network to open Alethe Remote.',
+  'remote.description': 'Scan this QR code from a phone on the same network to open Atrium Remote.',
   'remote.disabledDescription': 'No phone can connect while this feature is turned off.',
   'remote.statusOn': 'On',
   'remote.statusOff': 'Off',
   'remote.enable': 'Enable remote control',
   'remote.disable': 'Turn off remote control',
   'remote.confirmEnable':
-    'Enable Remote Control?\n\nAlethe will open HTTP and WebSocket listeners on your local network. Paired devices can view shared terminal output. Paired sessions expire after {expiry}.\n\n{access}',
+    'Enable Remote Control?\n\nAtrium will open HTTP and WebSocket listeners on your local network. Paired devices can view shared terminal output. Paired sessions expire after {expiry}.\n\n{access}',
   'remote.confirmEnableTailscale':
-    'Enable Remote Control?\n\nAlethe will open HTTP and WebSocket listeners on your Tailscale network. Paired devices can view shared terminal output. Paired sessions expire after {expiry}.\n\n{access}',
+    'Enable Remote Control?\n\nAtrium will open HTTP and WebSocket listeners on your Tailscale network. Paired devices can view shared terminal output. Paired sessions expire after {expiry}.\n\n{access}',
   'remote.confirmAccessReadOnly':
     'Current access is read-only: agent messages and shell input are blocked.',
   'remote.confirmAccessAgentInput': 'Current access allows agent messages; shell input is blocked.',
   'remote.confirmAccessShellInput': 'Current access allows agent messages and shell input.',
   'remote.sessionSeconds': '{seconds} seconds',
   'remote.enableFailedTitle': 'Remote control could not start',
-  'remote.enableFailedBody': 'Alethe kept remote control off. {error}',
+  'remote.enableFailedBody': 'Atrium kept remote control off. {error}',
   'remote.disableFailedTitle': 'Remote control could not stop',
   'remote.disableFailedBody':
-    'Alethe could not confirm that remote access stopped. Restart Alethe before continuing. {error}',
+    'Atrium could not confirm that remote access stopped. Restart Atrium before continuing. {error}',
   'remote.rollbackFailedTitle': 'Remote control rollback needs attention',
   'remote.rollbackFailedBody':
-    'Alethe could not fully save or enforce the disabled state. Restart Alethe and verify Remote Control is off. Startup error: {error}. Rollback error: {rollbackError}',
+    'Atrium could not fully save or enforce the disabled state. Restart Atrium and verify Remote Control is off. Startup error: {error}. Rollback error: {rollbackError}',
   'remote.modalReachEyebrow': 'Step 1 · Network',
   'remote.modalPairEyebrow': 'Step 2 · Pair a device',
   'remote.connectedDevices': 'Connected devices',
@@ -269,7 +269,7 @@ export const en = {
   'remote.openSettings': 'Open Remote Control settings',
   'remote.hiddenAddressPlaceholder':
     'http://192.168.x.x:9340 · Open a pairing window to reveal the address',
-  'brand.remote': 'Alethe Remote',
+  'brand.remote': 'Atrium Remote',
   'common.details': 'Technical details',
   'common.reload': 'Try again',
   'common.terminal': 'Terminal',
@@ -283,7 +283,7 @@ export const en = {
   'home.chatCount': '{count} chat',
   'home.chatCountPlural': '{count} chats',
   'home.description': 'Choose a shared terminal and continue your work from this device.',
-  'home.emptyDescription': 'Open a terminal in Alethe or allow remote access to an existing one.',
+  'home.emptyDescription': 'Open a terminal in Atrium or allow remote access to an existing one.',
   'home.emptyTitle': 'No shared chats yet',
   'home.noMatchesDescription': 'Try a project, group, agent, or terminal name.',
   'home.noMatchesTitle': 'No matching chats',
@@ -325,7 +325,7 @@ export const en = {
   'question.multiple': 'Select one or more options.',
   'question.submit': 'Send answer',
   'question.answered': 'This question has already been answered.',
-  'question.readOnly': 'Open Alethe on the desktop to answer this question.',
+  'question.readOnly': 'Open Atrium on the desktop to answer this question.',
   'question.sendError': 'Answer not sent: {message}',
   'question.sendUncertain': 'Delivery could not be confirmed. Check the question before retrying.',
   'question.other': 'Another answer',
@@ -335,21 +335,21 @@ export const en = {
   'chat.jumpLatest': 'Jump to latest',
   'chat.liveTerminal': 'Live terminal',
   'chat.messageHint': 'Enter sends · Shift + Enter adds a line',
-  'chat.readOnly': 'This device has read-only access. Sending messages is disabled in Alethe.',
+  'chat.readOnly': 'This device has read-only access. Sending messages is disabled in Atrium.',
   'chat.send': 'Send message',
   'chat.sendError': 'Message not sent: {message}',
   'chat.sendPlaceholder': 'Message this terminal…',
   'chat.sending': 'Sending message',
   'state.connectionDescription':
-    'Alethe could not be reached on the local network. Check that the desktop app and this device are still connected to the same network.',
+    'Atrium could not be reached on the local network. Check that the desktop app and this device are still connected to the same network.',
   'state.connectionTitle': 'Connection unavailable',
   'state.loadingDescription': 'Preparing your shared workspace…',
-  'state.loadingTitle': 'Connecting to Alethe',
+  'state.loadingTitle': 'Connecting to Atrium',
   'state.pairingDescription':
-    'Open Remote control in Alethe and scan the QR code to connect this device.',
+    'Open Remote control in Atrium and scan the QR code to connect this device.',
   'state.pairingTitle': 'Pair this device',
   'state.sessionDescription':
-    'This device is no longer paired. Open Remote control in Alethe and scan a new QR code.',
+    'This device is no longer paired. Open Remote control in Atrium and scan a new QR code.',
   'state.sessionTitle': 'Remote session ended',
   'state.terminalError': 'Unable to load terminal output.',
   'ui.terminal.hideFromRemote': 'Hide from remote devices',
@@ -378,7 +378,7 @@ export const en = {
     '{agent} was reinstalled, but {path} is still the version on PATH.',
   'agentInstall.uninstallTitle': 'Uninstall {agent}',
   'agentInstall.uninstallConfirm':
-    'This removes {agent} from this machine. Alethe will run the command below in a shell:',
+    'This removes {agent} from this machine. Atrium will run the command below in a shell:',
   'agentInstall.uninstallConfirmAction': 'Yes, uninstall',
   'agentInstall.cancel': 'Cancel',
   'onboarding.agentUpdate': 'Update to {version}',
@@ -426,7 +426,7 @@ export const en = {
   'handoff.size': '{current} / {max} bytes',
   'handoff.unrestricted': 'Start {agent} in unrestricted mode',
   'handoff.privacy':
-    'The packet stays in your local Alethe profile and is deleted after the destination agent completes its first turn.',
+    'The packet stays in your local Atrium profile and is deleted after the destination agent completes its first turn.',
   'handoff.lossPrivate':
     'Private reasoning and provider-specific session state cannot be transferred.',
   'handoff.fallbackNewest':
@@ -441,12 +441,12 @@ export const en = {
   'remote.toastTitle': '{device} sent a message',
   'remote.autoDisabledToastTitle': 'Remote control turned itself off',
   'remote.autoDisabledToastBody':
-    'No device connected for a while, so Alethe closed the listener automatically.',
+    'No device connected for a while, so Atrium closed the listener automatically.',
   'remote.startFailedToastTitle': "Remote control couldn't start",
   'remote.startFailedToastBody':
-    'Alethe was unable to open the listener — check the selected reach mode and try again.',
+    'Atrium was unable to open the listener — check the selected reach mode and try again.',
   'remote.startupNote':
-    'Remote control never starts on its own. Alethe only opens the LAN listener while this setting is on.',
+    'Remote control never starts on its own. Atrium only opens the LAN listener while this setting is on.',
   'remote.reachTitle': 'Reach',
   'remote.reachDesc': 'Choose which network paired devices can reach this listener from.',
   'remote.reachLan': 'Local network',
@@ -483,7 +483,7 @@ export const en = {
   'remote.deviceExpiresAt': 'expires at {time}',
   'remote.settingsStatusTitle': 'Remote service',
   'remote.settingsStatusDesc':
-    'Control whether Alethe accepts remote connections on the local network.',
+    'Control whether Atrium accepts remote connections on the local network.',
   'remote.settingsSecurityTitle': 'Security policy',
   'remote.settingsSecurityDesc': 'Set conservative limits for authenticated remote sessions.',
   'remote.settingsSecurityNote':
@@ -506,7 +506,7 @@ export const en = {
   /* ---- preferences ---- */
   'prefs.title': 'Preferences',
   'prefs.categoryAccount': 'Account',
-  'prefs.categoryAccountDesc': 'Manage your local profile, language, and Alethe accounts.',
+  'prefs.categoryAccountDesc': 'Manage your local profile, language, and Atrium accounts.',
   'prefs.categoryOrganization': 'Organization',
   'prefs.categoryOrganizationDesc': 'Manage archived groups without losing their projects.',
   'prefs.archivedGroupsTitle': 'Archived groups',
@@ -532,9 +532,9 @@ export const en = {
   'prefs.categoryTerminal': 'Terminal and agents',
   'prefs.categoryTerminalDesc': 'Configure terminal appearance and available agents.',
   'prefs.categoryIntegrations': 'Integrations',
-  'prefs.categoryIntegrationsDesc': 'Connect external services and control what Alethe shares.',
+  'prefs.categoryIntegrationsDesc': 'Connect external services and control what Atrium shares.',
   'prefs.categoryUpdates': 'Updates',
-  'prefs.categoryUpdatesDesc': 'Check your installed version and look for Alethe updates.',
+  'prefs.categoryUpdatesDesc': 'Check your installed version and look for Atrium updates.',
   'prefs.shortcutsTitle': 'Keyboard shortcuts',
   'prefs.shortcutsDesc':
     'Customize global actions. Navigation, zoom, and project number keys remain reserved.',
@@ -577,7 +577,7 @@ export const en = {
   'prefs.localAccounts': 'Local accounts',
   'prefs.localAccountsDesc': 'Switch between profiles with independent projects and preferences.',
   'prefs.uiTheme': 'UI theme',
-  'prefs.uiThemeDesc': 'Choose the palette used throughout the Alethe interface.',
+  'prefs.uiThemeDesc': 'Choose the palette used throughout the Atrium interface.',
   'prefs.appIconTheme': 'App icon',
   'prefs.appIconThemeDesc':
     'Icon shown in the taskbar and window, independent from the interface theme.',
@@ -597,7 +597,7 @@ export const en = {
   'prefs.uiZoom': 'Interface zoom',
   'prefs.uiZoomDesc': 'Increase or decrease the size of the entire interface.',
   'prefs.windowOpacity': 'Window opacity',
-  'prefs.windowOpacityDesc': 'Let the desktop show through the entire Alethe window.',
+  'prefs.windowOpacityDesc': 'Let the desktop show through the entire Atrium window.',
   'prefs.windowOpacityHint': 'Experimental · Lower opacity can reduce text readability.',
   'prefs.opacityReset': 'Reset opacity',
   'prefs.topbarStyle': 'Topbar style',
@@ -615,7 +615,7 @@ export const en = {
   'prefs.viewPlacementLeft': 'Left sidebar',
   'prefs.viewPlacementRight': 'Right sidebar',
   'prefs.features': 'Features',
-  'prefs.featuresDesc': 'Choose which optional modules are visible in Alethe.',
+  'prefs.featuresDesc': 'Choose which optional modules are visible in Atrium.',
   'prefs.featureEnabled': 'Enabled',
   'prefs.featureDisabled': 'Disabled',
 
@@ -645,18 +645,18 @@ export const en = {
     'No Chromium-based browser was found, or it did not expose its debugging port. Playwright will fall back to launching its own.',
   'features.playwright.title': 'Playwright browser',
   'features.playwright.description':
-    'Points the Playwright MCP server at a browser — shared with Alethe or a dedicated one of its own, picked below.',
+    'Points the Playwright MCP server at a browser — shared with Atrium or a dedicated one of its own, picked below.',
   'features.playwright.browserMode.label': 'Browser',
   'features.playwright.browserMode.shared': 'Shared',
   'features.playwright.browserMode.dedicated': 'Dedicated',
   'features.playwright.browserMode.sharedHint':
-    'Attaches to the browser Alethe already owns (headless, visible only inside a Browser Pane). Shared with every other agent using it at the same time.',
+    'Attaches to the browser Atrium already owns (headless, visible only inside a Browser Pane). Shared with every other agent using it at the same time.',
   'features.playwright.browserMode.dedicatedHint':
-    'Launches its own separate browser, outside Alethe, independent of the shared one and of any other agent.',
+    'Launches its own separate browser, outside Atrium, independent of the shared one and of any other agent.',
   'features.playwright.headless.label': 'Run the dedicated browser headless (no visible window)',
   'features.orchestrator.title': 'Agent orchestration',
   'features.orchestrator.description':
-    'Gives Claude Code a set of Alethe tools for handing work to Codex workers that run in parallel. Alethe owns the sandbox, the concurrency limit and the workers themselves, and can steer or cancel one mid-run.',
+    'Gives Claude Code a set of Atrium tools for handing work to Codex workers that run in parallel. Atrium owns the sandbox, the concurrency limit and the workers themselves, and can steer or cancel one mid-run.',
   'features.prs.title': 'Open PRs',
   'features.prs.description':
     'Shows GitHub pull requests you are involved in as author or reviewer, across every repo, with a one-click way to send one to your TODO list.',
@@ -679,16 +679,16 @@ export const en = {
     'Install the ai-memory server so agents can share long-term memory. Agents will start normally without it.',
   // ai-memory's sub-panel, under its switch in Features.
   'aiMemory.panelCaptures':
-    'Every prompt and tool call from agents Alethe launches is recorded, as markdown in a git repository plus a search index — both on this machine, both readable without Alethe.',
+    'Every prompt and tool call from agents Atrium launches is recorded, as markdown in a git repository plus a search index — both on this machine, both readable without Atrium.',
   'aiMemory.checking': 'Checking…',
   'aiMemory.install': 'Install ai-memory',
   'aiMemory.installing': 'Installing…',
-  'aiMemory.installedManaged': 'Installed by Alethe',
+  'aiMemory.installedManaged': 'Installed by Atrium',
   'aiMemory.installedExternal': 'Using the copy you installed',
   'aiMemory.at': 'at {path}',
   'aiMemory.missing': 'Not installed yet — install it and the agents can start using it.',
   'aiMemory.unsupported':
-    'ai-memory publishes no build for this platform yet, so Alethe cannot install it here.',
+    'ai-memory publishes no build for this platform yet, so Atrium cannot install it here.',
   'aiMemory.openRepo': 'Open the project',
   'aiMemory.start': 'Start',
   'aiMemory.starting': 'Starting…',
@@ -697,7 +697,7 @@ export const en = {
   'aiMemory.running': 'Answering on {endpoint}',
   'aiMemory.stopped': 'Not running',
   'aiMemory.portBusy':
-    'Something already answers on {endpoint} and Alethe did not start it — most likely your own copy. Alethe will leave it alone.',
+    'Something already answers on {endpoint} and Atrium did not start it — most likely your own copy. Atrium will leave it alone.',
   'aiMemory.counts': '{pages} pages · {sessions} sessions · {observations} observations',
   'aiMemory.installError': 'ai-memory could not be installed.',
   'aiMemory.startError': 'ai-memory could not be started.',
@@ -802,7 +802,7 @@ export const en = {
   'dictation.transcribing': 'Transcribing…',
   'dictation.tooShort': 'Recording was too short — hold a bit longer, then release.',
   'dictation.silentMic':
-    'No audio captured. Check the microphone permission for Alethe and the selected input device.',
+    'No audio captured. Check the microphone permission for Atrium and the selected input device.',
   'dictation.emptyTranscript':
     'Heard audio, but the model returned no text. Try speaking more clearly.',
   'dictation.noActiveTerminal': 'Focus a terminal pane before dictating.',
@@ -828,7 +828,7 @@ export const en = {
   'prefs.resourcePolicySmartHint':
     'Visible, focused, recently spawned and working runtimes are always protected. Parked agents resume from their saved session.',
   'prefs.resourcePolicyManualHint':
-    'Alethe only measures usage. It never closes tabs, parks runtimes or pauses new spawns automatically.',
+    'Atrium only measures usage. It never closes tabs, parks runtimes or pauses new spawns automatically.',
   'prefs.spawnConcurrency': 'Parallel spawns',
   'prefs.spawnConcurrencyDesc':
     'How many terminals start at once. Lower if opening big groups freezes the app; higher to start faster.',
@@ -855,7 +855,7 @@ export const en = {
   'prefs.orchestrationSkillBackend': 'Preferred backend',
   'prefs.orchestrationSkillBackend.auto': 'Automatic',
   'prefs.orchestrationSkillBackend.skill': 'Local skill only',
-  'prefs.orchestrationSkillBackend.mcp': 'Alethe MCP when available',
+  'prefs.orchestrationSkillBackend.mcp': 'Atrium MCP when available',
   'prefs.orchestrationSkillStrategy': 'Default strategy',
   'prefs.orchestrationSkillStrategy.auto': 'Automatic',
   'prefs.orchestrationSkillStrategy.economy': 'Economy',
@@ -873,7 +873,7 @@ export const en = {
   'prefs.orchestrationSkillProviderNone': 'None',
   'prefs.orchestrationSkillProviderAuto': 'Automatic order',
   'prefs.orchestrationSkillHint':
-    'Alethe exports these choices to the bundled skill’s local policy file. The skill runner reads it directly and does not require MCP. An explicit instruction in the current prompt always wins.',
+    'Atrium exports these choices to the bundled skill’s local policy file. The skill runner reads it directly and does not require MCP. An explicit instruction in the current prompt always wins.',
   'prefs.orchestrationLimits': 'Worker limits',
   'prefs.orchestrationLimitsDesc': 'Apply to every delegation, from any planner.',
   'prefs.orchestrationConcurrency': 'Workers at the same time',
@@ -927,9 +927,9 @@ export const en = {
   'prefs.orchestrationCodexOnly': 'Codex workers only',
   'prefs.orchestrationRouting': 'Routing',
   'prefs.orchestrationRoutingDesc':
-    'Which role a delegated call runs as when the planner leaves the choice to Alethe.',
+    'Which role a delegated call runs as when the planner leaves the choice to Atrium.',
   'prefs.orchestrationRoutingIntro':
-    'The planner classifies each delegated task by kind and effort; Alethe walks the rules in order and the first enabled match picks the role. A role or model named in the call always wins.',
+    'The planner classifies each delegated task by kind and effort; Atrium walks the rules in order and the first enabled match picks the role. A role or model named in the call always wins.',
   'prefs.routingPresetEconomy': 'Economy',
   'prefs.routingPresetEconomyDesc':
     'Cheapest roles first: a Haiku scout, a read-only Codex, and a Codex builder for the rest.',
@@ -1035,11 +1035,11 @@ export const en = {
   'prefs.shortcutAdd': 'Add shortcut',
   'prefs.shortcutNewName': 'New shortcut',
   'prefs.shortcutPlaceholders': 'Available: {jobId}, {agent}, {branch}, {worktree}, {project}.',
-  'prefs.shortcutsEmpty': 'You have no shortcuts. Restore defaults to bring Alethe’s back.',
+  'prefs.shortcutsEmpty': 'You have no shortcuts. Restore defaults to bring Atrium’s back.',
   'prefs.shortcutsRestoreDefaults': 'Restore defaults',
   'prefs.workerRules': 'Rules for delegated work',
   'prefs.workerRulesDesc':
-    'What Alethe tells the agents it delegates to. The general set goes with every task; the lead agent names the set that matches the work. A repository’s own conventions always win over these.',
+    'What Atrium tells the agents it delegates to. The general set goes with every task; the lead agent names the set that matches the work. A repository’s own conventions always win over these.',
   'prefs.ruleSetName': 'Set name',
   'prefs.ruleSetText': 'Rules',
   'prefs.ruleSetSize': '{count} characters, sent with every task of this set',
@@ -1049,17 +1049,17 @@ export const en = {
   'prefs.ruleSetAdd': 'Add set',
   'prefs.ruleSetNewName': 'New set',
   'prefs.ruleSetsEmpty': 'No rules are sent with delegated work.',
-  'prefs.ruleSetsLoading': 'Loading Alethe’s rules…',
+  'prefs.ruleSetsLoading': 'Loading Atrium’s rules…',
   'prefs.ruleSetsUnavailable':
-    'Alethe’s rule sets could not be loaded, so they cannot be edited right now. The rules the agents receive are unchanged.',
+    'Atrium’s rule sets could not be loaded, so they cannot be edited right now. The rules the agents receive are unchanged.',
   'prefs.ruleSetsRetry': 'Try again',
-  'prefs.ruleSetsRestoreAll': 'Restore Alethe’s sets',
+  'prefs.ruleSetsRestoreAll': 'Restore Atrium’s sets',
   /* ---- plugins ---- */
   'prefs.categoryPlugins': 'Plugins',
   'prefs.categoryPluginsDesc': 'Extensions that add themes, panes, sidebar tabs and commands.',
   'prefs.pluginsInstalledTitle': 'Installed',
   'prefs.pluginsInstalledDesc':
-    'Everything Alethe has loaded. Turning one off removes what it contributes right away.',
+    'Everything Atrium has loaded. Turning one off removes what it contributes right away.',
   'prefs.pluginsEmpty': 'No plugins installed yet.',
   'prefs.pluginsVersion': 'v{version}',
   'prefs.pluginsSourceBundled': 'Bundled',
@@ -1103,7 +1103,7 @@ export const en = {
   'market.sortUpdated': 'Updates first',
   'market.filterCapabilities': 'Can do',
   'market.filterSource': 'Source',
-  'market.sourceBundled': 'Ships with Alethe',
+  'market.sourceBundled': 'Ships with Atrium',
   'market.sourceLocal': 'Installed here',
   'market.filterState': 'State',
   'market.stateEnabled': 'Enabled',
@@ -1130,9 +1130,9 @@ export const en = {
   'market.detailCapabilities': 'What it can do',
   'market.detailRepo': 'Source',
   'market.notInstallable':
-    'This listing points at a page rather than publishing a package, so Alethe cannot install it for you.',
+    'This listing points at a page rather than publishing a package, so Atrium cannot install it for you.',
   'market.fullPower':
-    'A plugin runs with the same power as Alethe itself. Capabilities are a disclosure, not a cage — install what you have reason to trust.',
+    'A plugin runs with the same power as Atrium itself. Capabilities are a disclosure, not a cage — install what you have reason to trust.',
   'market.uninstallWarning': 'Uninstalling removes the plugin and the data it stored.',
   'market.installDone': '{name} installed',
   'market.installDoneBody': 'It is disabled until you enable it and accept what it can do.',
@@ -1164,7 +1164,7 @@ export const en = {
   'prefs.pluginsUninstallError': 'Failed to uninstall plugin: {error}',
   'prefs.pluginsTrustTitle': 'Enable {name}?',
   'prefs.pluginsTrustBody':
-    'This plugin came from your own disk. Nobody has reviewed it, and it runs with the same access as Alethe itself — treat it like any other program you choose to run.',
+    'This plugin came from your own disk. Nobody has reviewed it, and it runs with the same access as Atrium itself — treat it like any other program you choose to run.',
   'prefs.pluginsTrustCapabilities': 'It is asking to:',
   'prefs.pluginsTrustConfirm': 'Enable plugin',
   'prefs.pluginsInstallTitle': 'Install from a folder',
@@ -1191,7 +1191,7 @@ export const en = {
   'prefs.agentsDesc': 'Choose which agents are available when creating terminals and sub-tabs.',
   'prefs.shell': 'Shell',
   'prefs.shellDesc':
-    'Alethe picks the shell on its own (PowerShell 7 when available, then Windows PowerShell; $SHELL elsewhere). Point it at another binary to override that — it applies to Shell tabs, not to agent tabs.',
+    'Atrium picks the shell on its own (PowerShell 7 when available, then Windows PowerShell; $SHELL elsewhere). Point it at another binary to override that — it applies to Shell tabs, not to agent tabs.',
   'prefs.shellPathPick': 'Select the shell executable',
   'prefs.terminalFont': 'Terminal font',
   'prefs.terminalFontDesc':
@@ -1199,7 +1199,7 @@ export const en = {
   'prefs.terminalFontFamily': 'Font family',
   'prefs.cliPaths': 'Agent CLI paths',
   'prefs.cliPathsDesc':
-    'Alethe finds each agent CLI on its own. Override it only when the CLI lives somewhere unusual — and point it at the command-line tool, not at a desktop app. These are Windows paths: terminals whose folder is inside WSL ignore them and resolve the CLI inside the distro.',
+    'Atrium finds each agent CLI on its own. Override it only when the CLI lives somewhere unusual — and point it at the command-line tool, not at a desktop app. These are Windows paths: terminals whose folder is inside WSL ignore them and resolve the CLI inside the distro.',
   'prefs.cliPathAuto': 'Detected automatically',
   'prefs.cliPathSet': 'Set path',
   'prefs.cliPathReset': 'Reset',
@@ -1267,13 +1267,13 @@ export const en = {
   'prefs.resetSessionFailed': 'Could not resume the last session.',
   'prefs.cliCommand': 'Terminal command',
   'prefs.cliCommandDesc':
-    "Install the 'alethe' command so you can open any folder as a project straight from the terminal.",
+    "Install the 'atrium' command so you can open any folder as a project straight from the terminal.",
   'prefs.cliInstall': 'Install command',
   'prefs.cliReinstall': 'Reinstall command',
   'prefs.cliUninstall': 'Remove',
   'prefs.cliInstalledAt': 'Installed at {path}',
   'prefs.cliStale':
-    'The installed command points to an older copy of Alethe. Reinstall it to update the path.',
+    'The installed command points to an older copy of Atrium. Reinstall it to update the path.',
   'prefs.cliNotOnPath':
     '{dir} is not in your PATH. Add it to your shell profile: export PATH="{dir}:$PATH"',
   'prefs.cliUnsupported': 'The terminal command is not available on this platform.',
@@ -1282,7 +1282,7 @@ export const en = {
   'prefs.discordPresence': 'Discord Rich Presence',
   'prefs.discordPresenceEnabled': 'Enabled',
   'prefs.discordPresenceDisabled': 'Disabled',
-  'prefs.discordPresenceHint': 'Shows that you are using Alethe without exposing project names.',
+  'prefs.discordPresenceHint': 'Shows that you are using Atrium without exposing project names.',
   'prefs.namePlaceholder': 'Name',
   'prefs.photoPlaceholder': 'Photo link',
   'prefs.zoomDecrease': 'Decrease zoom (Ctrl+-)',
@@ -1291,11 +1291,11 @@ export const en = {
   'prefs.spotifyHint':
     'Register {redirect} as a Redirect URI in the Spotify Developer Dashboard. In dev, {idEnv} and {secretEnv} still work as a fallback.',
   'prefs.checkUpdates': 'Software updates',
-  'prefs.checkUpdatesDesc': 'Check whether a newer version of Alethe is available to download.',
+  'prefs.checkUpdatesDesc': 'Check whether a newer version of Atrium is available to download.',
   'prefs.installedVersion': 'Installed version',
   'prefs.checkNow': 'Check for updates',
   'prefs.checkingUpdates': 'Checking…',
-  'prefs.upToDate': 'Alethe is up to date.',
+  'prefs.upToDate': 'Atrium is up to date.',
   'prefs.updateAvailable': 'Version {version} is available.',
   'prefs.updateCheckFailed': 'Could not check for updates. Check your connection and try again.',
   'prefs.viewUpdate': 'View update',
@@ -1304,13 +1304,13 @@ export const en = {
   'themePicker.title': 'Pick theme',
 
   /* ---- theme labels ---- */
-  'theme.elite-original.label': 'Elite Original',
+  'theme.elite-original.label': 'Graphite',
   'theme.elite-original.desc': 'Soft lilac and periwinkle on paper white.',
-  'theme.elite-pure-black.label': 'Elite Pure Black',
+  'theme.elite-pure-black.label': 'Pure Black',
   'theme.elite-pure-black.desc': 'True black with maximum contrast.',
-  'theme.elite-indigo.label': 'Elite Indigo',
+  'theme.elite-indigo.label': 'Indigo',
   'theme.elite-indigo.desc': 'Near-black workspace with an indigo accent.',
-  'theme.elite-blush.label': 'Elite Blush',
+  'theme.elite-blush.label': 'Blush',
   'theme.elite-blush.desc': 'Warm light surfaces with a deep clay accent.',
   'theme.dark.label': 'Dark',
   'theme.dark.desc': 'Neutral, high contrast and understated.',
@@ -1351,8 +1351,8 @@ export const en = {
   'todo.editTags': 'Edit tags',
   'todo.tagsPrompt': 'Tags separated by comma',
   'todo.defaultLabel': 'Reference list',
-  'todo.resetDefault': 'Reset to Alethe default Todo',
-  'todo.resetDefaultConfirm': 'Replace your current Todo list with the Alethe default list?',
+  'todo.resetDefault': 'Reset to Atrium default Todo',
+  'todo.resetDefaultConfirm': 'Replace your current Todo list with the Atrium default list?',
   'todo.openPr': 'Open PR #{number} on GitHub',
   'pomodoro.title': 'Pomodoro',
   'pomodoro.phaseWork': 'Focus',
@@ -1383,7 +1383,7 @@ export const en = {
   'pluginsTab.status.disabled': 'Disabled',
   'pluginsTab.status.updates': 'Updates available',
   'pluginsTab.source.all': 'All sources',
-  'pluginsTab.source.bundled': 'Built into Alethe',
+  'pluginsTab.source.bundled': 'Built into Atrium',
   'pluginsTab.source.local': 'Installed locally',
   'pluginsTab.source.catalog': 'Catalogue only',
   'pluginsTab.sort.relevance': 'Best match',
@@ -1395,7 +1395,7 @@ export const en = {
   'pluginPane.actionFailed': 'Could not change plugin status',
   'pluginPane.removing': 'Uninstalling…',
   'pluginPane.bundledHint':
-    'This plugin is built into Alethe. You can disable it, but it cannot be uninstalled.',
+    'This plugin is built into Atrium. You can disable it, but it cannot be uninstalled.',
   'pluginsTab.title': 'Plugins',
   'pluginsTab.searchPlaceholder': 'Search name, author, description or permissions',
   'pluginsTab.refresh': 'Refresh the plugin list',
@@ -1436,7 +1436,7 @@ export const en = {
   'rightSidebar.dropMarkdown': 'Drop Markdown files to open them here',
   'whatsNew.button': "What's new",
   'whatsNew.title': "What's new in v{version}",
-  'whatsNew.subtitle': 'Alethe keeps getting sharper.',
+  'whatsNew.subtitle': 'Atrium keeps getting sharper.',
   'whatsNew.body': 'Here are the latest improvements in the app.',
   'whatsNew.pendingTitle': 'A newer version is ready',
   'whatsNew.pendingBody': 'Version {version} is available, but it has not been downloaded yet.',
@@ -1461,7 +1461,7 @@ export const en = {
   'whatsNew.v160.note2':
     'Claude Code and Codex conversations can be continued in the other agent from the terminal.',
   'whatsNew.v160.note3':
-    'Agents can be installed, updated and uninstalled from inside Alethe, and GitHub Copilot CLI joins as a new agent.',
+    'Agents can be installed, updated and uninstalled from inside Atrium, and GitHub Copilot CLI joins as a new agent.',
   'whatsNew.v160.note4':
     'New MCP tab in the right sidebar with every configured MCP server and the skills installed for each agent.',
   'whatsNew.v160.note5':
@@ -1488,7 +1488,7 @@ export const en = {
   'whatsNew.v140.note1':
     'Graphify is now optional: turn the code graph panel on or off from Preferences without touching the agents’ MCP config.',
   'whatsNew.v140.note2':
-    'The `alethe` terminal command opens the current folder as a project — or focuses the app if it is already open.',
+    'The `atrium` terminal command opens the current folder as a project — or focuses the app if it is already open.',
   'whatsNew.v140.note3':
     'File Explorer: double-click any file to open it as a pane in the workspace.',
   'whatsNew.v140.note4':
@@ -1522,7 +1522,7 @@ export const en = {
   'whatsNew.v130.note6':
     'Projects sidebar reorganized: pinned active project card, colored monograms, and a live activity indicator.',
   'whatsNew.v130.note7': 'YOLO mode became a one-click control in the Add AI modal.',
-  'whatsNew.v130.note8': 'Experimental window opacity control, to see the desktop through Alethe.',
+  'whatsNew.v130.note8': 'Experimental window opacity control, to see the desktop through Atrium.',
   'rightSidebar.backToTodo': 'Back to Todo',
   'rightSidebar.markdownError': 'Could not load Markdown',
   'rightSidebar.navigation': 'Right sidebar navigation',
@@ -1570,7 +1570,7 @@ export const en = {
   'home.startSomething': 'start something',
   'home.quickAgent': 'Coding agent',
   'home.quickAgentShort': 'Agent',
-  'home.quickTerminalTitle': 'alethe@workspace:~',
+  'home.quickTerminalTitle': 'atrium@workspace:~',
   'home.quickPath': 'Path',
   'home.viewAll': 'View all',
   'home.quickProject': 'Project',
@@ -1720,7 +1720,7 @@ export const en = {
   'crud.create': 'Create',
   'crud.createProjectOnly': 'Create project only',
   'crud.createProjectAndOpenTerminal': 'Create project and open terminal',
-  'crud.detectedConfigFound': 'Existing Alethe config detected for "{name}"',
+  'crud.detectedConfigFound': 'Existing Atrium config detected for "{name}"',
   'crud.detectedConfigRestore': 'Restore',
   'crud.cloningRepoTitle': 'Cloning repository',
   'crud.cloningRepoBody': 'Starting the clone of {url} and generating the AI context briefing…',
@@ -1827,7 +1827,7 @@ export const en = {
   'term.wslPick': 'WSL',
   'term.wslPickTitle': 'Open a folder inside a WSL distro',
   'term.wslPickFailed': 'Could not reach WSL',
-  'term.wslPickFailedBody': 'Alethe could not read the home directory of {distro}.',
+  'term.wslPickFailedBody': 'Atrium could not read the home directory of {distro}.',
   'term.openAgent': 'Open {agent}',
   'term.cancel': 'Cancel',
   'term.create': 'Create',
@@ -1881,7 +1881,7 @@ export const en = {
   'browser.javascript': 'Enable JavaScript',
   'browser.javascriptDescription': 'Most apps need this. Disable it for a stricter read-only page.',
   'browser.resourceMode': 'Resource priority',
-  'browser.resourceModeAppFirst': 'Prioritize Alethe',
+  'browser.resourceModeAppFirst': 'Prioritize Atrium',
   'browser.resourceModeBalanced': 'Balanced',
   'browser.resourceModeKeepAlive': 'Keep page alive',
   'browser.resourceModeDescription.app-first':
@@ -1889,14 +1889,14 @@ export const en = {
   'browser.resourceModeDescription.balanced':
     'Keeps hidden pages alive for 30 seconds before releasing their native webview.',
   'browser.resourceModeDescription.keep-alive':
-    'Keeps hidden pages loaded, but still releases them if Alethe detects memory pressure.',
+    'Keeps hidden pages loaded, but still releases them if Atrium detects memory pressure.',
   'browser.addToGrid': 'Add to grid',
   'browser.privateTitle': 'Private session is always on',
   'browser.privateDescription':
-    'Alethe opens this pane in a native incognito webview. Cookies, logins, cache, autofill, and site storage are not kept after the pane closes.',
+    'Atrium opens this pane in a native incognito webview. Cookies, logins, cache, autofill, and site storage are not kept after the pane closes.',
   'browser.privateBadge': 'Private',
   'browser.destination': 'This browser will be added to {project}.',
-  'browser.embedHint': 'Opens inside Alethe. Some sites may block embedded viewing.',
+  'browser.embedHint': 'Opens inside Atrium. Some sites may block embedded viewing.',
   'term.suspendGroupTitle': 'Suspend group',
   'term.suspend': 'Suspend',
   'term.suspendConfirmBefore': 'Are you sure you want to suspend the group',
@@ -1952,13 +1952,13 @@ export const en = {
   'mod.memoryAnalyticsTitle': 'Memory analytics',
   'mod.health.normal.title': 'Memory is healthy',
   'mod.health.normal.body':
-    'Windows has {available} available out of {total}. Alethe will not close tabs automatically.',
+    'Windows has {available} available out of {total}. Atrium will not close tabs automatically.',
   'mod.health.warning.title': 'Available memory is getting low',
   'mod.health.warning.body':
     'Windows has {available} available out of {total}. Review the largest runtime below before opening many more.',
   'mod.health.critical.title': 'Windows memory is critically low',
   'mod.health.critical.body':
-    'Windows has only {available} available out of {total}. Alethe will warn, but any session closure remains your decision.',
+    'Windows has only {available} available out of {total}. Atrium will warn, but any session closure remains your decision.',
   'mod.clearHistory': 'Clear history',
   'mod.now': 'Now',
   'mod.peak': 'Peak',
@@ -2039,11 +2039,11 @@ export const en = {
     'All usage items are hidden. Re-enable them in the AI usage details panel.',
   'prefs.usageAccess': 'AI usage reading',
   'prefs.usageAccessDesc':
-    'Choose which providers Alethe reads your usage from. Turning one on uses the credentials of the CLI already installed on this computer and contacts that provider. While it is off, Alethe never reads those credentials or contacts the provider.',
+    'Choose which providers Atrium reads your usage from. Turning one on uses the credentials of the CLI already installed on this computer and contacts that provider. While it is off, Atrium never reads those credentials or contacts the provider.',
   'usageAccess.providerHint': 'Uses the {provider} sign-in on this computer and contacts {vendor}.',
   'usageAccess.orchestratorToastTitle': 'Usage reading turned on',
   'usageAccess.orchestratorToastBody':
-    'The orchestrator uses quota to warn you and to pick roles, so Alethe now reads usage for {providers} with the installed CLI credentials. You can turn it off in Preferences > Integrations.',
+    'The orchestrator uses quota to warn you and to pick roles, so Atrium now reads usage for {providers} with the installed CLI credentials. You can turn it off in Preferences > Integrations.',
   'ui.titlebar.itemClaude': 'Claude Code usage',
   'ui.titlebar.itemCodex': 'Codex usage',
   'ui.titlebar.itemAntigravity': 'Antigravity status',
@@ -2082,12 +2082,12 @@ export const en = {
   'ui.titlebar.minimize': 'Minimize',
   'ui.titlebar.maximize': 'Maximize',
   'ui.titlebar.close': 'Close',
-  'appClose.title': 'Close Alethe?',
+  'appClose.title': 'Close Atrium?',
   'appClose.message':
-    'Open agents and terminals will be stopped. Saved conversations can be resumed the next time you open Alethe.',
-  'appClose.confirm': 'Close Alethe',
+    'Open agents and terminals will be stopped. Saved conversations can be resumed the next time you open Atrium.',
+  'appClose.confirm': 'Close Atrium',
   'appClose.cancel': 'Cancel',
-  'appClose.failedTitle': 'Alethe could not close',
+  'appClose.failedTitle': 'Atrium could not close',
   'appClose.failedBody': 'The close request failed. Try again or open the logs for details.',
   'ui.workspace.openIndividually': 'Open individually',
   'ui.workspace.addToCurrent': 'Add to current view',
@@ -2286,7 +2286,7 @@ export const en = {
   'ui.sidebar.importProjectConfigTitle': 'Import project config',
   'ui.sidebar.importProjectConfigDone': 'Project imported as a new project',
   'ui.sidebar.importProjectConfigFailed': 'Could not import this file',
-  'ui.sidebar.projectConfigFilter': 'Alethe project config',
+  'ui.sidebar.projectConfigFilter': 'Atrium project config',
   'ui.sidebar.quickRename': 'Quick rename',
   'ui.sidebar.newNamePrompt': 'New name:',
   'ui.sidebar.newTerminalHere': 'New terminal here',
@@ -2404,9 +2404,9 @@ export const en = {
   'ws.installAgent': 'Install agent',
   'ws.installAgentName': 'Install {name}',
   'ws.confirmOverwriteForeignAgent':
-    'An agent "{name}" that was NOT created by Alethe already exists in this project. Overwrite?',
+    'An agent "{name}" that was NOT created by Atrium already exists in this project. Overwrite?',
   'ws.confirmRemoveAgent': 'Remove the agent "{name}" from the project?',
-  'ws.confirmRemoveForeignAgent': 'The agent "{name}" was NOT created by Alethe. Remove it anyway?',
+  'ws.confirmRemoveForeignAgent': 'The agent "{name}" was NOT created by Atrium. Remove it anyway?',
   'ws.moreToolCalls': '+{count} tool calls — click to see all',
   'ws.back': 'back',
   'ws.agentCanvasPoc': 'agent canvas — poc',
@@ -2503,7 +2503,7 @@ export const en = {
   'orchestrator.limit': 'limit {count}',
   'orchestrator.emptyTitle': 'No workers yet.',
   'orchestrator.emptyBody':
-    'Ask an agent to delegate, and every worker Alethe starts shows up here as it runs.',
+    'Ask an agent to delegate, and every worker Atrium starts shows up here as it runs.',
   'orchestrator.tokensTitle': 'Tokens this worker has used',
   'orchestrator.costTitle': 'Session cost reported by this worker',
   'orchestrator.noPrice': 'no price',
@@ -2801,7 +2801,7 @@ export const en = {
   'hud.agentsRunning': '{count} agents',
 
   /* ---- crash watch ---- */
-  'crash.uncleanTitle': 'Alethe closed unexpectedly',
+  'crash.uncleanTitle': 'Atrium closed unexpectedly',
   'crash.uncleanBody': 'Last reading before it died: {total} MB · {procs} processes · {time}',
   'crash.uncleanBodyWithOrphans':
     'Last reading before it died: {total} MB · {procs} processes · {time}. Cleaned up {orphans} leftover orphaned process(es).',
@@ -2817,7 +2817,7 @@ export const en = {
   'update.error': 'Update failed: {error}',
   'update.checkFailedTitle': 'Could not check for updates',
   'update.checkFailedBody':
-    'Alethe could not reach the update service. Check your connection and try again.',
+    'Atrium could not reach the update service. Check your connection and try again.',
   'update.checkingAgain': 'Checking again…',
   'update.retryCheck': 'Try again',
   'update.currentVersionTitle': 'Installed version — click for updates',
@@ -2826,14 +2826,14 @@ export const en = {
   'prefs.categoryAbout': 'About & updates',
   'prefs.categoryAboutDesc': 'App version and software updates.',
   'prefs.aboutVersionTitle': 'Version',
-  'prefs.aboutVersionDesc': 'The Alethe build currently installed.',
+  'prefs.aboutVersionDesc': 'The Atrium build currently installed.',
   'prefs.aboutUpdatesTitle': 'Updates',
-  'prefs.aboutUpdatesDesc': 'Check for and install new versions of Alethe.',
+  'prefs.aboutUpdatesDesc': 'Check for and install new versions of Atrium.',
   'prefs.aboutCheckUpdates': 'Check for updates',
   'prefs.aboutChecking': 'Checking…',
   'prefs.aboutUpToDate': "You're on the latest version (v{version}).",
   'prefs.aboutUpdateAvailable': "Version {version} is available — you're on {current}.",
-  'update.checkSuccessTitle': 'Alethe is up to date',
+  'update.checkSuccessTitle': 'Atrium is up to date',
   'update.checkSuccessBody': 'No newer version is available right now.',
   'update.technicalDetails': 'Technical details',
 
@@ -2894,10 +2894,10 @@ export const en = {
 
   /* ---- resource supervisor ---- */
   'resource.warning.title': 'Memory use is rising',
-  'resource.warning.body': 'Alethe is using about {total} MB. Hidden idle runtimes may be parked.',
+  'resource.warning.body': 'Atrium is using about {total} MB. Hidden idle runtimes may be parked.',
   'resource.critical.title': 'Memory budget reached',
   'resource.critical.body':
-    'Alethe is using about {total} MB. New runtimes are paused until memory recovers.',
+    'Atrium is using about {total} MB. New runtimes are paused until memory recovers.',
   'resource.normal.title': 'Memory pressure cleared',
   'resource.normal.body': 'New runtimes can start normally again.',
   'resource.suspended.title': 'Runtime parked to protect the system',
@@ -2913,11 +2913,11 @@ export const en = {
   'menu.openLogs': 'Open logs',
   'menu.exportLogs': 'Export logs…',
   'menu.exportLogsTitle': 'Export logs',
-  'menu.logsFilter': 'Alethe logs',
+  'menu.logsFilter': 'Atrium logs',
   'sandbox.eyebrow': 'Experimental orchestration',
   'sandbox.title': 'Agent Sandbox',
   'sandbox.subtitle':
-    'A real planner-to-worker POC: Claude Code plans, Codex implements, and Alethe relays the handoff.',
+    'A real planner-to-worker POC: Claude Code plans, Codex implements, and Atrium relays the handoff.',
   'sandbox.close': 'Back to workspace',
   'sandbox.start': 'Restart sandbox',
   'sandbox.startDemo': 'Run demo session',
@@ -3031,7 +3031,7 @@ export const en = {
   'merge.postActionHint':
     '"Keep chat" reopens the panel on the new branch with a fresh conversation. "Keep session" would try to resume the exact same conversation there.',
   'merge.postActionRelocateSessionDisabledHint':
-    'Disabled for now — resuming a session from a different directory hangs indefinitely on every agent CLI tested so far (confirmed with OpenCode; root cause is upstream, outside Alethe’s control). Selecting this option silently falls back to a fresh conversation until an upstream fix lands.',
+    'Disabled for now — resuming a session from a different directory hangs indefinitely on every agent CLI tested so far (confirmed with OpenCode; root cause is upstream, outside Atrium’s control). Selecting this option silently falls back to a fresh conversation until an upstream fix lands.',
   'merge.commitConfirmTitle': 'Commit pending work — {branch}',
   'merge.commitConfirmDescription':
     'This worktree has changes that were never committed. Merge only moves commits — review what will be committed and write a description before integrating.',
@@ -3265,7 +3265,7 @@ export const en = {
   'mcp.errNoDisable': 'This agent has no disable flag — remove the server instead.',
   'mcp.errNoScope': 'This agent has no config at the selected scope.',
   'mcp.errUnsupportedFields': 'This agent cannot express every field of that server.',
-  'mcp.errJsonc': 'Alethe does not write opencode.jsonc, to avoid stripping your comments.',
+  'mcp.errJsonc': 'Atrium does not write opencode.jsonc, to avoid stripping your comments.',
   'mcp.errSelfCheck': 'The generated file did not validate, so nothing was written.',
   'mcp.errUnreadable': 'The config file could not be read.',
   'mcp.errWrite': 'The config file could not be written.',
@@ -3286,7 +3286,7 @@ export const en = {
   'mcp.runSetup': 'Review my MCP servers',
   'onboarding.mcpTitle': 'MCP servers',
   'onboarding.mcpSubtitle':
-    'Alethe reads the MCP servers each agent already has and can copy one across the others, so a tool set up in Claude also works in Codex.',
+    'Atrium reads the MCP servers each agent already has and can copy one across the others, so a tool set up in Claude also works in Codex.',
   'onboarding.mcpScanning': 'Reading the agent configs…',
   'onboarding.mcpStatServers': 'servers',
   'onboarding.mcpStatAgents': 'agents with servers',
@@ -3322,7 +3322,7 @@ export const en = {
   'mcp.registryReviewVersion': 'Published version',
   'mcp.registryReviewRepository': 'Repository',
   'mcp.registryAcknowledgement':
-    'I understand this is third-party software that may execute local code or contact remote services when an agent launches, and that a registry listing is not an endorsement by Alethe.',
+    'I understand this is third-party software that may execute local code or contact remote services when an agent launches, and that a registry listing is not an endorsement by Atrium.',
   'mcp.addWritten': '{count} server(s) added to {agents}',
   'mcp.fieldName': 'Name',
   'mcp.fieldTransport': 'Transport',
@@ -3362,7 +3362,7 @@ export const en = {
   'skills.loading': 'Reading the skill folders…',
   'skills.emptyTitle': 'No skill installed',
   'skills.emptyDescription':
-    'Alethe looks in the skills folder of each agent and in the shared store.',
+    'Atrium looks in the skills folder of each agent and in the shared store.',
   'skills.selectOne': 'Pick a skill to inspect it',
   'skills.sharedStore': 'Shared store',
   'skills.lockSource': 'source',
@@ -3381,10 +3381,10 @@ export const en = {
   'skills.removed': '{name} removed',
   'skills.removedLinkOnly': 'The shared copy was kept at {path}',
   'skills.removeFailed': 'Could not remove the skill',
-  'skills.errBundled': 'This skill ships with the agent and cannot be removed from Alethe.',
-  'skills.fromAlethe': 'From Alethe',
+  'skills.errBundled': 'This skill ships with the agent and cannot be removed from Atrium.',
+  'skills.fromAtrium': 'From Atrium',
   'skills.installedSection': 'Installed',
-  'skills.badgeAlethe': 'Alethe',
+  'skills.badgeAtrium': 'Atrium',
   'skills.installAction': 'Install',
   'skills.updateAction': 'Update',
   'skills.availableFor': 'Available for',
@@ -3393,7 +3393,7 @@ export const en = {
   'skills.stateUpdate': 'update available',
   'skills.stateConflict': 'name already in use',
   'skills.conflictNote':
-    'Another skill with this name already exists there and was not installed by Alethe. Remove or rename it to install this one.',
+    'Another skill with this name already exists there and was not installed by Atrium. Remove or rename it to install this one.',
   'skills.installed': '{name} installed',
   'skills.installFailed': 'Could not install the skill',
 
@@ -3405,42 +3405,42 @@ export const en = {
   'router9.stateReady': 'Ready, not running',
   'router9.stateRunning': 'Routing through {url}',
   'router9.setupIntro':
-    'Nothing installed yet. Alethe can install a private, version-pinned copy for you, or use a 9router you already have on your PATH.',
+    'Nothing installed yet. Atrium can install a private, version-pinned copy for you, or use a 9router you already have on your PATH.',
   'router9.sourceLabel': 'Which install to run',
   'router9.probing': 'Checking what you already have…',
-  'router9.nodeFound': 'Node {version} detected — Alethe can install 9router for you.',
+  'router9.nodeFound': 'Node {version} detected — Atrium can install 9router for you.',
   'router9.nodeMissing': 'Node.js was not found. It is required to install or run 9router.',
   'router9.needsNodeToInstall': 'Install Node.js first, then come back to install 9router.',
-  'router9.sourceManaged': 'Installed by Alethe',
+  'router9.sourceManaged': 'Installed by Atrium',
   'router9.sourceExternal': 'My own install',
-  'router9.managedInstalled': 'Ready · {version}, in the Alethe profile folder',
-  'router9.managedMissing': 'Not installed yet — Alethe can install it for you',
+  'router9.managedInstalled': 'Ready · {version}, in the Atrium profile folder',
+  'router9.managedMissing': 'Not installed yet — Atrium can install it for you',
   'router9.externalInstalled': 'Found · {version} at {path}',
   'router9.externalMissing': 'No 9router found on your PATH',
   'router9.externalDetected':
     'You already have a 9router on your PATH. Pick "My own install" to use it instead of a second copy.',
   'router9.fallbackManaged':
-    'Your own install is gone, so the copy installed by Alethe is used instead.',
+    'Your own install is gone, so the copy installed by Atrium is used instead.',
   'router9.fallbackExternal':
-    'The copy installed by Alethe is gone, so your own install is used instead.',
+    'The copy installed by Atrium is gone, so your own install is used instead.',
   'router9.installForMe': 'Install it for me',
-  'router9.uninstallManaged': "Remove Alethe's copy",
+  'router9.uninstallManaged': "Remove Atrium's copy",
   'router9.install': 'Install',
   'router9.reinstall': 'Reinstall',
   'router9.update': 'Update to {version}',
   'router9.installDone': '9router is installed and ready to route.',
   'router9.installFailed': '9router was not installed. The installer output is below.',
-  'router9.uninstallDone': '9router was removed from Alethe’s folder.',
+  'router9.uninstallDone': '9router was removed from Atrium’s folder.',
   'router9.uninstallFailed': '9router is still installed. The output is below.',
   'router9.retry': 'Try again',
   'router9.installTitle': 'Install 9router',
   'router9.uninstallTitle': 'Remove 9router',
   'router9.installIntro':
-    'Installed into a private folder managed by Alethe, pinned to a known version. Your global npm packages are not touched.',
+    'Installed into a private folder managed by Atrium, pinned to a known version. Your global npm packages are not touched.',
   'router9.uninstallIntro':
-    'The proxy is stopped and the package is removed from the Alethe folder.',
+    'The proxy is stopped and the package is removed from the Atrium folder.',
   'router9.securityNote':
-    '9router has known security advisories. Alethe never installs or updates it on its own, only routes over loopback, and never enables its remote sharing feature. Read the advisories before routing real credentials through it.',
+    '9router has known security advisories. Atrium never installs or updates it on its own, only routes over loopback, and never enables its remote sharing feature. Read the advisories before routing real credentials through it.',
   'router9.securityAdvisories': 'Read the security advisories',
   'router9.statusInstalled': 'Installed · {version}',
   'router9.statusNotInstalled': 'Not installed',
@@ -3453,7 +3453,7 @@ export const en = {
   'router9.enabled': 'Routing',
   'router9.enabledOn': 'Enabled',
   'router9.enabledOff': 'Disabled',
-  'router9.autoStart': 'Start with Alethe',
+  'router9.autoStart': 'Start with Atrium',
   'router9.autoStartOn': 'Yes',
   'router9.autoStartOff': 'No',
   'router9.port': 'Port',
@@ -3464,7 +3464,7 @@ export const en = {
   'router9.portInUse':
     'Port {port} is already taken by another process. Stop it or pick a different port.',
   'router9.pinnedMismatch':
-    'The installed version differs from the one Alethe pins. Use Update to move to the pinned version.',
+    'The installed version differs from the one Atrium pins. Use Update to move to the pinned version.',
   'router9.runningTerminalsHint':
     'Turning routing off only affects terminals opened afterwards. Agents already running keep the address they started with — restart them to change route.',
   'router9.routeToggle': 'Route through 9router',

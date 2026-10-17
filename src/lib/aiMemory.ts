@@ -21,7 +21,7 @@ export function canStart(status: AiMemoryStatus | null): boolean {
   return Boolean(status && status.installed && !status.running)
 }
 
-/** True when the endpoint answers and the server behind it is not the child Alethe started. */
+/** True when the endpoint answers and the server behind it is not the child Atrium started. */
 export function portOwnedByOther(status: AiMemoryStatus | null): boolean {
   return Boolean(status?.running) && !status?.ours
 }

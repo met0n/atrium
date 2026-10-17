@@ -4,21 +4,21 @@ import { useEffect, useState } from 'react'
 import { applyCloudPayload, buildCloudPayload } from '../../lib/cloudSync'
 import { intlLocale, type MessageKey, useT } from '../../lib/i18n'
 import {
+  type CloudDeviceStart,
   cloudSyncDeviceFinish,
   cloudSyncDeviceStart,
   cloudSyncLogout,
   cloudSyncPull,
   cloudSyncPush,
+  type CloudSyncStatus,
   cloudSyncStatus,
   githubSyncLogout,
   githubSyncPull,
   githubSyncPush,
   githubSyncSetToken,
+  type GithubSyncStatus,
   githubSyncStatus,
   openInBrowser,
-  type CloudDeviceStart,
-  type CloudSyncStatus,
-  type GithubSyncStatus,
 } from '../../lib/tauri'
 import { useProjectsStore } from '../../stores/projectsStore'
 import { useUiStore } from '../../stores/uiStore'
@@ -27,7 +27,7 @@ import styles from './SyncModal.module.css'
 
 const SPONSOR_URL = 'https://github.com/sponsors/Kc1t'
 const CREATE_TOKEN_URL =
-  'https://github.com/settings/tokens/new?scopes=gist&description=Alethe%20Sync'
+  'https://github.com/settings/tokens/new?scopes=gist&description=Atrium%20Sync'
 
 type Busy = null | 'connect' | 'push' | 'pull' | 'logout'
 type CloudBusy = null | 'signin' | 'push' | 'pull' | 'logout'

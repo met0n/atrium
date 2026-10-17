@@ -1,7 +1,7 @@
-// Scratch Notes — a local Alethe plugin. Plain JavaScript, no build step.
-// Its stylesheet is declared as "styles" in plugin.json and loaded by Alethe.
+// Scratch Notes — a local Atrium plugin. Plain JavaScript, no build step.
+// Its stylesheet is declared as "styles" in plugin.json and loaded by Atrium.
 ;(function () {
-  var api = window.alethe
+  var api = window.atrium
   if (!api) return
 
   var React = api.react
@@ -75,7 +75,7 @@
       children.push(
         React.createElement(
           'p',
-          { key: 'empty', className: 'alethe-notes__empty' },
+          { key: 'empty', className: 'atrium-notes__empty' },
           translate('empty'),
         ),
       )
@@ -84,14 +84,14 @@
         children.push(
           React.createElement(
             'div',
-            { key: note.id, className: 'alethe-notes__item' },
+            { key: note.id, className: 'atrium-notes__item' },
             translate('noteIn') + ' ' + note.where,
-            React.createElement('span', { className: 'alethe-notes__when' }, note.when),
+            React.createElement('span', { className: 'atrium-notes__when' }, note.when),
             React.createElement(
               'button',
               {
                 type: 'button',
-                className: 'alethe-notes__remove',
+                className: 'atrium-notes__remove',
                 'aria-label': translate('remove'),
                 onClick: function () {
                   removeNote(note.id)
@@ -104,7 +104,7 @@
       })
     }
 
-    return React.createElement('div', { className: 'alethe-notes' }, children)
+    return React.createElement('div', { className: 'atrium-notes' }, children)
   }
 
   api.registerPlugin('example.notes', {

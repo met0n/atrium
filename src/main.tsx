@@ -28,7 +28,7 @@ function captureGlobalError(message: string, stack: string | null, kind: string)
 }
 
 window.addEventListener('error', (event) => {
-  if (import.meta.env.DEV) console.error('[Alethe][window.error]', event.error ?? event.message)
+  if (import.meta.env.DEV) console.error('[Atrium][window.error]', event.error ?? event.message)
   captureGlobalError(
     event.message || String(event.error ?? 'unknown error'),
     (event.error as Error | undefined)?.stack ?? null,
@@ -37,7 +37,7 @@ window.addEventListener('error', (event) => {
 })
 
 window.addEventListener('unhandledrejection', (event) => {
-  if (import.meta.env.DEV) console.error('[Alethe][unhandledrejection]', event.reason)
+  if (import.meta.env.DEV) console.error('[Atrium][unhandledrejection]', event.reason)
   const reason = event.reason as { message?: string; stack?: string } | undefined
   captureGlobalError(
     reason?.message ?? String(event.reason),

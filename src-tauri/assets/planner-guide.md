@@ -1,9 +1,9 @@
-# Alethe guide for the agent helping its user
+# Atrium guide for the agent helping its user
 
-You are reading this because the person asked how to use or configure Alethe, the desktop app you
+You are reading this because the person asked how to use or configure Atrium, the desktop app you
 are running inside. Answer by pointing to the exact place in the app. Two rules:
 
-- Never edit Alethe's own files (its `projects.json`, profiles, scrollback). The running app keeps
+- Never edit Atrium's own files (its `projects.json`, profiles, scrollback). The running app keeps
   them in memory and writes them back, so an outside edit is overwritten or corrupts the workspace.
   Walk the person through the app instead.
 - If something is not covered here, say so. Do not invent a menu, a setting or a shortcut.
@@ -64,7 +64,7 @@ fullscreen; flat mode mixes panes from several projects.
 
 | Page | What it holds |
 | --- | --- |
-| Account | The local profile, language and Alethe accounts. |
+| Account | The local profile, language and Atrium accounts. |
 | Organization | Archived groups, restorable without losing their projects. |
 | Appearance | Interface colors, themes and scale. |
 | Remote Control | LAN access, security policies and connected devices. |
@@ -83,10 +83,10 @@ OpenCode terminal) and AI Memory (long-term memory shared across agents; needs t
 **Plugins** ships Todo List, Theme Pack and Git Control, and can install local plugins or ones
 from the catalogue. A pane whose plugin is disabled says so instead of opening.
 
-**Multi-Agent & Telemetry** is also where the rule sets live — the engineering rules Alethe prefixes
+**Multi-Agent & Telemetry** is also where the rule sets live — the engineering rules Atrium prefixes
 to a worker's first message. General always applies; the person edits it, adds sets of their own, and
-restores Alethe's with a button. You name the set a task needs in `rules` when you delegate, and read
-one with alethe_rules before writing code yourself.
+restores Atrium's with a button. You name the set a task needs in `rules` when you delegate, and read
+one with atrium_rules before writing code yourself.
 
 **9router** (Integrations) is a local proxy that spreads Claude Code, Codex and OpenCode traffic
 across providers with fallback. The page installs or detects it, starts and stops it, opens its
@@ -119,14 +119,14 @@ On macOS `Ctrl` reads as `Cmd`. Most shortcuts are ignored while typing in a fie
 ## Memory
 
 A terminal, a whole project or a group can be disabled or suspended to free memory, and
-reactivated later. The title bar shows RAM use. When memory runs low Alethe parks a terminal and
+reactivated later. The title bar shows RAM use. When memory runs low Atrium parks a terminal and
 says so; restarting it picks up where it left off.
 
 ## Continuity and data
 
 - Agent sessions and scrollback come back after a restart; history opens from an agent pane.
 - Backups export the local state as a `.zip`; importing one replaces the current state.
-- Each local account keeps its own data folder under the app-data directory (`%APPDATA%\Alethe`
+- Each local account keeps its own data folder under the app-data directory (`%APPDATA%\Atrium`
   on Windows): projects and preferences, scrollback, and a `spawn.log` that records how every
   terminal was launched. When a terminal fails to start, `spawn.log` is the first place to look,
   and the app can open it for the person.

@@ -1,4 +1,4 @@
-//! ai-memory: long-term memory for the agents Alethe launches.
+//! ai-memory: long-term memory for the agents Atrium launches.
 //!
 //! Two halves. The older one answers queries: `ai_memory_detect` finds the binary and health-checks
 //! its loopback endpoint, and the three config writers register its MCP server per agent — Claude
@@ -26,7 +26,7 @@ pub struct ReleaseAsset {
 
 /// The asset for this machine, or `None` when upstream publishes no build for it.
 ///
-/// Windows on ARM is the real case: every other platform Alethe supports has one.
+/// Windows on ARM is the real case: every other platform Atrium supports has one.
 pub fn release_asset(os: &str, arch: &str) -> Option<ReleaseAsset> {
     let file = match (os, arch) {
         ("windows", "x86_64") => "ai-memory-windows-x86_64.zip",
@@ -75,7 +75,7 @@ pub fn install_dir(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(profile_data_dir(app)?.join("tools").join("ai-memory"))
 }
 
-/// The copy Alethe installed, if it is there.
+/// The copy Atrium installed, if it is there.
 pub fn managed_binary(app: &AppHandle) -> Option<String> {
     let path = install_dir(app).ok()?.join(binary_name());
     path.is_file().then(|| path.to_string_lossy().to_string())
@@ -101,16 +101,16 @@ pub struct AiMemoryStatus {
     command: String,
     endpoint: String,
     version: Option<String>,
-    /// This is the copy Alethe installed, not one found on `PATH`.
+    /// This is the copy Atrium installed, not one found on `PATH`.
     managed: bool,
     /// Upstream publishes a build for this machine. False on Windows ARM64.
     supported: bool,
-    /// The server behind `endpoint`, if one is running, is the child Alethe itself started.
+    /// The server behind `endpoint`, if one is running, is the child Atrium itself started.
     ///
     /// This has to come from the tracked child handle, not from anything a screen remembers: the
     /// handle outlives any particular window being open, while a frontend flag does not survive the
     /// panel unmounting. Without it, reopening Preferences after starting ai-memory and closing the
-    /// dialog would forget that Alethe owns the process and hide the Stop button for a server it is
+    /// dialog would forget that Atrium owns the process and hide the Stop button for a server it is
     /// still running.
     ours: bool,
 }
@@ -215,7 +215,7 @@ pub fn ai_memory_mcp_config_path(repo: String) -> Result<String, String> {
         "mcpServers": { (MCP_KEY): mcp_server_spec(DEFAULT_PORT) }
     });
     let file_name = format!(
-        "alethe-ai-memory-mcp-{}.json",
+        "atrium-ai-memory-mcp-{}.json",
         short_hash(&root.to_string_lossy())
     );
     let path = std::env::temp_dir().join(file_name);
@@ -405,10 +405,10 @@ pub fn parse_counts(stdout: &str) -> Counts {
     counts
 }
 
-/// The `ai-memory serve` child Alethe started, if any.
+/// The `ai-memory serve` child Atrium started, if any.
 ///
 /// This is process-global — one child for the whole app — while the data directory it was launched
-/// with (`managed_data_dir`) is per-profile. Switching profiles does not restart Alethe
+/// with (`managed_data_dir`) is per-profile. Switching profiles does not restart Atrium
 /// (`ProfilesModal.tsx`'s `switchProfile` only re-hydrates the store from the new profile's
 /// `projects.json`), so a server started under profile A keeps running, and keeps holding its port,
 /// after a switch to profile B. Not fixed here — flagged so the next change to profile switching
@@ -416,13 +416,13 @@ pub fn parse_counts(stdout: &str) -> Counts {
 #[derive(Default)]
 pub struct AiMemoryProcess(pub Mutex<Option<Child>>);
 
-/// The data directory for a copy Alethe installed. A copy the person installed themselves keeps its
+/// The data directory for a copy Atrium installed. A copy the person installed themselves keeps its
 /// data where they put it, so this is never passed for one of those.
 fn managed_data_dir(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(profile_data_dir(app)?.join("ai-memory-data"))
 }
 
-/// The command to run and, only for a copy Alethe installed, the data directory to give it.
+/// The command to run and, only for a copy Atrium installed, the data directory to give it.
 pub(crate) fn command_for(app: &AppHandle, explicit: Option<String>) -> (String, Option<String>) {
     let managed = managed_binary(app);
     let cmd = pick_command(managed.clone(), explicit);
@@ -451,7 +451,7 @@ const HOOK_CONFIG_TIMEOUT: Duration = Duration::from_secs(3);
 /// and reuse rather than shelling out to the CLI again on every capture-enabled launch.
 ///
 /// Keying by port alone used to conflate two profiles that both use the default port: the resolved
-/// command and `managed_data_dir` are per-profile, but switching profiles does not restart Alethe, so
+/// command and `managed_data_dir` are per-profile, but switching profiles does not restart Atrium, so
 /// a cache keyed only by port would keep handing a newly-opened terminal in profile B the hooks
 /// generated for profile A — silently recording captures into the wrong store.
 type HookConfigKey = (String, Option<String>, u16);
@@ -475,7 +475,7 @@ pub(crate) fn invalidate_hook_config_cache() {
 
 /// The `hooks` object `install-hooks` prints for claude-code.
 ///
-/// Never `--apply`: Alethe writes these into its own per-terminal file, not into the person's
+/// Never `--apply`: Atrium writes these into its own per-terminal file, not into the person's
 /// settings. `Command::output()` cannot time out, and a wedged or very slow binary must not hang a
 /// terminal launch, so the wait happens on its own thread with a fixed budget; the child is killed
 /// either way once that budget is up.
@@ -655,7 +655,7 @@ pub fn ai_memory_start(
     Ok(())
 }
 
-/// Kills the child Alethe started, if there is one. Shared by the command and by app exit, so
+/// Kills the child Atrium started, if there is one. Shared by the command and by app exit, so
 /// quitting never leaves a server holding the port.
 pub fn stop_managed(state: &AiMemoryProcess) {
     if let Ok(mut guard) = state.0.lock() {
@@ -764,7 +764,7 @@ mod tests {
     }
 
     #[test]
-    fn every_platform_alethe_supports_gets_the_matching_asset() {
+    fn every_platform_atrium_supports_gets_the_matching_asset() {
         for (os, arch, expected) in [
             ("windows", "x86_64", "ai-memory-windows-x86_64.zip"),
             ("linux", "x86_64", "ai-memory-linux-x86_64.tar.gz"),
@@ -799,7 +799,7 @@ mod tests {
     }
 
     #[test]
-    fn the_copy_alethe_installed_travels_as_a_full_path() {
+    fn the_copy_atrium_installed_travels_as_a_full_path() {
         // It lives in the profile folder, which is not on PATH: handing the agent the bare name
         // would give it a command it cannot resolve, and memory would silently never work.
         assert_eq!(pick_command(Some("/profile/ai-memory".into()), None), "/profile/ai-memory");
@@ -888,7 +888,7 @@ mod tests {
             gz.finish().unwrap()
         }
 
-        let dir = std::env::temp_dir().join(format!("alethe-aimem-tar-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("atrium-aimem-tar-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
 
         extract_tar_gz(&tar_gz(&[("ai-memory", b"binary")]), &dir).expect("a plain tarball unpacks");
@@ -922,7 +922,7 @@ mod tests {
             gz.finish().unwrap()
         }
 
-        let dir = std::env::temp_dir().join(format!("alethe-aimem-tar-many-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("atrium-aimem-tar-many-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
 
         // Create an archive with 5 entries, but test with a limit of 3
@@ -952,7 +952,7 @@ mod tests {
             gz.finish().unwrap()
         }
 
-        let dir = std::env::temp_dir().join(format!("alethe-aimem-tar-size-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("atrium-aimem-tar-size-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
 
         // Create an archive with 100 bytes of data, but test with a limit of 50 bytes
@@ -969,7 +969,7 @@ mod tests {
         // and that the plugin download limit is untouched.
         use crate::plugin_package::{extract_zip, MAX_DOWNLOAD_BYTES as PLUGIN_MAX_DL, MAX_UNPACKED_BYTES as PLUGIN_MAX_UP, MAX_ENTRIES as PLUGIN_MAX_ENTRIES};
 
-        let dir = std::env::temp_dir().join(format!("alethe-plugin-cap-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("atrium-plugin-cap-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
 
         // Create a zip that's over the plugin unpacked limit
@@ -1009,7 +1009,7 @@ mod tests {
 
     #[test]
     fn the_counts_come_from_the_binarys_own_status() {
-        // Real `ai-memory status` output, trimmed. Alethe reports what the service says about
+        // Real `ai-memory status` output, trimmed. Atrium reports what the service says about
         // itself rather than keeping a tally of its own that can drift.
         let out = "ai-memory 2.4.0 (server)\n  \
                    pages:        3 (all versions: 4)\n  \
@@ -1047,7 +1047,7 @@ mod tests {
             gz.finish().unwrap()
         }
 
-        let dir = std::env::temp_dir().join(format!("alethe-aimem-install-cleanup-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("atrium-aimem-install-cleanup-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
 
         // 5 entries against a cap of 3: the entry-count check trips partway through, after the

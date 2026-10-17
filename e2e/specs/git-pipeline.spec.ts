@@ -53,7 +53,7 @@ import { recordStep } from '../support/report'
  * SAME Rust commands the UI buttons call — it covers the same code,
  * just without depending on automatic AI resolution.
  *
- * Each step verifies the result INDEPENDENTLY of any Alethe API
+ * Each step verifies the result INDEPENDENTLY of any Atrium API
  * whenever possible (a real file on disk via `fs`, raw `git log`/
  * `git show` via `child_process`) — the entire point of this suite is to not
  * repeat the mistake that motivated Part 1 of the plan: the app "saying it passed"
@@ -118,7 +118,7 @@ describe('Merge Center: full git pipeline', function () {
 
   it('git init via the UI (real banner + native confirm()) correctly creates .git (verified directly on disk)', async () => {
     await initGitViaUi()
-    // Node child_process, not the Alethe API — the real confirmation.
+    // Node child_process, not the Atrium API — the real confirmation.
     expect(hasRealGitDir(repoPath)).toBe(true)
 
     // `git init` alone doesn't leave a resolvable HEAD (no commit yet) — the
@@ -149,7 +149,7 @@ describe('Merge Center: full git pipeline', function () {
     const migrated = await findLatestTerminal(projectId)
     expect(migrated.worktreeAgentId).toBeTruthy()
     agentAWorktreeId = migrated.worktreeAgentId!
-    agentAWorktreePath = join(repoPath, '.alethe', 'worktrees', agentAWorktreeId)
+    agentAWorktreePath = join(repoPath, '.atrium', 'worktrees', agentAWorktreeId)
     if (!existsSync(agentAWorktreePath)) {
       // Fallback: confirms the real path via the API in case the folder convention changes.
       const worktrees = await invokeTauri<{ path: string; agentId: string }[]>('worktree_list', {
@@ -209,7 +209,7 @@ describe('Merge Center: full git pipeline', function () {
     // Changes the SAME file on both sides — in the agent's worktree and directly
     // in main — guaranteeing a real, reproducible conflict, instead of
     // waiting for the agent to eventually run into a concurrent change.
-    const agentBranch = `alethe/agent-${agentAWorktreeId}`
+    const agentBranch = `atrium/agent-${agentAWorktreeId}`
     writeFileSync(join(agentAWorktreePath, 'shared.txt'), 'mudança do agente A\n')
     commitFileOnBranch(
       agentAWorktreePath,
@@ -242,7 +242,7 @@ describe('Merge Center: full git pipeline', function () {
   })
 
   it('resolves the conflict, integrates, and confirms via git log/show DIRECTLY on the repo (does not trust what the app reports)', async () => {
-    const agentBranch = `alethe/agent-${agentAWorktreeId}`
+    const agentBranch = `atrium/agent-${agentAWorktreeId}`
     const env = await invokeTauri<{
       id: string
       path: string

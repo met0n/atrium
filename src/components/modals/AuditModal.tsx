@@ -1,8 +1,8 @@
 import { Copy, Download, ShieldAlert, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-import { useT } from '../../lib/i18n'
 import { type AuditEntry, auditLogger, type AuditLogLevel } from '../../lib/auditLogger'
+import { useT } from '../../lib/i18n'
 import { writeClipboardText } from '../../lib/tauri'
 import { useUiStore } from '../../stores/uiStore'
 import styles from './AuditModal.module.css'
@@ -52,7 +52,7 @@ export function AuditModal() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `alethe-audit-log-${Date.now()}.json`
+    a.download = `atrium-audit-log-${Date.now()}.json`
     a.click()
     URL.revokeObjectURL(url)
   }

@@ -1,4 +1,4 @@
-# Alethe — working guide (AI)
+# Atrium — working guide (AI)
 
 > Identical in content to [`CLAUDE.md`](CLAUDE.md) in this directory. Keep both in sync.
 > Contributing from outside? Start with [`CONTRIBUTING.md`](CONTRIBUTING.md) — setup, project
@@ -6,12 +6,13 @@
 
 ## 1. What it is
 
-**Alethe** is a **Windows-first** desktop app that organizes, operates, and resumes multiple coding
-agents (Claude Code, Codex, OpenCode) and shells in parallel, inside a persistent workspace with
-real terminals (PTYs), layouts, themes, history, and RAM control.
+**Atrium** is a **macOS-first, cross-platform** desktop app that organizes, operates, and resumes
+multiple coding agents (Claude Code, Codex, OpenCode) and shells in parallel, inside a persistent
+workspace with real terminals (PTYs), layouts, themes, history, and RAM control. It is a fork of
+[Alethe](https://github.com/Kc1t/alethe-agents) (AGPL-3.0); keep the attribution in `NOTICE`.
 
-> Tagline: **Reveal the state of every agent, shell, and project.**
-> Status: functional MVP in polish. Identifier: `com.kc1t.alethe`.
+> Tagline: **Every agent, shell, and project around one workspace.**
+> Identifier: `com.met0n.atrium`.
 
 ## 2. Commands (from `package.json`)
 
@@ -22,6 +23,10 @@ npm run dev      # Vite frontend only, at http://localhost:1422 (strictPort)
 npm run build    # tsc + vite build — tsc typechecks and VALIDATES i18n (see §3)
 npm test         # vitest run over src/**/*.test.{ts,tsx}
 ```
+
+**Building the macOS app:** `npm run tauri build` (needs Rust and the Xcode Command Line Tools)
+writes `src-tauri/target/release/bundle/macos/Atrium.app` and a `.dmg`. macOS-only window settings
+live in `src-tauri/tauri.macos.conf.json` (native traffic lights over the title bar).
 
 **Building the Windows installer (MSI/NSIS)** requires the MSVC environment (`vcvars64`):
 
@@ -34,7 +39,7 @@ The folder depends on the Build Tools version: `2022\BuildTools` for Visual Stud
 `C:\Program Files (x86)\Microsoft Visual Studio\Installer`) prints the installed one.
 
 When returning the path of a generated installer, always report the **full absolute path on the PC**
-(for example, `D:\project\src-tauri\target\release\bundle\nsis\Alethe_setup.exe`), never just the
+(for example, `D:\project\src-tauri\target\release\bundle\nsis\Atrium_setup.exe`), never just the
 path relative to the repository.
 
 
@@ -45,9 +50,7 @@ path relative to the repository.
    process, do not run `npm run app` "just to test" if it is already running. Apply changes through
    **HMR** and trust the reload.
 2. **DO NOT commit / push / tag / release without explicit permission from the owner at that
-   moment.** Make changes **in the working tree only** and stop — committing is his call. When he
-   authorizes a commit, **DO NOT add a co-author** (`Co-Authored-By: Claude …`) or any tool
-   signature to the message — he is the only author.
+   moment.** Make changes **in the working tree only** and stop — committing is the owner's call.
 3. **Strict design system — no gradients, nothing "vibecoded".** No generic template UI. Dashboards
    and widgets show **real data**, never placeholder/mock. Style through CSS Modules + tokens from
    `src/styles/theme.css`; **never** hardcode a color — use the variables (`--bg`, `--fg`,
@@ -85,7 +88,10 @@ streaming through the Tauri events `pty://data/{id}` and `pty://exit/{id}`.
 - OAuth tokens (Spotify, Claude) are stored in **plaintext** in app data; do not log or expose them.
 - The Windows build requires `vcvars64`. The Rust toolchain on `C:` can be corrupted by Windows
   Defender — prefer building from `D:`.
-- Local data: `%APPDATA%/Alethe/` (profiles, `projects.json`, scrollback `*.bin`, `spawn.log`).
+- Local data: `~/Library/Application Support/com.met0n.atrium/` on macOS, `%APPDATA%/Atrium/` on
+  Windows (profiles, `projects.json`, scrollback `*.bin`, `spawn.log`).
+- macOS: app shortcuts use ⌘ through `hasPrimaryModifier()` (`src/lib/platform.ts`); Ctrl always
+  goes to the terminal. Never test `ctrlKey || metaKey` directly for a new shortcut.
 
 ## 7. Going deeper
 

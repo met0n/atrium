@@ -72,8 +72,8 @@ describe('production renderer security policy', () => {
     // (src-tauri/src/plugin_assets.rs). No remote origin, no eval.
     expect(directives.get('script-src')).toEqual([
       "'self'",
-      'alethe-plugin:',
-      'http://alethe-plugin.localhost',
+      'atrium-plugin:',
+      'http://atrium-plugin.localhost',
     ])
     expect(directives.get('script-src')).not.toContain("'unsafe-inline'")
     expect(directives.get('script-src')).not.toContain("'unsafe-eval'")
@@ -87,16 +87,16 @@ describe('production renderer security policy', () => {
     expect(directives.get('style-src')).toEqual([
       "'self'",
       "'unsafe-inline'",
-      'alethe-plugin:',
-      'http://alethe-plugin.localhost',
+      'atrium-plugin:',
+      'http://atrium-plugin.localhost',
     ])
     expect(directives.get('img-src')).toEqual([
       "'self'",
       'data:',
       'asset:',
       'http://asset.localhost',
-      'alethe-plugin:',
-      'http://alethe-plugin.localhost',
+      'atrium-plugin:',
+      'http://atrium-plugin.localhost',
       'http:',
       'https:',
     ])
@@ -109,8 +109,8 @@ describe('production renderer security policy', () => {
     ])
     expect(directives.get('font-src')).toEqual([
       "'self'",
-      'alethe-plugin:',
-      'http://alethe-plugin.localhost',
+      'atrium-plugin:',
+      'http://atrium-plugin.localhost',
     ])
     expect(directives.get('connect-src')).toEqual([
       "'self'",

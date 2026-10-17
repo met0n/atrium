@@ -1,4 +1,4 @@
-//! LAN-only remote control for existing Alethe terminal sessions.
+//! LAN-only remote control for existing Atrium terminal sessions.
 //!
 //! The listener is off until the user turns it on. Pairing happens inside a
 //! short-lived window: the QR carries a pairing token that is exchanged once
@@ -119,7 +119,7 @@ pub(crate) fn stop_generation(hub: &RemoteHub, generation: u64) -> bool {
 }
 
 fn lifecycle_unavailable() -> String {
-    "Remote control cannot start because its lifecycle lock is unavailable. Restart Alethe and try again."
+    "Remote control cannot start because its lifecycle lock is unavailable. Restart Atrium and try again."
         .to_string()
 }
 
@@ -152,7 +152,7 @@ where
         .http
         .local_addr()
         .map_err(|_| {
-            "Remote control could not inspect its HTTP listener. Restart Alethe and try again."
+            "Remote control could not inspect its HTTP listener. Restart Atrium and try again."
                 .to_string()
         })?
         .port();
@@ -160,7 +160,7 @@ where
         .websocket
         .local_addr()
         .map_err(|_| {
-            "Remote control could not inspect its WebSocket listener. Restart Alethe and try again."
+            "Remote control could not inspect its WebSocket listener. Restart Atrium and try again."
                 .to_string()
         })?
         .port();
@@ -203,11 +203,11 @@ where
         )
     })?;
     http.set_nonblocking(true).map_err(|_| {
-        "Remote control could not configure its HTTP listener. Restart Alethe and try again."
+        "Remote control could not configure its HTTP listener. Restart Atrium and try again."
             .to_string()
     })?;
     websocket.set_nonblocking(true).map_err(|_| {
-        "Remote control could not configure its WebSocket listener. Restart Alethe and try again."
+        "Remote control could not configure its WebSocket listener. Restart Atrium and try again."
             .to_string()
     })?;
     Ok(BoundListeners { http, websocket })

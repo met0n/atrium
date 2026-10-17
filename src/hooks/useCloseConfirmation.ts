@@ -53,22 +53,32 @@ export function requestAppClose(): Promise<void> {
   return closeCoordinator.handleCloseRequest({ preventDefault: () => {} })
 }
 
+// Emitted by the backend for Cmd+Q and Atrium ▸ Quit Atrium on macOS, so quitting confirms and
+// saves the workspace exactly like closing the window does.
+const QUIT_REQUESTED_EVENT = 'app://quit-requested'
+
 export function useCloseConfirmation(): void {
   useEffect(() => {
     let cancelled = false
-    let unlisten: (() => void) | null = null
+    const unlisteners: Array<() => void> = []
+    const keep = (stopListening: () => void) => {
+      if (cancelled) stopListening()
+      else unlisteners.push(stopListening)
+    }
 
     void appWindow
       .onCloseRequested((event) => closeCoordinator.handleCloseRequest(event))
-      .then((stopListening) => {
-        if (cancelled) stopListening()
-        else unlisten = stopListening
-      })
+      .then(keep)
+      .catch((error) => reportCloseFailure('confirm', error))
+
+    void appWindow
+      .listen(QUIT_REQUESTED_EVENT, () => requestAppClose())
+      .then(keep)
       .catch((error) => reportCloseFailure('confirm', error))
 
     return () => {
       cancelled = true
-      unlisten?.()
+      for (const stopListening of unlisteners) stopListening()
     }
   }, [])
 }

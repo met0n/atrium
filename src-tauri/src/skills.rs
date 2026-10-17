@@ -11,9 +11,9 @@ const SKILL_FILE: &str = "SKILL.md";
 const CODEX_SYSTEM_MARKER: &str = ".codex-system-skills.marker";
 const MAX_TREE_DEPTH: usize = 4;
 const MAX_TREE_CHILDREN: usize = 100;
-/// Written next to an Alethe-installed `SKILL.md` so ownership and version survive without
+/// Written next to an Atrium-installed `SKILL.md` so ownership and version survive without
 /// touching the skill's own frontmatter.
-const ALETHE_SIDECAR: &str = ".alethe-skill.json";
+const ATRIUM_SIDECAR: &str = ".atrium-skill.json";
 
 struct BundledSkill {
     name: &'static str,
@@ -39,33 +39,33 @@ impl BundledSkill {
 
 /// Skills that ship inside the app and are offered for a one-click install.
 const BUNDLED_SKILLS: [BundledSkill; 1] = [BundledSkill {
-    name: "alethe-orchestrate",
+    name: "atrium-orchestrate",
     version: 7,
     agents: &["claude", "codex"],
     files: &[
         BundledSkillFile {
             path: SKILL_FILE,
-            content: include_str!("../assets/skills/alethe-orchestrate/SKILL.md"),
+            content: include_str!("../assets/skills/atrium-orchestrate/SKILL.md"),
         },
         BundledSkillFile {
             path: "scripts/orchestrate.py",
-            content: include_str!("../assets/skills/alethe-orchestrate/scripts/orchestrate.py"),
+            content: include_str!("../assets/skills/atrium-orchestrate/scripts/orchestrate.py"),
         },
         BundledSkillFile {
             path: "references/routing.md",
-            content: include_str!("../assets/skills/alethe-orchestrate/references/routing.md"),
+            content: include_str!("../assets/skills/atrium-orchestrate/references/routing.md"),
         },
         BundledSkillFile {
             path: "references/providers.md",
-            content: include_str!("../assets/skills/alethe-orchestrate/references/providers.md"),
+            content: include_str!("../assets/skills/atrium-orchestrate/references/providers.md"),
         },
         BundledSkillFile {
             path: "references/operations.md",
-            content: include_str!("../assets/skills/alethe-orchestrate/references/operations.md"),
+            content: include_str!("../assets/skills/atrium-orchestrate/references/operations.md"),
         },
         BundledSkillFile {
             path: "schemas/plan.schema.json",
-            content: include_str!("../assets/skills/alethe-orchestrate/schemas/plan.schema.json"),
+            content: include_str!("../assets/skills/atrium-orchestrate/schemas/plan.schema.json"),
         },
     ],
 }];
@@ -90,7 +90,7 @@ pub struct SkillSummary {
     pub linked: bool,
     pub shared: bool,
     pub bundled: bool,
-    pub from_alethe: bool,
+    pub from_atrium: bool,
     pub entry_count: usize,
 }
 
@@ -162,7 +162,7 @@ pub struct SkillRemoveReport {
 }
 
 fn skills_home(segments: &[&str]) -> Option<PathBuf> {
-    if let Some(root) = std::env::var_os("ALETHE_MCP_HOME") {
+    if let Some(root) = std::env::var_os("ATRIUM_MCP_HOME") {
         let base = PathBuf::from(root);
         if !base.as_os_str().is_empty() {
             return Some(segments.iter().fold(base, |acc, seg| acc.join(seg)));
@@ -316,7 +316,7 @@ fn summarize(agent: &str, root: &Path, dir: &Path, bundled: bool) -> Option<Skil
         linked: is_link(dir),
         shared: shared && agent != "shared",
         bundled: bundled || has_bundled_marker(dir, root),
-        from_alethe: sidecar_version(dir).is_some(),
+        from_atrium: sidecar_version(dir).is_some(),
         entry_count: entry_count(dir),
     })
 }
@@ -514,7 +514,7 @@ fn uninstall_inner(agent: String, name: String) -> Result<SkillRemoveReport, Str
 }
 
 fn sidecar_version(dir: &Path) -> Option<u32> {
-    let raw = fs::read_to_string(dir.join(ALETHE_SIDECAR)).ok()?;
+    let raw = fs::read_to_string(dir.join(ATRIUM_SIDECAR)).ok()?;
     let value: Value = serde_json::from_str(&raw).ok()?;
     value
         .get("version")
@@ -523,7 +523,7 @@ fn sidecar_version(dir: &Path) -> Option<u32> {
 }
 
 fn sidecar_files(dir: &Path) -> Vec<String> {
-    let Ok(raw) = fs::read_to_string(dir.join(ALETHE_SIDECAR)) else {
+    let Ok(raw) = fs::read_to_string(dir.join(ATRIUM_SIDECAR)) else {
         return Vec::new();
     };
     let Ok(value) = serde_json::from_str::<Value>(&raw) else {
@@ -597,7 +597,7 @@ fn remove_empty_managed_parents(mut parent: Option<&Path>, root: &Path) {
     }
 }
 
-/// A folder Alethe did not create, or a link into another store, is a conflict: installing
+/// A folder Atrium did not create, or a link into another store, is a conflict: installing
 /// must never overwrite a skill the user put there or write through a link.
 fn bundled_state(dir: &Path, version: u32) -> &'static str {
     if fs::symlink_metadata(dir).is_err() {
@@ -710,7 +710,7 @@ fn install_bundled_inner(
                 }
             }
             fs::write(
-                dir.join(ALETHE_SIDECAR),
+                dir.join(ATRIUM_SIDECAR),
                 serde_json::json!({ "version": skill.version, "files": managed }).to_string(),
             )
             .map_err(|error| format!("write_failed:{error}"))?;
@@ -843,7 +843,7 @@ mod tests {
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let home = std::env::temp_dir().join(format!("alethe-skills-{label}-{suffix}"));
+        let home = std::env::temp_dir().join(format!("atrium-skills-{label}-{suffix}"));
         fs::create_dir_all(&home).unwrap();
         home
     }
@@ -901,7 +901,7 @@ mod tests {
             assert_eq!(sidecar_version(&dir), Some(skill.version));
             assert_eq!(sidecar_files(&dir).len(), skill.files.len());
             let summary = summarize(agent, &home.join(agent), &dir, false).unwrap();
-            assert!(summary.from_alethe);
+            assert!(summary.from_atrium);
             assert!(!summary.bundled);
         }
 
@@ -922,7 +922,7 @@ mod tests {
         fs::write(old.join("references/obsolete.md"), "old managed file").unwrap();
         fs::write(old.join("personal-notes.md"), "user file").unwrap();
         fs::write(
-            old.join(ALETHE_SIDECAR),
+            old.join(ATRIUM_SIDECAR),
             r#"{"version":0,"files":["SKILL.md","references/obsolete.md"]}"#,
         )
         .unwrap();
@@ -930,7 +930,7 @@ mod tests {
         let future = home.join("codex").join(skill.name);
         fs::create_dir_all(&future).unwrap();
         fs::write(future.join(SKILL_FILE), "future body").unwrap();
-        fs::write(future.join(ALETHE_SIDECAR), r#"{"version":999}"#).unwrap();
+        fs::write(future.join(ATRIUM_SIDECAR), r#"{"version":999}"#).unwrap();
 
         assert_eq!(
             states(&catalog_inner(&root_of)[0].agents),
@@ -962,7 +962,7 @@ mod tests {
         let installed = home.join("codex").join(skill.name);
         fs::create_dir_all(&installed).unwrap();
         fs::write(installed.join(SKILL_FILE), "version two").unwrap();
-        fs::write(installed.join(ALETHE_SIDECAR), r#"{"version":2}"#).unwrap();
+        fs::write(installed.join(ATRIUM_SIDECAR), r#"{"version":2}"#).unwrap();
 
         let report = install_bundled_inner(skill.name, &["codex".to_string()], &root_of).unwrap();
 
@@ -978,7 +978,7 @@ mod tests {
     }
 
     #[test]
-    fn a_skill_alethe_did_not_create_is_never_overwritten() {
+    fn a_skill_atrium_did_not_create_is_never_overwritten() {
         let home = temp_home("conflict");
         let root_of = |agent: &str| Some(home.join(agent));
         let skill = &BUNDLED_SKILLS[0];
@@ -1008,7 +1008,7 @@ mod tests {
         let installed = home.join("claude").join(skill.name);
         fs::create_dir_all(&installed).unwrap();
         fs::write(installed.join(SKILL_FILE), "old body").unwrap();
-        fs::write(installed.join(ALETHE_SIDECAR), r#"{"version":0}"#).unwrap();
+        fs::write(installed.join(ATRIUM_SIDECAR), r#"{"version":0}"#).unwrap();
         symlink(&outside, installed.join("references")).unwrap();
 
         let error = install_bundled_inner(skill.name, &["claude".to_string()], &root_of)

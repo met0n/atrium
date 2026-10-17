@@ -37,7 +37,7 @@
 **Modified**
 
 - `src-tauri/src/orchestrator_shells.rs` — `ShellOwner` / `ShellOwnerKind`, `Shell::owner`, record round-trip.
-- `src-tauri/src/orchestrator_core.rs` — owner plumbing in `alethe_open_shell`; `Core::cancel_jobs` extracted from the `alethe_cancel` arm.
+- `src-tauri/src/orchestrator_core.rs` — owner plumbing in `atrium_open_shell`; `Core::cancel_jobs` extracted from the `atrium_cancel` arm.
 - `src-tauri/src/orchestrator.rs`, `src-tauri/src/lib.rs` — `orchestrator_cancel_job` command + registration.
 - `src-tauri/tests/orchestrator.rs` — owner snapshot and cancel-through-method tests.
 - `src/lib/tauri/orchestrator.ts` — `OrchestratorShellOwner`, `OrchestratorShell.owner`, `orchestratorCancelJob`.
@@ -59,7 +59,7 @@
 
 **Files:**
 - Modify: `src-tauri/src/orchestrator_shells.rs`
-- Modify: `src-tauri/src/orchestrator_core.rs` (the `alethe_open_shell` arm and any `planner_id` use)
+- Modify: `src-tauri/src/orchestrator_core.rs` (the `atrium_open_shell` arm and any `planner_id` use)
 - Modify: `src-tauri/tests/orchestrator.rs`
 - Modify: `src/lib/tauri/orchestrator.ts`
 
@@ -203,7 +203,7 @@ In `Shell::from_record`, replace `planner_id: text("plannerId"),` with:
 
 - [ ] **Step 5: Update the core's callers**
 
-In `src-tauri/src/orchestrator_core.rs`, find every use of `planner_id` on a `Shell` (the `alethe_open_shell` arm builds one) and switch to the owner. Where the calling planner is known:
+In `src-tauri/src/orchestrator_core.rs`, find every use of `planner_id` on a `Shell` (the `atrium_open_shell` arm builds one) and switch to the owner. Where the calling planner is known:
 
 ```rust
         owner: planner.map(ShellOwner::planner),
@@ -218,7 +218,7 @@ Expected: PASS, no warnings mentioning `orchestrator_shells.rs`.
 
 - [ ] **Step 7: Add the integration assertion**
 
-In `src-tauri/tests/orchestrator.rs`, find the existing test that opens a shell through `alethe_open_shell` and asserts on the snapshot. Add to it:
+In `src-tauri/tests/orchestrator.rs`, find the existing test that opens a shell through `atrium_open_shell` and asserts on the snapshot. Add to it:
 
 ```rust
     let shell = &core.snapshot()["shells"][0];
@@ -226,7 +226,7 @@ In `src-tauri/tests/orchestrator.rs`, find the existing test that opens a shell 
     assert_eq!(shell["owner"]["id"], json!("planner-1"), "{shell}");
 ```
 
-using whatever planner id that test already passes in the `X-Alethe-Planner` position. If no such test exists, add one that calls `alethe_open_shell` through `handle_mcp_body` with a planner header and asserts the two lines above.
+using whatever planner id that test already passes in the `X-Atrium-Planner` position. If no such test exists, add one that calls `atrium_open_shell` through `handle_mcp_body` with a planner header and asserts the two lines above.
 
 Run: `cargo test --manifest-path src-tauri/Cargo.toml --test orchestrator`
 Expected: `test result: ok`.
@@ -261,7 +261,7 @@ git add src-tauri/src/orchestrator_shells.rs src-tauri/src/orchestrator_core.rs 
 ### Task 2: Cancel a worker from the app
 
 **Files:**
-- Modify: `src-tauri/src/orchestrator_core.rs` (the `"alethe_cancel"` arm in `dispatch_tool`)
+- Modify: `src-tauri/src/orchestrator_core.rs` (the `"atrium_cancel"` arm in `dispatch_tool`)
 - Modify: `src-tauri/src/orchestrator.rs`
 - Modify: `src-tauri/src/lib.rs`
 - Modify: `src-tauri/tests/orchestrator.rs`
@@ -283,7 +283,7 @@ fn cancelling_through_the_core_settles_the_worker() {
     let dir = workspace("cancel-method");
     call(
         &core,
-        "alethe_delegate",
+        "atrium_delegate",
         json!({ "cwd": dir.to_string_lossy(), "tasks": ["hold"], "timeoutSeconds": 120 }),
     );
     let job_id = core.snapshot()["jobs"][0]["id"].as_str().expect("a job").to_string();
@@ -309,16 +309,16 @@ In `src-tauri/src/orchestrator_core.rs`, add to `impl Core` (near the other publ
 
 ```rust
     /// Interrupts running workers and settles them as cancelled. Returns the ids it acted on.
-    /// Both `alethe_cancel` and the app's cancel command go through here.
+    /// Both `atrium_cancel` and the app's cancel command go through here.
     pub fn cancel_jobs(&self, job_ids: &[String]) -> Vec<String> {
-        // body moved verbatim from the "alethe_cancel" arm, with `ids` renamed to `job_ids`
+        // body moved verbatim from the "atrium_cancel" arm, with `ids` renamed to `job_ids`
     }
 ```
 
-Move the whole body of the `"alethe_cancel"` arm into it, unchanged, ending with `cancelled`. The arm becomes:
+Move the whole body of the `"atrium_cancel"` arm into it, unchanged, ending with `cancelled`. The arm becomes:
 
 ```rust
-        "alethe_cancel" => {
+        "atrium_cancel" => {
             let cancelled = core.cancel_jobs(&string_list(arguments, "jobIds"));
             Ok(json!({ "cancelled": cancelled }))
         }
@@ -329,7 +329,7 @@ Move the whole body of the `"alethe_cancel"` arm into it, unchanged, ending with
 - [ ] **Step 4: Run the Rust tests**
 
 Run: `cargo test --manifest-path src-tauri/Cargo.toml --test orchestrator`
-Expected: `test result: ok` — the new test and the pre-existing `alethe_cancel` test both pass.
+Expected: `test result: ok` — the new test and the pre-existing `atrium_cancel` test both pass.
 
 - [ ] **Step 5: Add the Tauri command**
 
@@ -351,7 +351,7 @@ Register `orchestrator::orchestrator_cancel_job` in the `invoke_handler![...]` l
 In `src/lib/tauri/orchestrator.ts`, beside `orchestratorMessage`:
 
 ```ts
-/** Interrupts a running worker and settles it as cancelled — the same path `alethe_cancel` takes. */
+/** Interrupts a running worker and settles it as cancelled — the same path `atrium_cancel` takes. */
 export async function orchestratorCancelJob(jobId: string): Promise<unknown> {
   return invoke<unknown>('orchestrator_cancel_job', { jobId })
 }
@@ -896,7 +896,7 @@ export type OrchestratorShortcut = {
 In `Preferences`, add:
 
 ```ts
-  /** Empty means "use Alethe's built-ins"; editing one stores the whole list. */
+  /** Empty means "use Atrium's built-ins"; editing one stores the whole list. */
   orchestratorShortcuts: OrchestratorShortcut[]
 ```
 
@@ -912,12 +912,12 @@ import type { TFunction } from './i18n'
 import type { OrchestratorJob } from './tauri/orchestrator'
 import type { OrchestratorShortcut } from './types'
 
-/** The branch `alethe_delegate` gives an isolated worker, which the planner merges to apply it. */
+/** The branch `atrium_delegate` gives an isolated worker, which the planner merges to apply it. */
 export function workerBranch(jobId: string): string {
-  return `alethe/agent-${jobId}`
+  return `atrium/agent-${jobId}`
 }
 
-/** Alethe's own shortcuts. Their text lives in the locale files, so they arrive translated. */
+/** Atrium's own shortcuts. Their text lives in the locale files, so they arrive translated. */
 export function builtinShortcuts(t: TFunction): OrchestratorShortcut[] {
   return [
     {

@@ -9,7 +9,7 @@ export type SkillSummary = {
   linked: boolean
   shared: boolean
   bundled: boolean
-  fromAlethe: boolean
+  fromAtrium: boolean
   entryCount: number
 }
 

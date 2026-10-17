@@ -24,7 +24,7 @@ export type BrowseRow = {
   updateTo: string | null
   /** False for a listing that only points at a page: nothing to install from inside the app. */
   installable: boolean
-  /** The page a person visits when Alethe cannot install it for them. */
+  /** The page a person visits when Atrium cannot install it for them. */
   pageUrl: string | null
 }
 

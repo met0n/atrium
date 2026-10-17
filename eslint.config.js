@@ -23,7 +23,7 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    // Plugin examples are plain scripts that run in the webview and reach Alethe via window.alethe.
+    // Plugin examples are plain scripts that run in the webview and reach Atrium via window.atrium.
     files: ['docs/examples/**/*.js'],
     languageOptions: { globals: { ...globals.browser } },
   },

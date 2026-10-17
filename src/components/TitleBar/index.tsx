@@ -25,16 +25,17 @@ import {
 import { useEffect, useRef, useState } from 'react'
 
 import { requestAppClose } from '../../hooks/useCloseConfirmation'
+import { useNativeWindowControls } from '../../hooks/useNativeWindowControls'
 import { useRouter9Runtime } from '../../hooks/useRouter9Runtime'
 import { getCachedAntigravityUsage } from '../../lib/antigravityUsageCache'
 import { loadClaudeUsage } from '../../lib/claudeUsageCache'
 import { getCachedCodexUsage } from '../../lib/codexUsageCache'
-import { getCachedKimiUsage } from '../../lib/kimiUsageCache'
 import { useT } from '../../lib/i18n'
-import { useSidebarViews } from '../../lib/viewPlacement'
+import { getCachedKimiUsage } from '../../lib/kimiUsageCache'
 import { observeClaudeReset, observeCodexReset } from '../../lib/limitResetWatch'
 import { formatShortcut } from '../../lib/platform'
 import { codexHeadlineWindow, hasCodexWindow, killPty, remoteControlInfo } from '../../lib/tauri'
+import { useSidebarViews } from '../../lib/viewPlacement'
 import { usePomodoroStore } from '../../stores/pomodoroStore'
 import { useProjectsStore } from '../../stores/projectsStore'
 import { useUiStore } from '../../stores/uiStore'
@@ -44,7 +45,7 @@ import styles from './TitleBar.module.css'
 
 const CLAUDE_POLL_INTERVAL_MS = 5 * 60_000
 const REMOTE_CONTROL_POLL_INTERVAL_MS = 2_000
-const APP_TITLE = import.meta.env.DEV ? '(DEV) Alethe' : 'Alethe'
+const APP_TITLE = import.meta.env.DEV ? '(DEV) Atrium' : 'Atrium'
 
 function usagePillColor(utilization: number): string {
   if (utilization >= 80) return 'var(--status-offline)'
@@ -289,6 +290,7 @@ export function TitleBar() {
   const [remoteBackendEnabled, setRemoteBackendEnabled] = useState(false)
   const activeProfile = profiles.find((profile) => profile.id === activeProfileId) ?? null
   const threeAreas = preferences.topbarStyle === 'three-areas'
+  const windowControls = useNativeWindowControls()
   const antigravityReady =
     antigravityUsage?.status === 'ready' && antigravityUsage.buckets.length > 0
   const remoteConnectedLabel =
@@ -304,7 +306,7 @@ export function TitleBar() {
   const closeAgentPlanning = () => {
     if (!agentCanvasSession) return
     if (activeView === 'agentCanvas') {
-      window.dispatchEvent(new CustomEvent('alethe:agent-canvas-exit'))
+      window.dispatchEvent(new CustomEvent('atrium:agent-canvas-exit'))
       return
     }
     void killPty(agentCanvasSession.ptyId).catch(() => {})
@@ -472,6 +474,7 @@ export function TitleBar() {
     <div
       className={styles.bar}
       data-style={preferences.topbarStyle}
+      data-traffic-lights={windowControls.inset ? 'inset' : undefined}
       data-tauri-drag-region
       style={
         {
@@ -992,33 +995,37 @@ export function TitleBar() {
             )}
           </button>
         ) : null}
-        <button
-          type="button"
-          className={styles.windowBtn}
-          onClick={() => void win.minimize()}
-          title={t('ui.titlebar.minimize')}
-          aria-label={t('ui.titlebar.minimize')}
-        >
-          <Minus size={14} />
-        </button>
-        <button
-          type="button"
-          className={styles.windowBtn}
-          onClick={() => void win.toggleMaximize()}
-          title={t('ui.titlebar.maximize')}
-          aria-label={t('ui.titlebar.maximize')}
-        >
-          <Maximize2 size={12} />
-        </button>
-        <button
-          type="button"
-          className={`${styles.windowBtn} ${styles.close}`}
-          onClick={() => void requestAppClose()}
-          title={t('ui.titlebar.close')}
-          aria-label={t('ui.titlebar.close')}
-        >
-          <X size={14} />
-        </button>
+        {windowControls.native ? null : (
+          <>
+            <button
+              type="button"
+              className={styles.windowBtn}
+              onClick={() => void win.minimize()}
+              title={t('ui.titlebar.minimize')}
+              aria-label={t('ui.titlebar.minimize')}
+            >
+              <Minus size={14} />
+            </button>
+            <button
+              type="button"
+              className={styles.windowBtn}
+              onClick={() => void win.toggleMaximize()}
+              title={t('ui.titlebar.maximize')}
+              aria-label={t('ui.titlebar.maximize')}
+            >
+              <Maximize2 size={12} />
+            </button>
+            <button
+              type="button"
+              className={`${styles.windowBtn} ${styles.close}`}
+              onClick={() => void requestAppClose()}
+              title={t('ui.titlebar.close')}
+              aria-label={t('ui.titlebar.close')}
+            >
+              <X size={14} />
+            </button>
+          </>
+        )}
       </div>
       {tabMenu ? (
         <ContextMenu

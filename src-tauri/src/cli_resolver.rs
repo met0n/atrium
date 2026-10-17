@@ -674,7 +674,7 @@ pub fn rebuilt_path() -> String {
 
 /// Drops the cached PATH so the next lookup reads what an installer just wrote to the registry.
 /// Windows only hands a new environment to processes started after the change, and this one is
-/// long-lived: without this, a CLI installed from inside Alethe stays invisible until a restart.
+/// long-lived: without this, a CLI installed from inside Atrium stays invisible until a restart.
 pub fn invalidate_rebuilt_path() {
     if let Ok(mut cached) = REBUILT_PATH.write() {
         *cached = None;
@@ -1255,15 +1255,15 @@ mod tests {
     #[cfg(windows)]
     #[test]
     fn expands_windows_environment_variables_case_insensitively() {
-        std::env::set_var("alethe_test_path", r"C:\Tools");
+        std::env::set_var("atrium_test_path", r"C:\Tools");
 
         assert_eq!(
-            expand_windows_env_vars(r"%ALETHE_TEST_PATH%\bin;%alethe_test_path%"),
+            expand_windows_env_vars(r"%ATRIUM_TEST_PATH%\bin;%atrium_test_path%"),
             r"C:\Tools\bin;C:\Tools"
         );
         assert_eq!(expand_windows_env_vars(r"%NOPE%"), r"%NOPE%");
 
-        std::env::remove_var("alethe_test_path");
+        std::env::remove_var("atrium_test_path");
     }
 
     #[cfg(windows)]
@@ -1285,7 +1285,7 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn fnm_aliases_resolve_to_their_bin_dirs_with_the_default_first() {
-        let root = std::env::temp_dir().join(format!("alethe-fnm-{}", std::process::id()));
+        let root = std::env::temp_dir().join(format!("atrium-fnm-{}", std::process::id()));
         for alias in ["lts-latest", "default", "v20"] {
             std::fs::create_dir_all(root.join("aliases").join(alias).join("bin"))
                 .expect("create alias bin dir");
@@ -1307,7 +1307,7 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn linux_user_bin_dirs_finds_npm_global_agents() {
-        let home = std::env::temp_dir().join("alethe-audit-home");
+        let home = std::env::temp_dir().join("atrium-audit-home");
         let npm_global = home.join(".npm-global").join("bin");
         std::fs::create_dir_all(&npm_global).expect("create npm-global dir");
         std::fs::write(npm_global.join("fake-agent-audit"), "#!/bin/sh\necho hi\n")

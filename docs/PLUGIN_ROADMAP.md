@@ -18,7 +18,7 @@ covered by tests, and the app's own features go through it.
 | Host: discovery, declaration, activation, enable/disable, plugin context | `src/lib/plugins/host.ts` |
 | Contribution registries (`ContributionList`) | `src/lib/plugins/registry.ts` |
 | Capability matching and forbidden commands | `src/lib/plugins/permissions.ts` |
-| `window.alethe` and the local `<script>` loader | `src/lib/plugins/localTransport.ts` |
+| `window.atrium` and the local `<script>` loader | `src/lib/plugins/localTransport.ts` |
 | Icon names a manifest may use | `src/lib/plugins/icons.ts` |
 | Theme token sanitization and stylesheet injection | `src/lib/themeTokens.ts` |
 | Agent provider registry and resolvers | `src/lib/agentProviders.ts` |
@@ -26,7 +26,7 @@ covered by tests, and the app's own features go through it.
 | Legacy `enabledFeatures.git` migration | `src/lib/plugins/legacyMigration.ts` |
 | IPC bindings | `src/lib/tauri/plugins.ts` |
 | Manifest storage, id validation, enable/disable state | `src-tauri/src/plugins.rs` |
-| `alethe-plugin://` resolution and safety | `src-tauri/src/plugin_assets.rs` |
+| `atrium-plugin://` resolution and safety | `src-tauri/src/plugin_assets.rs` |
 | Renders a declared view, activating it on reveal | `src/components/ContributedView/` |
 | Management UI | `src/components/modals/preferences/PluginsPage.tsx` |
 | Bundled plugins | `src/plugins/theme-pack/`, `src/plugins/git-control/` |
@@ -53,7 +53,7 @@ covered by tests, and the app's own features go through it.
   activations coalesce. Git Control now loads on first reveal instead of at startup.
 - **W3 — agent providers.** `AgentType` is open, resolvers fall back safely, and
   `contributes.agentProvider` registers a new CLI without touching the core.
-- **W5 — local plugins.** `alethe-plugin://<pluginId>/<path>` resolves only inside that plugin's
+- **W5 — local plugins.** `atrium-plugin://<pluginId>/<path>` resolves only inside that plugin's
   directory, rejecting traversal, percent-encoded traversal and symlink escapes; content type comes
   from the extension, never sniffed. The scheme is allowed in `script-src`, `style-src`, `font-src`
   and `img-src`; no remote origin and no `eval` were added, and `securityPolicy.test.ts` asserts each
@@ -75,8 +75,8 @@ covered by tests, and the app's own features go through it.
 Do not relitigate these without talking to the owner. Each one has a reason.
 
 **Bundled plugins load by code-split `import()`, not by an IIFE bundle.** Same origin, so
-`script-src 'self'` already allows it. Local plugins use the `alethe-plugin://` scheme and bind
-against `window.alethe`, which is string-keyed because the production bundle is minified with
+`script-src 'self'` already allows it. Local plugins use the `atrium-plugin://` scheme and bind
+against `window.atrium`, which is string-keyed because the production bundle is minified with
 `mangle.toplevel`. Both transports go through the same `activate(context)` contract.
 
 **Plugins run in the main webview with full power.** This was an explicit product decision: plugins
@@ -110,7 +110,7 @@ terminal stage of a run.
 The plugin scheme and the local loader are covered by unit tests but have **not** been exercised in
 the running app. Two things need a human at the keyboard:
 
-1. That WebView2 maps `alethe-plugin://` the way the CSP expects (`http://alethe-plugin.localhost`),
+1. That WebView2 maps `atrium-plugin://` the way the CSP expects (`http://atrium-plugin.localhost`),
    so a local plugin's `entry` actually loads.
 2. That a Tauri child webview under a label other than `main` is refused `invoke`.
    `src-tauri/capabilities/default.json` declares `"webviews": ["main"]`, so this should hold — but

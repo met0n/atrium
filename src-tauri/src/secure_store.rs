@@ -1,6 +1,6 @@
 use std::fmt;
 
-const SERVICE: &str = "com.kc1t.alethe";
+const SERVICE: &str = "com.met0n.atrium";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum SecretKind {

@@ -26,7 +26,7 @@ Two things on the orchestration board fight the person:
   comfortable to read: a full report, a full diff, or a shell's live terminal.
 - Worker actions stop being buttons that do things behind the person's back and become **shortcuts
   that write an instruction to the planner**, which the person edits before sending.
-- Those shortcuts are **customizable per user**, with Alethe's own shipped ready to use.
+- Those shortcuts are **customizable per user**, with Atrium's own shipped ready to use.
 
 ## 3. Non-goals
 
@@ -84,7 +84,7 @@ Hovering a node raises a small action bar over it:
 - **worker:** stop while the job is still live (`queued`, `running`, `blocked`), plus the message
   shortcuts that apply to that worker (§6).
 
-Native subagents have no hover actions: Alethe cannot stop them and they have no worktree.
+Native subagents have no hover actions: Atrium cannot stop them and they have no worktree.
 
 ### 4.5 Click
 
@@ -145,15 +145,15 @@ A shortcut is a name, a text and a visibility rule. Placeholders the app substit
 the agent, the branch, the worktree path and the project path. The rule is one of `any`,
 `finished`, `finishedIsolated`.
 
-Alethe ships three, their default names and texts coming from the locale files so they arrive in
+Atrium ships three, their default names and texts coming from the locale files so they arrive in
 the person's language:
 
 - **Apply** (`finishedIsolated`) — asks the planner to commit in the worker's worktree, merge
-  `alethe/agent-<jobId>` into the current branch and report any conflict.
+  `atrium/agent-<jobId>` into the current branch and report any conflict.
 - **Review** (`finished`) — asks the planner to read that worker's report and diff before moving on.
 - **Continue** (`any`) — asks the planner to send that worker more work on its existing thread.
 
-**What a click does.** The panel closes, Alethe brings into view the terminal named by the job's
+**What a click does.** The panel closes, Atrium brings into view the terminal named by the job's
 `plannerId` — the agent that asked for that work — and writes the rendered text into the agent's input **without Enter**, through
 `writePtyChunked(ptyId, text, bracketedPasteMode)` — the path the app already uses to paste a
 prompt into an agent. The person edits and presses Enter.
@@ -184,15 +184,15 @@ Two pure helpers in `src/lib/orchestratorShortcuts.ts`:
 `"owner": { "kind": "planner", "id": "…" }`.
 
 `from_record` reads both shapes: a record with `owner` uses it; a record with only `plannerId` —
-every shell persisted before this change — comes back as a planner owner. `alethe_open_shell`
-records the calling planner (the `X-Alethe-Planner` header) as a planner owner, unchanged in
+every shell persisted before this change — comes back as a planner owner. `atrium_open_shell`
+records the calling planner (the `X-Atrium-Planner` header) as a planner owner, unchanged in
 behaviour.
 
 `OrchestratorShell` in `src/lib/tauri/orchestrator.ts` gains the matching type.
 
 ### 7.2 Stopping a worker
 
-Cancelling exists only inside `dispatch_tool`'s `alethe_cancel` arm. That body moves to
+Cancelling exists only inside `dispatch_tool`'s `atrium_cancel` arm. That body moves to
 `Core::cancel_jobs(&self, ids: &[String]) -> Vec<String>`, and both the tool and a new
 `orchestrator_cancel_job` Tauri command call it. The existing tool test covers the extracted path;
 no behaviour changes.

@@ -176,7 +176,7 @@ fn resolve_clone_target(requested: &str, normalized_url: &str) -> Result<String,
     let base = if trimmed.is_empty() {
         dirs_next::home_dir()
             .ok_or_else(|| "Não foi possível localizar a pasta do usuário".to_string())?
-            .join("Alethe")
+            .join("Atrium")
     } else {
         std::path::PathBuf::from(trimmed)
     };
@@ -289,8 +289,8 @@ fn generate_repo_context_files(project_dir: &str) -> Result<(), String> {
     };
 
     let context_markdown = format!(
-        "# Contexto Inicial do Projeto (Alethe AI Briefing)\n\n\
-        > Este repositório foi clonado via Alethe. O briefing abaixo descreve a aplicação para orientar sua assistência.\n\n\
+        "# Contexto Inicial do Projeto (Atrium AI Briefing)\n\n\
+        > Este repositório foi clonado via Atrium. O briefing abaixo descreve a aplicação para orientar sua assistência.\n\n\
         ## Tecnologias Detectadas\n- {stack_str}\n\n\
         ## Resumo do Repositório (README)\n```markdown\n{truncated_readme}\n```\n\n\
         ## Instrução Importante para o Agente\n\

@@ -4,7 +4,6 @@ import { getPluginEntries, subscribePlugins } from './host'
 import type { PluginRuntimeEntry } from './types'
 
 export { PLUGIN_API_VERSION } from './constants'
-export { requiresTrustConfirmation } from './trust'
 export {
   activateForView,
   activationEvents,
@@ -25,7 +24,7 @@ export {
   recordLegacyTodosFlag,
   TODOS_PLUGIN_ID,
 } from './legacyMigration'
-export type { AletheGlobal } from './localTransport'
+export type { AtriumGlobal } from './localTransport'
 export { canInvoke, capabilityMatches, grants, isValidCapability } from './permissions'
 export {
   commandContributions,
@@ -37,6 +36,7 @@ export {
   useContributions,
 } from './registry'
 export type { PluginStorage } from './storage'
+export { requiresTrustConfirmation } from './trust'
 export type {
   CommandContribution,
   Disposable,

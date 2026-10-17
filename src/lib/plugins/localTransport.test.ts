@@ -20,16 +20,16 @@ function manifest(overrides: Partial<PluginManifest> = {}): PluginManifest {
 }
 
 function injectedScript() {
-  return document.head.querySelector<HTMLScriptElement>('script[data-alethe-plugin]')
+  return document.head.querySelector<HTMLScriptElement>('script[data-atrium-plugin]')
 }
 
 function injectedLink() {
-  return document.head.querySelector<HTMLLinkElement>('link[data-alethe-plugin]')
+  return document.head.querySelector<HTMLLinkElement>('link[data-atrium-plugin]')
 }
 
 afterEach(() => {
   resetLocalTransportForTests()
-  for (const node of document.head.querySelectorAll('[data-alethe-plugin]')) node.remove()
+  for (const node of document.head.querySelectorAll('[data-atrium-plugin]')) node.remove()
   vi.useRealTimers()
 })
 
@@ -44,13 +44,13 @@ describe('loadLocalPlugin', () => {
     // Windows and Android reach a custom scheme through <scheme>.localhost;
     // getting this wrong means the script silently never loads.
     expect(pluginAssetUrl('local.demo', 'main.js', true)).toBe(
-      'http://alethe-plugin.localhost/local.demo/main.js',
+      'http://atrium-plugin.localhost/local.demo/main.js',
     )
     expect(pluginAssetUrl('local.demo', 'main.js', false)).toBe(
-      'alethe-plugin://local.demo/main.js',
+      'atrium-plugin://local.demo/main.js',
     )
     expect(pluginAssetUrl('local.demo', 'nested dir/a b.css', true)).toBe(
-      'http://alethe-plugin.localhost/local.demo/nested%20dir/a%20b.css',
+      'http://atrium-plugin.localhost/local.demo/nested%20dir/a%20b.css',
     )
   })
 
@@ -58,11 +58,11 @@ describe('loadLocalPlugin', () => {
     const module: PluginModule = { activate: vi.fn() }
     const pending = loadLocalPlugin(manifest())
 
-    expect(injectedScript()?.getAttribute('src')).toBe('alethe-plugin://local.demo/main.js')
-    expect(window.alethe?.apiVersion).toBe(1)
-    expect(window.alethe?.react).toBeDefined()
+    expect(injectedScript()?.getAttribute('src')).toBe('atrium-plugin://local.demo/main.js')
+    expect(window.atrium?.apiVersion).toBe(1)
+    expect(window.atrium?.react).toBeDefined()
 
-    window.alethe!.registerPlugin('local.demo', module)
+    window.atrium!.registerPlugin('local.demo', module)
     const loaded = await pending
 
     expect(loaded.activate).toBe(module.activate)
@@ -73,9 +73,9 @@ describe('loadLocalPlugin', () => {
   it('encodes each path segment without collapsing the separators', async () => {
     const pending = loadLocalPlugin(manifest({ entry: 'nested dir/main file.js' }))
     expect(injectedScript()?.getAttribute('src')).toBe(
-      'alethe-plugin://local.demo/nested%20dir/main%20file.js',
+      'atrium-plugin://local.demo/nested%20dir/main%20file.js',
     )
-    window.alethe!.registerPlugin('local.demo', {})
+    window.atrium!.registerPlugin('local.demo', {})
     await pending
   })
 
@@ -83,9 +83,9 @@ describe('loadLocalPlugin', () => {
     const deactivate = vi.fn()
     const pending = loadLocalPlugin(manifest({ styles: 'styles.css' }))
 
-    expect(injectedLink()?.getAttribute('href')).toBe('alethe-plugin://local.demo/styles.css')
+    expect(injectedLink()?.getAttribute('href')).toBe('atrium-plugin://local.demo/styles.css')
 
-    window.alethe!.registerPlugin('local.demo', { deactivate })
+    window.atrium!.registerPlugin('local.demo', { deactivate })
     const loaded = await pending
 
     await loaded.deactivate?.({} as never)
@@ -95,7 +95,7 @@ describe('loadLocalPlugin', () => {
 
   it('removes the stylesheet even when the plugin throws on deactivate', async () => {
     const pending = loadLocalPlugin(manifest({ styles: 'styles.css' }))
-    window.alethe!.registerPlugin('local.demo', {
+    window.atrium!.registerPlugin('local.demo', {
       deactivate: () => {
         throw new Error('boom')
       },
@@ -128,9 +128,9 @@ describe('loadLocalPlugin', () => {
 
   it('ignores a registration for a plugin nobody is waiting on', async () => {
     const pending = loadLocalPlugin(manifest())
-    expect(() => window.alethe!.registerPlugin('someone.else', {})).not.toThrow()
+    expect(() => window.atrium!.registerPlugin('someone.else', {})).not.toThrow()
 
-    window.alethe!.registerPlugin('local.demo', {})
+    window.atrium!.registerPlugin('local.demo', {})
     await expect(pending).resolves.toBeDefined()
   })
 })

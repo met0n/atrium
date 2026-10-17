@@ -18,8 +18,8 @@ import { type ReactNode, useMemo, useState } from 'react'
 import { relaunchAgentPty } from '../../lib/agentRelaunch'
 import { graphifyRepoOf } from '../../lib/claudeMcpConfigs'
 import { useT } from '../../lib/i18n'
-import type { SubTab, Terminal } from '../../lib/types'
 import { getPtyCwd, openInBrowser, openInFileExplorer, openInVscode } from '../../lib/tauri'
+import type { SubTab, Terminal } from '../../lib/types'
 import { useProjectsStore } from '../../stores/projectsStore'
 import { useTerminalsStore } from '../../stores/terminalsStore'
 import { useUiStore } from '../../stores/uiStore'
@@ -132,7 +132,7 @@ function InspectorBody({ projectId, terminal }: { projectId: string; terminal: T
         setSubTabSessionId(projectId, terminal.id, activeTab.id, launch.sessionId)
       }
       window.dispatchEvent(
-        new CustomEvent('alethe:terminal-resize-request', { detail: { ptyId: activeTab.ptyId } }),
+        new CustomEvent('atrium:terminal-resize-request', { detail: { ptyId: activeTab.ptyId } }),
       )
     } catch (err) {
       window.alert(

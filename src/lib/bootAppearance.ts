@@ -3,7 +3,7 @@
  * which renders before `projects.json` hydrates, paints with the user's
  * appearance instead of the default dark theme.
  */
-const BOOT_APPEARANCE_KEY = 'alethe:boot-appearance'
+const BOOT_APPEARANCE_KEY = 'atrium:boot-appearance'
 
 interface BootAppearance {
   theme: string

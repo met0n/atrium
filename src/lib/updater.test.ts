@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { check } from '@tauri-apps/plugin-updater'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { checkForUpdate, installPendingUpdate } from './updater'
 
@@ -29,6 +30,28 @@ beforeEach(() => {
   flush.mockReset()
   flush.mockImplementation(async () => {
     order.push('flush')
+  })
+  vi.mocked(check).mockClear()
+  vi.stubEnv('VITE_ATRIUM_UPDATER', '1')
+})
+
+afterEach(() => {
+  vi.unstubAllEnvs()
+})
+
+describe('updater without a release signing key', () => {
+  it('never checks for updates', async () => {
+    vi.stubEnv('VITE_ATRIUM_UPDATER', '')
+
+    await expect(checkForUpdate()).resolves.toBeNull()
+    expect(check).not.toHaveBeenCalled()
+  })
+
+  it('refuses to install', async () => {
+    vi.stubEnv('VITE_ATRIUM_UPDATER', '')
+
+    await expect(installPendingUpdate()).rejects.toThrow('not configured')
+    expect(order).toEqual([])
   })
 })
 

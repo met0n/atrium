@@ -1,7 +1,7 @@
 import { themeContributions } from './plugins/registry'
 import type { ThemeContribution } from './plugins/types'
 
-const STYLE_ELEMENT_ID = 'alethe-plugin-themes'
+const STYLE_ELEMENT_ID = 'atrium-plugin-themes'
 
 /** Theme ids become part of an attribute selector, so keep them boring. */
 const THEME_ID_PATTERN = /^[a-z][a-z0-9-]*$/

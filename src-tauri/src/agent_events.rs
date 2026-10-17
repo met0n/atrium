@@ -26,7 +26,7 @@ fn check_token(request: &tiny_http::Request) -> bool {
     request
         .headers()
         .iter()
-        .any(|h| h.field.equiv("X-Alethe-Token") && h.value.as_str() == expected)
+        .any(|h| h.field.equiv("X-Atrium-Token") && h.value.as_str() == expected)
 }
 
 fn listener_addr(port: u16) -> String {
@@ -105,7 +105,7 @@ fn claude_hooks_settings(
             "type": "http",
             "url": url,
             "timeout": 5,
-            "headers": { "X-Alethe-Token": token, "X-Alethe-Planner": planner_id }
+            "headers": { "X-Atrium-Token": token, "X-Atrium-Planner": planner_id }
         } ] }
     ]);
 
@@ -127,8 +127,8 @@ fn claude_hooks_settings(
                         "-s", "-m", "4", "--noproxy", "*", "-o", sink,
                         "-H", "Content-Type:application/json",
                         "-H", "Expect:",
-                        "-H", format!("X-Alethe-Token:{token}"),
-                        "-H", format!("X-Alethe-Planner:{planner_id}"),
+                        "-H", format!("X-Atrium-Token:{token}"),
+                        "-H", format!("X-Atrium-Planner:{planner_id}"),
                         "--data-binary", "@-",
                         url
                     ],
@@ -185,7 +185,7 @@ pub fn agent_hooks_settings_path(
         .collect();
     let variant = if orchestrator { "full" } else { "session" };
     let path = hook_settings_dir()?.join(format!(
-        "alethe-agent-hooks-{port}-{variant}-{safe_planner}.json"
+        "atrium-agent-hooks-{port}-{variant}-{safe_planner}.json"
     ));
     let mut settings = claude_hooks_settings(&endpoint, init_token(), &planner_id, orchestrator);
     // Capture rides in the same file, so one writer owns it and the scope is this terminal.
@@ -218,8 +218,8 @@ fn hook_settings_dir() -> Result<PathBuf, String> {
         let dir = std::env::var_os("XDG_RUNTIME_DIR")
             .map(PathBuf::from)
             .filter(|dir| dir.is_absolute())
-            .map(|dir| dir.join("alethe"))
-            .or_else(|| dirs_next::cache_dir().map(|dir| dir.join("alethe").join("runtime")))
+            .map(|dir| dir.join("atrium"))
+            .or_else(|| dirs_next::cache_dir().map(|dir| dir.join("atrium").join("runtime")))
             .ok_or_else(|| "no private folder for the agent hook settings".to_string())?;
         ensure_private_dir(&dir)?;
         Ok(dir)
@@ -247,7 +247,7 @@ fn write_private_file(path: &Path, body: &[u8]) -> Result<(), String> {
     let parent = path
         .parent()
         .ok_or_else(|| format!("{} has no folder", path.display()))?;
-    let temporary = parent.join(format!(".alethe-agent-hooks-{}.tmp", nanoid::nanoid!(12)));
+    let temporary = parent.join(format!(".atrium-agent-hooks-{}.tmp", nanoid::nanoid!(12)));
     let mut options = std::fs::OpenOptions::new();
     options.write(true).create_new(true);
     #[cfg(unix)]
@@ -274,7 +274,7 @@ mod private_file_tests {
     use std::os::unix::fs::PermissionsExt;
 
     fn scratch(label: &str) -> std::path::PathBuf {
-        std::env::temp_dir().join(format!("alethe-hooks-{label}-{}", nanoid::nanoid!(8)))
+        std::env::temp_dir().join(format!("atrium-hooks-{label}-{}", nanoid::nanoid!(8)))
     }
 
     // The hook settings carry the listener token: only their owner may read them (#116).
@@ -307,8 +307,8 @@ mod private_file_tests {
     }
 }
 
-const CODEX_HOOKS_MARK_START: &str = "# alethe-managed-hooks-start";
-const CODEX_HOOKS_MARK_END: &str = "# alethe-managed-hooks-end";
+const CODEX_HOOKS_MARK_START: &str = "# atrium-managed-hooks-start";
+const CODEX_HOOKS_MARK_END: &str = "# atrium-managed-hooks-end";
 
 // The listener port moves between runs, so it must not reach the filename: Codex would read a
 // changed command and ask to trust the hooks again. The exe path keeps dev and prod apart.
@@ -318,14 +318,21 @@ fn install_tag() -> &'static str {
         use sha2::{Digest, Sha256};
         let exe = std::env::current_exe()
             .map(|p| p.to_string_lossy().to_lowercase())
-            .unwrap_or_else(|_| "alethe".to_string());
+            .unwrap_or_else(|_| "atrium".to_string());
         let digest = Sha256::digest(exe.as_bytes());
         digest.iter().take(4).map(|b| format!("{b:02x}")).collect()
     })
 }
 
+#[cfg(windows)]
 fn ps_escape(value: &str) -> String {
     value.replace('\'', "''")
+}
+
+/// Single-quotes a value for POSIX sh.
+#[cfg(not(windows))]
+fn sh_quote(value: &str) -> String {
+    format!("'{}'", value.replace('\'', "'\\''"))
 }
 
 fn toml_string(value: &str) -> String {
@@ -336,53 +343,141 @@ fn toml_string(value: &str) -> String {
 /// like Claude Code's, so a PowerShell forwarder is piped Codex's hook JSON on stdin. One script
 /// per install, never per terminal or per port: Codex asks to trust .codex/config.toml again
 /// whenever it changes, so the endpoint lives inside the script and the terminal identifies itself
-/// through ALETHE_PLANNER at run time.
+/// through ATRIUM_PLANNER at run time.
+#[cfg(windows)]
 fn write_codex_hook_forwarder(port: u16) -> Result<PathBuf, String> {
     let endpoint = listener_endpoint(port);
     let token = init_token();
     let script = format!(
         "$body = [Console]::In.ReadToEnd()\r\n\
-         $planner = $env:ALETHE_PLANNER\r\n\
+         $planner = $env:ATRIUM_PLANNER\r\n\
          try {{\r\n\
-         \x20\x20Invoke-RestMethod -Uri '{endpoint}/hook' -Method Post -Body $body -ContentType 'application/json' -Headers @{{ 'X-Alethe-Token' = '{token}'; 'X-Alethe-Planner' = $planner; 'X-Alethe-Agent' = 'codex' }} | Out-Null\r\n\
+         \x20\x20Invoke-RestMethod -Uri '{endpoint}/hook' -Method Post -Body $body -ContentType 'application/json' -Headers @{{ 'X-Atrium-Token' = '{token}'; 'X-Atrium-Planner' = $planner; 'X-Atrium-Agent' = 'codex' }} | Out-Null\r\n\
          }} catch {{}}\r\n",
         endpoint = endpoint,
         token = ps_escape(token),
     );
     let path =
-        std::env::temp_dir().join(format!("alethe-codex-hook-forward-{}.ps1", install_tag()));
+        std::env::temp_dir().join(format!("atrium-codex-hook-forward-{}.ps1", install_tag()));
     std::fs::write(&path, script).map_err(|e| format!("write_failed:{e}"))?;
     Ok(path)
 }
 
-const CODEX_MCP_MARK_START: &str = "# alethe-managed-mcp-start";
-const CODEX_MCP_MARK_END: &str = "# alethe-managed-mcp-end";
+/// POSIX twin of the PowerShell forwarder. It never fails the hook: Codex keeps running even
+/// when Atrium is closed.
+#[cfg(not(windows))]
+fn write_codex_hook_forwarder(port: u16) -> Result<PathBuf, String> {
+    let url = format!("{}/hook", listener_endpoint(port));
+    let token = format!("X-Atrium-Token: {}", init_token());
+    let script = CODEX_HOOK_FORWARDER_SH
+        .replace("__TOKEN_HEADER__", &sh_quote(&token))
+        .replace("__URL__", &sh_quote(&url));
+    let path = std::env::temp_dir().join(format!("atrium-codex-hook-forward-{}.sh", install_tag()));
+    write_private_file(&path, script.as_bytes())?;
+    Ok(path)
+}
+
+#[cfg(not(windows))]
+const CODEX_HOOK_FORWARDER_SH: &str = r#"#!/bin/sh
+# Forwards a Codex hook payload (stdin) to Atrium.
+curl -s -m 5 -o /dev/null -X POST \
+  -H 'Content-Type: application/json' -H __TOKEN_HEADER__ \
+  -H "X-Atrium-Planner: ${ATRIUM_PLANNER}" -H 'X-Atrium-Agent: codex' \
+  --data-binary @- __URL__ || true
+"#;
+
+/// The `[[hooks.*.hooks]]` command fields for the forwarder script.
+#[cfg(windows)]
+fn codex_hook_command_toml(script_path: &Path) -> String {
+    let command = format!(
+        "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"{}\"",
+        script_path.to_string_lossy()
+    );
+    format!("command = \"true\"\ncommandWindows = '{command}'")
+}
+
+#[cfg(not(windows))]
+fn codex_hook_command_toml(script_path: &Path) -> String {
+    let command = format!("/bin/sh {}", sh_quote(&script_path.to_string_lossy()));
+    format!("command = {}", toml_string(&command))
+}
+
+const CODEX_MCP_MARK_START: &str = "# atrium-managed-mcp-start";
+const CODEX_MCP_MARK_END: &str = "# atrium-managed-mcp-end";
 
 /// Codex's MCP client only declares servers via `command`/`args` (stdio), unlike Claude Code's
-/// remote `http` support — this script bridges stdin/stdout JSON-RPC to Alethe's `/mcp` endpoint.
+/// remote `http` support — this script bridges stdin/stdout JSON-RPC to Atrium's `/mcp` endpoint.
+#[cfg(windows)]
 fn write_codex_mcp_bridge(port: u16) -> Result<PathBuf, String> {
     let endpoint = listener_endpoint(port);
     let token = init_token();
     let script = format!(
-        "$planner = $env:ALETHE_PLANNER\r\n\
+        "$planner = $env:ATRIUM_PLANNER\r\n\
          while ($line = [Console]::In.ReadLine()) {{\r\n\
          \x20\x20if ([string]::IsNullOrWhiteSpace($line)) {{ continue }}\r\n\
          \x20\x20try {{\r\n\
-         \x20\x20\x20\x20$resp = Invoke-WebRequest -UseBasicParsing -ErrorAction Stop -Uri '{endpoint}/mcp' -Method Post -Body $line -ContentType 'application/json' -Headers @{{ 'X-Alethe-Token' = '{token}'; 'X-Alethe-Planner' = $planner }}\r\n\
+         \x20\x20\x20\x20$resp = Invoke-WebRequest -UseBasicParsing -ErrorAction Stop -Uri '{endpoint}/mcp' -Method Post -Body $line -ContentType 'application/json' -Headers @{{ 'X-Atrium-Token' = '{token}'; 'X-Atrium-Planner' = $planner }}\r\n\
          \x20\x20\x20\x20if ($resp.Content) {{\r\n\
          \x20\x20\x20\x20\x20\x20[Console]::Out.WriteLine($resp.Content)\r\n\
          \x20\x20\x20\x20\x20\x20[Console]::Out.Flush()\r\n\
          \x20\x20\x20\x20}}\r\n\
          \x20\x20}} catch {{\r\n\
-         \x20\x20\x20\x20[Console]::Error.WriteLine('[alethe-mcp] request failed: ' + $_.Exception.Message)\r\n\
+         \x20\x20\x20\x20[Console]::Error.WriteLine('[atrium-mcp] request failed: ' + $_.Exception.Message)\r\n\
          \x20\x20}}\r\n\
          }}\r\n",
         endpoint = endpoint,
         token = ps_escape(token),
     );
-    let path = std::env::temp_dir().join(format!("alethe-codex-mcp-bridge-{}.ps1", install_tag()));
+    let path = std::env::temp_dir().join(format!("atrium-codex-mcp-bridge-{}.ps1", install_tag()));
     std::fs::write(&path, script).map_err(|e| format!("write_failed:{e}"))?;
     Ok(path)
+}
+
+/// POSIX twin of the PowerShell bridge: one JSON-RPC message per line, answered in order.
+#[cfg(not(windows))]
+fn write_codex_mcp_bridge(port: u16) -> Result<PathBuf, String> {
+    let url = format!("{}/mcp", listener_endpoint(port));
+    let token = format!("X-Atrium-Token: {}", init_token());
+    let script = CODEX_MCP_BRIDGE_SH
+        .replace("__TOKEN_HEADER__", &sh_quote(&token))
+        .replace("__URL__", &sh_quote(&url));
+    let path = std::env::temp_dir().join(format!("atrium-codex-mcp-bridge-{}.sh", install_tag()));
+    write_private_file(&path, script.as_bytes())?;
+    Ok(path)
+}
+
+#[cfg(not(windows))]
+const CODEX_MCP_BRIDGE_SH: &str = r#"#!/bin/sh
+# Bridges Codex's stdio JSON-RPC to Atrium's /mcp endpoint. stdout carries only JSON-RPC
+# responses; failures go to stderr.
+while IFS= read -r line || [ -n "$line" ]; do
+  case "$line" in *[![:space:]]*) ;; *) continue ;; esac
+  if resp=$(printf '%s' "$line" | curl -sSf -X POST \
+    -H 'Content-Type: application/json' -H __TOKEN_HEADER__ \
+    -H "X-Atrium-Planner: ${ATRIUM_PLANNER}" \
+    --data-binary @- __URL__); then
+    if [ -n "$resp" ]; then printf '%s\n' "$resp"; fi
+  else
+    echo '[atrium-mcp] request failed' >&2
+  fi
+done
+"#;
+
+/// The `[mcp_servers.atrium]` launch fields for the bridge script.
+#[cfg(windows)]
+fn codex_mcp_server_toml(script_path: &Path) -> String {
+    format!(
+        "command = \"powershell.exe\"\nargs = [\"-NoProfile\", \"-ExecutionPolicy\", \"Bypass\", \"-File\", {}]",
+        toml_string(&script_path.to_string_lossy())
+    )
+}
+
+#[cfg(not(windows))]
+fn codex_mcp_server_toml(script_path: &Path) -> String {
+    format!(
+        "command = \"/bin/sh\"\nargs = [{}]",
+        toml_string(&script_path.to_string_lossy())
+    )
 }
 
 fn codex_mcp_config_write_inner(repo: String, _planner_id: String) -> Result<(), String> {
@@ -422,17 +517,17 @@ fn codex_mcp_config_write_inner(repo: String, _planner_id: String) -> Result<(),
         body.push('\n');
     }
 
-    let script_toml = toml_string(&script_path.to_string_lossy());
+    let launch = codex_mcp_server_toml(&script_path);
     body.push_str(&format!(
-        "\n{CODEX_MCP_MARK_START}\n[mcp_servers.alethe]\ncommand = \"powershell.exe\"\nargs = [\"-NoProfile\", \"-ExecutionPolicy\", \"Bypass\", \"-File\", {script_toml}]\n{CODEX_MCP_MARK_END}\n",
+        "\n{CODEX_MCP_MARK_START}\n[mcp_servers.atrium]\n{launch}\n{CODEX_MCP_MARK_END}\n",
     ));
 
     std::fs::write(&path, body).map_err(|e| format!("write_failed:{e}"))
 }
 
-/// Writes (idempotently, replacing its own prior block) the `[mcp_servers.alethe]` section that
+/// Writes (idempotently, replacing its own prior block) the `[mcp_servers.atrium]` section that
 /// registers this Codex terminal as an orchestrator planner — so a Codex-driven session can call
-/// `alethe_delegate` too, same as a Claude terminal already can.
+/// `atrium_delegate` too, same as a Claude terminal already can.
 #[tauri::command]
 pub async fn codex_mcp_config_write(
     app: tauri::AppHandle,
@@ -491,15 +586,12 @@ fn codex_hooks_config_write_inner(repo: String, _planner_id: String) -> Result<(
         body.push('\n');
     }
 
-    let command_toml = format!(
-        "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"{script_path}\"",
-        script_path = script_path.to_string_lossy()
-    );
+    let command_fields = codex_hook_command_toml(&script_path);
     let mut block = String::new();
     block.push_str(&format!("\n{CODEX_HOOKS_MARK_START}\n"));
     for event in ["SubagentStart", "SubagentStop"] {
         block.push_str(&format!(
-            "[[hooks.{event}]]\nmatcher = \".*\"\n\n[[hooks.{event}.hooks]]\ntype = \"command\"\ncommand = \"true\"\ncommandWindows = '{command_toml}'\ntimeout = 5\n\n",
+            "[[hooks.{event}]]\nmatcher = \".*\"\n\n[[hooks.{event}.hooks]]\ntype = \"command\"\n{command_fields}\ntimeout = 5\n\n",
         ));
     }
     block.push_str(&format!("{CODEX_HOOKS_MARK_END}\n"));
@@ -509,7 +601,7 @@ fn codex_hooks_config_write_inner(repo: String, _planner_id: String) -> Result<(
 }
 
 /// Writes (idempotently, replacing its own prior block) the `[hooks]` section that reports this
-/// Codex terminal's own subagents back to Alethe, tagged with `planner_id` so the orchestrator
+/// Codex terminal's own subagents back to Atrium, tagged with `planner_id` so the orchestrator
 /// canvas can hang them off the terminal that spawned them.
 #[tauri::command]
 pub async fn codex_hooks_config_write(repo: String, planner_id: String) -> Result<(), String> {
@@ -568,13 +660,13 @@ pub fn start_listener(app: AppHandle) {
 
             // processo real (claude/codex/opencode) via
             // `curl -X POST /spawn -d '{"agent":"codex","task":"...","mode":"exec"}'`.
-            // O Alethe emite `agent-spawn`; o front sobe um PTY worker. Campos:
+            // O Atrium emite `agent-spawn`; o front sobe um PTY worker. Campos:
 
             if url.starts_with("/mcp") {
                 let planner = request
                     .headers()
                     .iter()
-                    .find(|h| h.field.equiv("X-Alethe-Planner"))
+                    .find(|h| h.field.equiv("X-Atrium-Planner"))
                     .map(|h| h.value.as_str().to_string());
                 let app = app.clone();
                 std::thread::spawn(move || {
@@ -664,7 +756,7 @@ pub fn start_listener(app: AppHandle) {
                 let payload = serde_json::json!({ "agent": "codex", "task": task });
                 let _ = app.emit("agent-spawn", &payload);
                 let _ = request.respond(tiny_http::Response::from_string(
-                    "queued no terminal codex do Alethe",
+                    "queued no terminal codex do Atrium",
                 ));
                 continue;
             }
@@ -705,7 +797,7 @@ pub fn start_listener(app: AppHandle) {
                     if let Some(planner) = request
                         .headers()
                         .iter()
-                        .find(|h| h.field.equiv("X-Alethe-Planner"))
+                        .find(|h| h.field.equiv("X-Atrium-Planner"))
                         .map(|h| h.value.as_str().to_string())
                     {
                         if let Some(object) = payload.as_object_mut() {
@@ -721,7 +813,7 @@ pub fn start_listener(app: AppHandle) {
                     let source_agent = request
                         .headers()
                         .iter()
-                        .find(|h| h.field.equiv("X-Alethe-Agent"))
+                        .find(|h| h.field.equiv("X-Atrium-Agent"))
                         .map(|h| h.value.as_str().to_string())
                         .unwrap_or_else(|| "claude".to_string());
                     if let Some(object) = payload.as_object_mut() {
@@ -763,8 +855,8 @@ mod tests {
             .collect();
 
         assert_eq!(handler["type"], "command");
-        assert!(args.contains(&"X-Alethe-Token:tok_en-1"));
-        assert!(args.contains(&"X-Alethe-Planner:pty-1"));
+        assert!(args.contains(&"X-Atrium-Token:tok_en-1"));
+        assert!(args.contains(&"X-Atrium-Planner:pty-1"));
         assert!(args.contains(&"@-"));
         assert_eq!(args.last(), Some(&"http://127.0.0.1:9123/hook"));
     }
@@ -796,7 +888,7 @@ mod tests {
 
     #[test]
     fn toml_string_escapes_windows_paths() {
-        let path = r#"C:\Users\kauam\AppData\Local\Temp\alethe-\"bridge\".ps1"#;
+        let path = r#"C:\Users\kauam\AppData\Local\Temp\atrium-\"bridge\".ps1"#;
         let document = format!("path = {}", toml_string(path))
             .parse::<toml_edit::DocumentMut>()
             .expect("generated path should be valid TOML");
@@ -804,6 +896,7 @@ mod tests {
         assert_eq!(document["path"].as_str(), Some(path));
     }
 
+    #[cfg(windows)]
     #[test]
     fn codex_mcp_bridge_script_requests_with_basic_parsing() {
         // The file name comes from the test binary's own path, so this never touches the bridge
@@ -830,5 +923,113 @@ mod tests {
             "bridge script should report request failures on stderr"
         );
         removed.expect("generated bridge script should be removable");
+    }
+}
+
+#[cfg(all(test, unix))]
+mod posix_codex_bridge_tests {
+    use std::io::Write;
+    use std::os::unix::fs::PermissionsExt;
+    use std::process::{Command, Stdio};
+
+    /// Runs the generated sh bridge against a local HTTP server, the way Codex would launch it.
+    #[test]
+    fn mcp_bridge_round_trips_a_message_with_the_token() {
+        let server = tiny_http::Server::http("127.0.0.1:0").expect("test server should bind");
+        let port = server
+            .server_addr()
+            .to_ip()
+            .expect("test server has an IP")
+            .port();
+        let path = super::write_codex_mcp_bridge(port).expect("bridge script should be written");
+        let mode = std::fs::metadata(&path)
+            .expect("bridge script exists")
+            .permissions()
+            .mode();
+
+        let responder = std::thread::spawn(move || {
+            let mut request = server.recv().expect("bridge should post one request");
+            let mut body = String::new();
+            request
+                .as_reader()
+                .read_to_string(&mut body)
+                .expect("readable body");
+            let token_ok = request.headers().iter().any(|header| {
+                header.field.equiv("X-Atrium-Token") && header.value.as_str() == super::init_token()
+            });
+            let planner = request
+                .headers()
+                .iter()
+                .find(|header| header.field.equiv("X-Atrium-Planner"))
+                .map(|header| header.value.to_string())
+                .unwrap_or_default();
+            let reply = format!(r#"{{"body":{body},"token":{token_ok},"planner":"{planner}"}}"#);
+            request
+                .respond(tiny_http::Response::from_string(reply))
+                .expect("response should be sent");
+        });
+
+        let mut child = Command::new("/bin/sh")
+            .arg(&path)
+            .env("ATRIUM_PLANNER", "planner-1")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("sh should start");
+        child
+            .stdin
+            .take()
+            .expect("stdin is piped")
+            .write_all(b"\n{\"jsonrpc\":\"2.0\",\"id\":1}\n")
+            .expect("message should be written");
+        let output = child
+            .wait_with_output()
+            .expect("bridge should exit at end of input");
+        responder.join().expect("responder should finish");
+        let _ = std::fs::remove_file(&path);
+
+        assert_eq!(
+            mode & 0o077,
+            0,
+            "the script embeds the token, so only the owner may read it"
+        );
+        assert_eq!(
+            String::from_utf8_lossy(&output.stdout),
+            "{\"body\":{\"jsonrpc\":\"2.0\",\"id\":1},\"token\":true,\"planner\":\"planner-1\"}\n"
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "stderr: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    #[test]
+    fn mcp_server_entry_runs_the_bridge_with_sh() {
+        let toml = super::codex_mcp_server_toml(std::path::Path::new("/tmp/it's here/bridge.sh"));
+        let document = toml
+            .parse::<toml_edit::DocumentMut>()
+            .expect("launch fields should be valid TOML");
+
+        assert_eq!(document["command"].as_str(), Some("/bin/sh"));
+        assert_eq!(
+            document["args"][0].as_str(),
+            Some("/tmp/it's here/bridge.sh")
+        );
+    }
+
+    #[test]
+    fn hook_command_quotes_the_script_path_for_sh() {
+        let toml = super::codex_hook_command_toml(std::path::Path::new("/tmp/it's here/hook.sh"));
+        let document = toml
+            .parse::<toml_edit::DocumentMut>()
+            .expect("hook fields should be valid TOML");
+
+        assert_eq!(
+            document["command"].as_str(),
+            Some("/bin/sh '/tmp/it'\\''s here/hook.sh'")
+        );
+        assert!(document.get("commandWindows").is_none());
     }
 }

@@ -144,12 +144,12 @@ describe('terminal links', () => {
   })
 
   it('ends a Windows home path where a `~/` path would end', () => {
-    expect(detectTerminalLinks('~\\projetos\\alethe roda em dev')[0].text).toBe(
-      '~\\projetos\\alethe',
+    expect(detectTerminalLinks('~\\projetos\\atrium roda em dev')[0].text).toBe(
+      '~\\projetos\\atrium',
     )
     expect(
-      detectTerminalLinks('~\\projects\\alethe ~\\Desktop\\notes.md').map((link) => link.text),
-    ).toEqual(['~\\projects\\alethe', '~\\Desktop\\notes.md'])
+      detectTerminalLinks('~\\projects\\atrium ~\\Desktop\\notes.md').map((link) => link.text),
+    ).toEqual(['~\\projects\\atrium', '~\\Desktop\\notes.md'])
     expect(detectTerminalLinks('~\\Desktop\\ see readme.md').map((link) => link.text)).toEqual([
       '~\\Desktop\\',
       'readme.md',
@@ -175,8 +175,8 @@ describe('terminal links', () => {
     expect(detectTerminalLinks('/api/users retorna 401 quando o token expira')[0].text).toBe(
       '/api/users',
     )
-    expect(detectTerminalLinks('~/projetos/alethe roda em dev e em prod')[0].text).toBe(
-      '~/projetos/alethe',
+    expect(detectTerminalLinks('~/projetos/atrium roda em dev e em prod')[0].text).toBe(
+      '~/projetos/atrium',
     )
   })
 

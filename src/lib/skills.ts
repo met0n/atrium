@@ -11,8 +11,8 @@ export type SkillGroup = {
   removable: SkillSummary[]
   sharedEntry: SkillSummary | null
   bundled: boolean
-  /** Installed by Alethe from its own catalog; still removable, unlike `bundled`. */
-  fromAlethe: boolean
+  /** Installed by Atrium from its own catalog; still removable, unlike `bundled`. */
+  fromAtrium: boolean
 }
 
 export function groupSkillsByName(snapshots: SkillAgentSnapshot[]): SkillGroup[] {
@@ -36,7 +36,7 @@ export function groupSkillsByName(snapshots: SkillAgentSnapshot[]): SkillGroup[]
         removable: agentEntries.filter((entry) => !entry.bundled),
         sharedEntry: entries.find((entry) => entry.agent === SHARED_SKILL_AGENT) ?? null,
         bundled: agentEntries.length > 0 && agentEntries.every((entry) => entry.bundled),
-        fromAlethe: entries.some((entry) => entry.fromAlethe),
+        fromAtrium: entries.some((entry) => entry.fromAtrium),
       }
     })
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -65,7 +65,7 @@ export function hasBundledUpdate(skill: BundledSkill): boolean {
   return skill.agents.some((entry) => entry.state === 'update')
 }
 
-/** A catalog skill stays in the offer list until Alethe's copy exists for some agent. */
+/** A catalog skill stays in the offer list until Atrium's copy exists for some agent. */
 export function isBundledSkillOffered(skill: BundledSkill): boolean {
   return !skill.agents.some((entry) => entry.state === 'installed' || entry.state === 'update')
 }

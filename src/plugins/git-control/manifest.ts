@@ -1,7 +1,7 @@
 import type { PluginManifest } from '../../lib/tauri'
 
 export const GIT_CONTROL_MANIFEST: PluginManifest = {
-  id: 'alethe.git-control',
+  id: 'atrium.git-control',
   name: 'Git Control',
   version: '1.0.0',
   kind: 'ui',

@@ -2,13 +2,13 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Turning on AI Memory leads to a working install from inside Alethe, and the agents it
+**Goal:** Turning on AI Memory leads to a working install from inside Atrium, and the agents it
 launches capture to that memory as well as query it.
 
 **Architecture:** `src-tauri/src/ai_memory.rs` already ships the query half — detection and
 per-agent MCP config writing. This plan extends that module rather than adding one beside it: a
-central binary resolver so an Alethe-installed copy is the one the agents get, then install, then
-the `serve` child, then the capture hooks composed into the Claude settings file Alethe already
+central binary resolver so an Atrium-installed copy is the one the agents get, then install, then
+the `serve` child, then the capture hooks composed into the Claude settings file Atrium already
 writes per terminal. The UI is a sub-panel under the existing feature toggle, the way `playwright`
 already does it.
 
@@ -48,7 +48,7 @@ already calls them at launch. A second mechanism would compete with a working on
 - English in all code, comments and docs. `docs/CHANGELOG.md` gains an `[Unreleased]` entry.
 - Commit only the files your task names. Never `git add -A`.
 - Do not push or tag. Do not restart the app or the dev server.
-- Rust tests run from `src-tauri/` with `CARGO_TARGET_DIR=target-test` — the app holds `alethe.exe`
+- Rust tests run from `src-tauri/` with `CARGO_TARGET_DIR=target-test` — the app holds `atrium.exe`
   in the normal target directory.
 
 ## Review Focus
@@ -56,15 +56,15 @@ already calls them at launch. A second mechanism would compete with a working on
 Five things the spec implies, that a person will meet, and that no happy path catches. Each has a
 test pinned to the task that owns the code.
 
-1. **Alethe installs into the profile folder, which is not on `PATH`.** The existing config writers
+1. **Atrium installs into the profile folder, which is not on `PATH`.** The existing config writers
    default to the bare name `ai-memory`, so the agent would be handed a command it cannot resolve —
    the install would look successful and memory would silently never work. *Task 2.*
 2. **The machine has no asset** (Windows ARM64): the panel says upstream publishes no build for it
    and offers no button, rather than failing on click. *Task 5.*
-3. **The endpoint already answers** and Alethe did not start it — most likely the person's own
+3. **The endpoint already answers** and Atrium did not start it — most likely the person's own
    instance. Report that instead of starting a second server that loses the bind, and do not offer a
    Stop that would not control it. *Tasks 4 and 5.*
-4. **`install-hooks` output changes shape** between versions: composing refuses and leaves Alethe's
+4. **`install-hooks` output changes shape** between versions: composing refuses and leaves Atrium's
    own hooks intact rather than writing a half-merged file every terminal reads. *Task 6.*
 5. **Consent is off, or was turned off** while a terminal is open: a terminal opened after that
    carries no capture hooks, and the one already open keeps what it launched with. *Task 6.*
@@ -74,7 +74,7 @@ test pinned to the task that owns the code.
 ## File Structure
 
 **Create:**
-- `src-tauri/src/ai_memory_hooks.rs` — the pure merge of ai-memory's hook entries into Alethe's
+- `src-tauri/src/ai_memory_hooks.rs` — the pure merge of ai-memory's hook entries into Atrium's
   hooks object. Its own file because it is the one piece with no I/O and the one most worth testing
   alone.
 - `src/lib/aiMemory.ts` + `src/lib/aiMemory.test.ts` — the panel's pure decisions and IPC bindings.
@@ -127,7 +127,7 @@ Add to `mod tests` in `src-tauri/src/ai_memory.rs`:
     }
 
     #[test]
-    fn the_copy_alethe_installed_travels_as_a_full_path() {
+    fn the_copy_atrium_installed_travels_as_a_full_path() {
         // It lives in the profile folder, which is not on PATH: handing the agent the bare name
         // would give it a command it cannot resolve, and memory would silently never work.
         assert_eq!(pick_command(Some("/profile/ai-memory".into()), None), "/profile/ai-memory");
@@ -171,7 +171,7 @@ pub fn install_dir(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(profile_data_dir(app)?.join("tools").join("ai-memory"))
 }
 
-/// The copy Alethe installed, if it is there.
+/// The copy Atrium installed, if it is there.
 pub fn managed_binary(app: &AppHandle) -> Option<String> {
     let path = install_dir(app).ok()?.join(binary_name());
     path.is_file().then(|| path.to_string_lossy().to_string())
@@ -212,7 +212,7 @@ pub struct AiMemoryStatus {
     command: String,
     endpoint: String,
     version: Option<String>,
-    /// This is the copy Alethe installed, not one found on `PATH`.
+    /// This is the copy Atrium installed, not one found on `PATH`.
     managed: bool,
     /// Upstream publishes a build for this machine. False on Windows ARM64.
     supported: bool,
@@ -295,7 +295,7 @@ Add to `mod tests`:
             gz.finish().unwrap()
         }
 
-        let dir = std::env::temp_dir().join(format!("alethe-aimem-tar-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("atrium-aimem-tar-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
 
         extract_tar_gz(&tar_gz(&[("ai-memory", b"binary")]), &dir).expect("a plain tarball unpacks");
@@ -418,7 +418,7 @@ Add to `mod tests`:
 
     #[test]
     fn the_counts_come_from_the_binarys_own_status() {
-        // Real `ai-memory status` output, trimmed. Alethe reports what the service says about
+        // Real `ai-memory status` output, trimmed. Atrium reports what the service says about
         // itself rather than keeping a tally of its own that can drift.
         let out = "ai-memory 2.4.0 (server)\n  \
                    pages:        3 (all versions: 4)\n  \
@@ -492,13 +492,13 @@ pub fn parse_counts(stdout: &str) -> Counts {
 #[derive(Default)]
 pub struct AiMemoryProcess(pub Mutex<Option<Child>>);
 
-/// The data directory for a copy Alethe installed. A copy the person installed themselves keeps its
+/// The data directory for a copy Atrium installed. A copy the person installed themselves keeps its
 /// data where they put it, so this is never passed for one of those.
 fn managed_data_dir(app: &AppHandle) -> Result<PathBuf, String> {
     Ok(profile_data_dir(app)?.join("ai-memory-data"))
 }
 
-/// The command to run and, only for a copy Alethe installed, the data directory to give it.
+/// The command to run and, only for a copy Atrium installed, the data directory to give it.
 pub(crate) fn command_for(app: &AppHandle, explicit: Option<String>) -> (String, Option<String>) {
     let managed = managed_binary(app);
     let cmd = pick_command(managed.clone(), explicit);
@@ -726,7 +726,7 @@ describe('whether starting is offered', () => {
 })
 
 describe('who owns the endpoint', () => {
-  it('names a server Alethe did not start', () => {
+  it('names a server Atrium did not start', () => {
     // Most likely the person's own instance: a reason to leave it alone, not to fight for the bind.
     expect(portOwnedByOther(status({ installed: true, running: true }), false)).toBe(true)
   })
@@ -767,12 +767,12 @@ export const AI_MEMORY_REPO = 'https://github.com/akitaonrails/ai-memory'
 
 export type AiMemoryStatus = {
   installed: boolean
-  /** Something answers on the loopback endpoint — not necessarily a server Alethe started. */
+  /** Something answers on the loopback endpoint — not necessarily a server Atrium started. */
   running: boolean
   command: string
   endpoint: string
   version: string | null
-  /** The binary is the copy Alethe installed, not one found on PATH. */
+  /** The binary is the copy Atrium installed, not one found on PATH. */
   managed: boolean
   /** Upstream publishes a build for this machine. */
   supported: boolean
@@ -788,7 +788,7 @@ export function canStart(status: AiMemoryStatus | null): boolean {
   return Boolean(status && status.installed && !status.running)
 }
 
-/** True when the endpoint answers and the server behind it is not the child Alethe started. */
+/** True when the endpoint answers and the server behind it is not the child Atrium started. */
 export function portOwnedByOther(status: AiMemoryStatus | null, weStartedIt: boolean): boolean {
   return Boolean(status?.running) && !weStartedIt
 }
@@ -840,14 +840,14 @@ git commit -m "feat(ai-memory): the decisions the panel needs"
 - Consumes: `command_for`, `base_command`, `DEFAULT_PORT` (Task 4);
   `AI_MEMORY_DEFAULT_PORT` (Task 5).
 - Produces:
-  - `pub fn merge_hooks(alethe: &mut Map<String, Value>, theirs: &Value) -> Result<(), String>`
+  - `pub fn merge_hooks(atrium: &mut Map<String, Value>, theirs: &Value) -> Result<(), String>`
   - `pub fn hook_config(app: &AppHandle, port: u16) -> Result<Value, String>`
   - `pub(crate) fn claude_hooks(app: &AppHandle, enabled: bool, port: u16) -> Option<Value>`
   - `agentHooksSettingsPath(plannerId, orchestrator, aiMemory)` in `src/lib/tauri/agents.ts`.
 
-This is the half that does not exist. Alethe writes a Claude settings file per terminal with
+This is the half that does not exist. Atrium writes a Claude settings file per terminal with
 `"type": "http"` hooks; ai-memory's `install-hooks` prints `"type": "command"` ones. They compose —
-proven by running it — so Alethe writes both into its own file and never runs
+proven by running it — so Atrium writes both into its own file and never runs
 `install-hooks --apply`.
 
 - [ ] **Step 1: Write the failing tests**
@@ -860,8 +860,8 @@ mod tests {
     use super::*;
     use serde_json::json;
 
-    fn alethe_side() -> serde_json::Map<String, serde_json::Value> {
-        // What `agent_hooks_settings_path` already builds: http hooks back to Alethe's listener.
+    fn atrium_side() -> serde_json::Map<String, serde_json::Value> {
+        // What `agent_hooks_settings_path` already builds: http hooks back to Atrium's listener.
         let hook = json!([{ "hooks": [{ "type": "http", "url": "http://127.0.0.1:9123/hook" }] }]);
         let mut hooks = serde_json::Map::new();
         hooks.insert("SessionStart".into(), hook.clone());
@@ -884,11 +884,11 @@ mod tests {
     fn both_sides_survive_on_an_event_they_share() {
         // Verified against the real CLI before this was designed: hook arrays from two settings
         // sources both fire. Losing either side breaks capture or orchestration, silently.
-        let mut alethe = alethe_side();
-        merge_hooks(&mut alethe, &their_side()).expect("merges");
+        let mut atrium = atrium_side();
+        merge_hooks(&mut atrium, &their_side()).expect("merges");
 
-        let start = alethe.get("SessionStart").unwrap().as_array().unwrap();
-        assert_eq!(start.len(), 2, "Alethe's entry and theirs: {start:?}");
+        let start = atrium.get("SessionStart").unwrap().as_array().unwrap();
+        assert_eq!(start.len(), 2, "Atrium's entry and theirs: {start:?}");
         let rendered = serde_json::to_string(start).unwrap();
         assert!(rendered.contains("\"type\":\"http\""), "{rendered}");
         assert!(rendered.contains("session-start"), "{rendered}");
@@ -896,27 +896,27 @@ mod tests {
 
     #[test]
     fn an_event_only_ai_memory_wants_is_added() {
-        let mut alethe = alethe_side();
-        merge_hooks(&mut alethe, &their_side()).unwrap();
-        assert_eq!(alethe.get("Stop").unwrap().as_array().unwrap().len(), 1);
+        let mut atrium = atrium_side();
+        merge_hooks(&mut atrium, &their_side()).unwrap();
+        assert_eq!(atrium.get("Stop").unwrap().as_array().unwrap().len(), 1);
     }
 
     #[test]
-    fn an_event_only_alethe_wants_is_untouched() {
-        let mut alethe = alethe_side();
-        merge_hooks(&mut alethe, &their_side()).unwrap();
-        assert_eq!(alethe.get("UserPromptSubmit").unwrap().as_array().unwrap().len(), 1);
+    fn an_event_only_atrium_wants_is_untouched() {
+        let mut atrium = atrium_side();
+        merge_hooks(&mut atrium, &their_side()).unwrap();
+        assert_eq!(atrium.get("UserPromptSubmit").unwrap().as_array().unwrap().len(), 1);
     }
 
     #[test]
     fn an_unfamiliar_shape_is_refused_and_changes_nothing() {
         // Every terminal reads this file. A half-merged one breaks all of them, so a shape we do
-        // not recognise must leave Alethe's own hooks exactly as they were.
+        // not recognise must leave Atrium's own hooks exactly as they were.
         for bad in [json!("nope"), json!(["SessionStart"]), json!({ "SessionStart": 3 })] {
-            let mut alethe = alethe_side();
-            let before = serde_json::to_string(&alethe).unwrap();
-            assert!(merge_hooks(&mut alethe, &bad).is_err(), "{bad:?}");
-            assert_eq!(serde_json::to_string(&alethe).unwrap(), before, "left intact");
+            let mut atrium = atrium_side();
+            let before = serde_json::to_string(&atrium).unwrap();
+            assert!(merge_hooks(&mut atrium, &bad).is_err(), "{bad:?}");
+            assert_eq!(serde_json::to_string(&atrium).unwrap(), before, "left intact");
         }
     }
 }
@@ -932,20 +932,20 @@ Expected: does not compile — the module is not declared and `merge_hooks` does
 At the top of `src-tauri/src/ai_memory_hooks.rs`:
 
 ```rust
-//! Merging ai-memory's lifecycle hooks into the settings file Alethe writes per terminal.
+//! Merging ai-memory's lifecycle hooks into the settings file Atrium writes per terminal.
 //!
-//! Alethe owns that file, so this is the only place either side's hooks meet: the person's own
+//! Atrium owns that file, so this is the only place either side's hooks meet: the person's own
 //! `settings.json` is never touched, the scope is one terminal, and stopping the integration simply
 //! stops writing them.
 
 use serde_json::{Map, Value};
 
-/// Adds ai-memory's hook entries to Alethe's hooks object.
+/// Adds ai-memory's hook entries to Atrium's hooks object.
 ///
 /// Arrays for a shared event are concatenated rather than replaced, which is how Claude Code treats
-/// hooks from several settings sources. All or nothing: a shape we do not recognise leaves `alethe`
+/// hooks from several settings sources. All or nothing: a shape we do not recognise leaves `atrium`
 /// exactly as it was.
-pub fn merge_hooks(alethe: &mut Map<String, Value>, theirs: &Value) -> Result<(), String> {
+pub fn merge_hooks(atrium: &mut Map<String, Value>, theirs: &Value) -> Result<(), String> {
     let theirs = theirs
         .as_object()
         .ok_or_else(|| "ai_memory_hooks_not_an_object".to_string())?;
@@ -959,10 +959,10 @@ pub fn merge_hooks(alethe: &mut Map<String, Value>, theirs: &Value) -> Result<()
     }
 
     for (event, entries) in additions {
-        match alethe.get_mut(&event).and_then(Value::as_array_mut) {
+        match atrium.get_mut(&event).and_then(Value::as_array_mut) {
             Some(existing) => existing.extend(entries),
             None => {
-                alethe.insert(event, Value::Array(entries));
+                atrium.insert(event, Value::Array(entries));
             }
         }
     }
@@ -983,7 +983,7 @@ In `src-tauri/src/ai_memory.rs`:
 ```rust
 /// The `hooks` object `install-hooks` prints for claude-code.
 ///
-/// Never `--apply`: Alethe writes these into its own per-terminal file, not into the person's
+/// Never `--apply`: Atrium writes these into its own per-terminal file, not into the person's
 /// settings.
 pub fn hook_config(app: &AppHandle, port: u16) -> Result<serde_json::Value, String> {
     let (cmd, data_dir) = command_for(app, None);
@@ -1105,7 +1105,7 @@ mocks `agentHooksSettingsPath` (line 66); confirm the mock still satisfies the s
 
 ```bash
 git add src-tauri/src/ai_memory_hooks.rs src-tauri/src/ai_memory.rs src-tauri/src/agent_events.rs src-tauri/src/lib.rs src/lib/tauri/agents.ts src/components/TerminalPane/index.tsx src/components/AgentCanvasPOC/index.tsx src/components/XTermView/useXtermSession.ts
-git commit -m "feat(ai-memory): capture hooks in Alethe's own per-terminal settings"
+git commit -m "feat(ai-memory): capture hooks in Atrium's own per-terminal settings"
 ```
 
 ---
@@ -1132,22 +1132,22 @@ In `src/lib/i18n/messages/en.ts`:
 ```ts
   // ai-memory's sub-panel, under its switch in Features.
   'aiMemory.panelCaptures':
-    'Every prompt and tool call from agents Alethe launches is recorded, as markdown in a git repository plus a search index — both on this machine, both readable without Alethe.',
+    'Every prompt and tool call from agents Atrium launches is recorded, as markdown in a git repository plus a search index — both on this machine, both readable without Atrium.',
   'aiMemory.install': 'Install ai-memory',
   'aiMemory.installing': 'Installing…',
-  'aiMemory.installedManaged': 'Installed by Alethe',
+  'aiMemory.installedManaged': 'Installed by Atrium',
   'aiMemory.installedExternal': 'Using the copy you installed',
   'aiMemory.at': 'at {path}',
   'aiMemory.missing': 'Not installed yet — install it and the agents can start using it.',
   'aiMemory.unsupported':
-    'ai-memory publishes no build for this platform yet, so Alethe cannot install it here.',
+    'ai-memory publishes no build for this platform yet, so Atrium cannot install it here.',
   'aiMemory.openRepo': 'Open the project',
   'aiMemory.start': 'Start',
   'aiMemory.stop': 'Stop',
   'aiMemory.running': 'Answering on {endpoint}',
   'aiMemory.stopped': 'Not running',
   'aiMemory.portBusy':
-    'Something already answers on {endpoint} and Alethe did not start it — most likely your own copy. Alethe will leave it alone.',
+    'Something already answers on {endpoint} and Atrium did not start it — most likely your own copy. Atrium will leave it alone.',
   'aiMemory.counts': '{pages} pages · {sessions} sessions · {observations} observations',
   'aiMemory.installError': 'ai-memory could not be installed.',
   'aiMemory.startError': 'ai-memory could not be started.',
@@ -1158,22 +1158,22 @@ In `src/lib/i18n/messages/pt-BR.ts`:
 ```ts
   // ai-memory's sub-panel, under its switch in Features.
   'aiMemory.panelCaptures':
-    'Todo prompt e toda chamada de ferramenta dos agentes que o Alethe inicia são registrados, como markdown num repositório git mais um índice de busca — os dois nesta máquina, os dois legíveis sem o Alethe.',
+    'Todo prompt e toda chamada de ferramenta dos agentes que o Atrium inicia são registrados, como markdown num repositório git mais um índice de busca — os dois nesta máquina, os dois legíveis sem o Atrium.',
   'aiMemory.install': 'Instalar o ai-memory',
   'aiMemory.installing': 'Instalando…',
-  'aiMemory.installedManaged': 'Instalado pelo Alethe',
+  'aiMemory.installedManaged': 'Instalado pelo Atrium',
   'aiMemory.installedExternal': 'Usando a cópia que você instalou',
   'aiMemory.at': 'em {path}',
   'aiMemory.missing': 'Ainda não instalado — instale e os agentes já podem usar.',
   'aiMemory.unsupported':
-    'O ai-memory ainda não publica build para esta plataforma, então o Alethe não consegue instalar aqui.',
+    'O ai-memory ainda não publica build para esta plataforma, então o Atrium não consegue instalar aqui.',
   'aiMemory.openRepo': 'Abrir o projeto',
   'aiMemory.start': 'Iniciar',
   'aiMemory.stop': 'Parar',
   'aiMemory.running': 'Respondendo em {endpoint}',
   'aiMemory.stopped': 'Parado',
   'aiMemory.portBusy':
-    'Algo já responde em {endpoint} e não foi o Alethe que iniciou — provavelmente a sua própria cópia. O Alethe não vai mexer nela.',
+    'Algo já responde em {endpoint} e não foi o Atrium que iniciou — provavelmente a sua própria cópia. O Atrium não vai mexer nela.',
   'aiMemory.counts': '{pages} páginas · {sessions} sessões · {observations} observações',
   'aiMemory.installError': 'Não foi possível instalar o ai-memory.',
   'aiMemory.startError': 'Não foi possível iniciar o ai-memory.',
@@ -1211,7 +1211,7 @@ export function AiMemoryPanel() {
   const [status, setStatus] = useState<AiMemoryStatus | null>(null)
   const [counts, setCounts] = useState<AiMemoryCounts | null>(null)
   const [busy, setBusy] = useState<'install' | 'start' | 'stop' | null>(null)
-  // Whether the running server is the child Alethe started. Without this, a server the person runs
+  // Whether the running server is the child Atrium started. Without this, a server the person runs
   // themselves would be reported as ours and Stop would look like it controls it.
   const [ours, setOurs] = useState(false)
 
@@ -1390,9 +1390,9 @@ First bullet under `[Unreleased]` → `### Added` in `docs/CHANGELOG.md`:
 - **Turning on AI Memory now takes you to a working install.** The switch in Preferences → Features
   grew a panel beneath it: whether ai-memory is there, a button to install it — the download checked
   against the hash the project publishes — and whether it is running, with what it has stored. And
-  the agents Alethe launches now *record* to that memory as well as reading from it, so asking one
+  the agents Atrium launches now *record* to that memory as well as reading from it, so asking one
   what happened last week has something to find. Turning the switch on is what starts any of it, and
-  what it records stays on your machine as markdown in a git repository you can read without Alethe.
+  what it records stays on your machine as markdown in a git repository you can read without Atrium.
 ```
 
 - [ ] **Step 6: Commit**
@@ -1409,7 +1409,7 @@ git commit -m "feat(ai-memory): guide the install from under its own switch"
 The suites cannot reach these:
 
 1. With nothing installed, turn AI Memory on and follow the panel to a working install; confirm the
-   state line then names the copy Alethe installed and its path.
+   state line then names the copy Atrium installed and its path.
 2. Start it, open a Claude terminal, ask the agent something, and confirm the panel's counts move.
 3. Turn the switch off, open a **new** terminal, ask something, and confirm the counts do not move —
    and that the terminal already open still works.

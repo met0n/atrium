@@ -16,6 +16,11 @@ pub fn apply_rounded_corners(app: &tauri::AppHandle) {
         let Some(window) = app.get_webview_window("main") else {
             return;
         };
+        // A natively decorated window (tauri.macos.conf.json) already has rounded corners and a
+        // shadow; making it transparent would only break them.
+        if window.is_decorated().unwrap_or(false) {
+            return;
+        }
         if let Err(e) = round_macos_window(&window) {
             eprintln!("[window_style] falha ao arredondar a janela: {e}");
         }

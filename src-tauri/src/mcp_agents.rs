@@ -254,7 +254,7 @@ impl McpAdapter for KimiAdapter {
 /// Fields the adapter does not model (timeouts, bearerTokenEnvVar, tool allow/block lists)
 /// survive a rewrite because only the managed keys are touched.
 fn kimi_config_dir() -> Option<PathBuf> {
-    if std::env::var_os("ALETHE_MCP_HOME").is_none() {
+    if std::env::var_os("ATRIUM_MCP_HOME").is_none() {
         if let Some(home) = std::env::var_os("KIMI_CODE_HOME") {
             let base = PathBuf::from(home);
             if !base.as_os_str().is_empty() {
@@ -468,10 +468,10 @@ impl McpAdapter for CodexAdapter {
     }
 }
 
-/// `ALETHE_MCP_HOME` redirects every global config lookup to a scratch copy, so the
+/// `ATRIUM_MCP_HOME` redirects every global config lookup to a scratch copy, so the
 /// write paths can be exercised without touching the real agent configuration.
 fn mcp_home(segments: &[&str]) -> Option<PathBuf> {
-    if let Some(root) = std::env::var_os("ALETHE_MCP_HOME") {
+    if let Some(root) = std::env::var_os("ATRIUM_MCP_HOME") {
         let base = PathBuf::from(root);
         if !base.as_os_str().is_empty() {
             return Some(segments.iter().fold(base, |acc, seg| acc.join(seg)));
@@ -481,7 +481,7 @@ fn mcp_home(segments: &[&str]) -> Option<PathBuf> {
 }
 
 fn opencode_config_dir() -> Option<PathBuf> {
-    if std::env::var_os("ALETHE_MCP_HOME").is_none() {
+    if std::env::var_os("ATRIUM_MCP_HOME").is_none() {
         if let Some(xdg) = std::env::var_os("XDG_CONFIG_HOME") {
             let base = PathBuf::from(xdg);
             if !base.as_os_str().is_empty() {
@@ -1386,7 +1386,7 @@ name = "gate"
             McpTransport::Http { .. }
         ));
 
-        let next = kimi_upsert(raw, &user_src(), &probe("alethe-probe")).expect("writes");
+        let next = kimi_upsert(raw, &user_src(), &probe("atrium-probe")).expect("writes");
         let reparsed = KimiAdapter.parse(&next, &user_src()).expect("reparses");
         assert_eq!(reparsed.len(), 4);
         assert!(!by_name(&reparsed, "filesystem").enabled);
@@ -1441,7 +1441,7 @@ name = "gate"
 
     #[test]
     fn codex_upsert_leaves_every_other_table_untouched() {
-        let next = codex_upsert(CODEX_FIXTURE, &probe("alethe-probe")).expect("writes");
+        let next = codex_upsert(CODEX_FIXTURE, &probe("atrium-probe")).expect("writes");
         let before = parse_codex(CODEX_FIXTURE).expect("parses");
         let after = parse_codex(&next).expect("parses");
 
@@ -1460,7 +1460,7 @@ name = "gate"
 
     #[test]
     fn codex_upsert_round_trips_timeouts_and_passthrough() {
-        let mut server = probe("alethe-probe");
+        let mut server = probe("atrium-probe");
         server.timeouts = McpTimeouts {
             startup_secs: Some(12),
             tool_secs: Some(90),
@@ -1474,7 +1474,7 @@ name = "gate"
 
         let next = codex_upsert(CODEX_FIXTURE, &server).expect("writes");
         let parsed = parse_codex(&next).expect("parses");
-        let written = by_name(&parsed, "alethe-probe");
+        let written = by_name(&parsed, "atrium-probe");
 
         assert_eq!(written.timeouts, server.timeouts);
         assert_eq!(
@@ -1539,7 +1539,7 @@ name = "gate"
     #[test]
     fn claude_upsert_keeps_top_level_key_order_and_unrelated_keys() {
         let next = ClaudeAdapter
-            .upsert(CLAUDE_FIXTURE, &user_src(), &probe("alethe-probe"))
+            .upsert(CLAUDE_FIXTURE, &user_src(), &probe("atrium-probe"))
             .expect("writes");
         let numstartups = next.find("numStartups").expect("present");
         let install = next.find("installMethod").expect("present");
@@ -1589,7 +1589,7 @@ name = "gate"
     #[test]
     fn codex_upsert_keeps_an_explicit_mcp_servers_header_and_its_comment() {
         let raw = "# my servers\n[mcp_servers]\n\n[mcp_servers.figma]\nurl = \"https://x\"\n";
-        let next = codex_upsert(raw, &probe("alethe-probe")).expect("writes");
+        let next = codex_upsert(raw, &probe("atrium-probe")).expect("writes");
         assert!(next.contains("# my servers"), "got {next}");
         assert!(next.contains("[mcp_servers]"), "got {next}");
         assert_eq!(parse_codex(&next).expect("parses").len(), 2);
@@ -1670,7 +1670,7 @@ name = "gate"
 
     #[test]
     fn opencode_upsert_writes_one_command_array_and_interpolated_env() {
-        let mut server = probe("alethe-probe");
+        let mut server = probe("atrium-probe");
         server
             .env
             .insert("FOO".to_string(), EnvEntry::passthrough("FOO"));
@@ -1683,7 +1683,7 @@ name = "gate"
         assert!(next.contains("{env:FOO}"));
 
         let parsed = OpenCodeAdapter.parse(&next, &user_src()).expect("parses");
-        let written = by_name(&parsed, "alethe-probe");
+        let written = by_name(&parsed, "atrium-probe");
         match &written.transport {
             McpTransport::Stdio { command, args, .. } => {
                 assert_eq!(command, "node");

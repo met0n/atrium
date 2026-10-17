@@ -34,18 +34,18 @@ import type { ProcedureStep } from './procedures'
 export async function attachRecorder(): Promise<void> {
   await browser.execute(() => {
     const w = window as unknown as {
-      __ALETHE_RECORDED_STEPS__?: unknown[]
-      __ALETHE_RECORDER_ATTACHED__?: boolean
-      __ALETHE_RECORDER_ACTIVE__?: boolean
+      __ATRIUM_RECORDED_STEPS__?: unknown[]
+      __ATRIUM_RECORDER_ATTACHED__?: boolean
+      __ATRIUM_RECORDER_ACTIVE__?: boolean
     }
-    if (w.__ALETHE_RECORDER_ATTACHED__) return
-    w.__ALETHE_RECORDER_ATTACHED__ = true
-    w.__ALETHE_RECORDED_STEPS__ = []
+    if (w.__ATRIUM_RECORDER_ATTACHED__) return
+    w.__ATRIUM_RECORDER_ATTACHED__ = true
+    w.__ATRIUM_RECORDED_STEPS__ = []
     // Turns on the `RecorderHelper` panel (the "create temporary project" shortcut) —
     // only it reads this flag; it's never left on outside of a recording session.
-    w.__ALETHE_RECORDER_ACTIVE__ = true
+    w.__ATRIUM_RECORDER_ACTIVE__ = true
 
-    const push = (step: unknown) => w.__ALETHE_RECORDED_STEPS__!.push(step)
+    const push = (step: unknown) => w.__ATRIUM_RECORDED_STEPS__!.push(step)
 
     function resolveLabel(target: Element): string | null {
       // List rows (dropdown option, sidebar item) are sometimes NOT
@@ -110,10 +110,10 @@ export async function attachRecorder(): Promise<void> {
         if (inputType === 'checkbox' || inputType === 'radio') return
         const placeholder = target.getAttribute('placeholder')
         if (!placeholder) {
-          console.warn('[alethe-recorder] field with no placeholder ignored:', target)
+          console.warn('[atrium-recorder] field with no placeholder ignored:', target)
           return
         }
-        const steps = w.__ALETHE_RECORDED_STEPS__!
+        const steps = w.__ATRIUM_RECORDED_STEPS__!
         const last = steps[steps.length - 1] as
           { action?: string; placeholder?: string } | undefined
         if (last && last.action === 'type' && last.placeholder === placeholder) {
@@ -162,8 +162,8 @@ export async function attachRecorder(): Promise<void> {
  *  persist the current state). */
 export async function collectRecordedSteps(): Promise<ProcedureStep[]> {
   const steps = await browser.execute(() => {
-    const w = window as unknown as { __ALETHE_RECORDED_STEPS__?: unknown[] }
-    return w.__ALETHE_RECORDED_STEPS__ ?? []
+    const w = window as unknown as { __ATRIUM_RECORDED_STEPS__?: unknown[] }
+    return w.__ATRIUM_RECORDED_STEPS__ ?? []
   })
   return steps as ProcedureStep[]
 }
@@ -174,8 +174,8 @@ export async function collectRecordedSteps(): Promise<ProcedureStep[]> {
  *  chronological order in the saved procedure. */
 export async function pushRecordedStep(step: ProcedureStep): Promise<void> {
   await browser.execute((s) => {
-    const w = window as unknown as { __ALETHE_RECORDED_STEPS__?: unknown[] }
-    if (!w.__ALETHE_RECORDED_STEPS__) w.__ALETHE_RECORDED_STEPS__ = []
-    w.__ALETHE_RECORDED_STEPS__.push(s)
+    const w = window as unknown as { __ATRIUM_RECORDED_STEPS__?: unknown[] }
+    if (!w.__ATRIUM_RECORDED_STEPS__) w.__ATRIUM_RECORDED_STEPS__ = []
+    w.__ATRIUM_RECORDED_STEPS__.push(s)
   }, step)
 }

@@ -15,7 +15,7 @@ const WHAM_RESET_CREDITS_URL: &str =
     "https://chatgpt.com/backend-api/wham/rate-limit-reset-credits";
 
 const APP_SERVER_INITIALIZE: &str =
-    r#"{"id":1,"method":"initialize","params":{"clientInfo":{"name":"alethe","version":"1.2.0"}}}"#;
+    r#"{"id":1,"method":"initialize","params":{"clientInfo":{"name":"atrium","version":"1.2.0"}}}"#;
 
 fn http_client() -> &'static reqwest::Client {
     static CLIENT: std::sync::OnceLock<reqwest::Client> = std::sync::OnceLock::new();
@@ -247,7 +247,7 @@ async fn wham_get(url: &str, token: &str, account_id: Option<&str>) -> Result<Va
     let mut request = http_client()
         .get(url)
         .bearer_auth(token)
-        .header("User-Agent", concat!("Alethe/", env!("CARGO_PKG_VERSION")))
+        .header("User-Agent", concat!("Atrium/", env!("CARGO_PKG_VERSION")))
         .timeout(Duration::from_secs(10));
     if let Some(account_id) = account_id {
         request = request.header("ChatGPT-Account-Id", account_id);

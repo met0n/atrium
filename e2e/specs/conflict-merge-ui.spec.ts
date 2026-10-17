@@ -66,14 +66,14 @@ describe('E2E: Merge conflict and clicking Integrate in the UI', function () {
     const migrated = await findLatestTerminal(projectId)
     expect(migrated.worktreeAgentId).toBeTruthy()
     agentAWorktreeId = migrated.worktreeAgentId!
-    agentAWorktreePath = join(repoPath, '.alethe', 'worktrees', agentAWorktreeId)
+    agentAWorktreePath = join(repoPath, '.atrium', 'worktrees', agentAWorktreeId)
     expect(existsSync(agentAWorktreePath)).toBe(true)
 
     await snapshot('1-projeto-e-worktree-prontos')
   })
 
   it('creates a deterministic conflict between the agent worktree and the main branch', async () => {
-    const agentBranch = `alethe/agent-${agentAWorktreeId}`
+    const agentBranch = `atrium/agent-${agentAWorktreeId}`
     writeFileSync(join(agentAWorktreePath, 'shared.txt'), 'mudança do agente na worktree\n')
     commitFileOnBranch(
       agentAWorktreePath,
@@ -109,7 +109,7 @@ describe('E2E: Merge conflict and clicking Integrate in the UI', function () {
     await clickByText('Integrar')
     await snapshot('4-apos-clicar-integrar')
 
-    // The mergeStore transitions preparing -> resolving and creates the ephemeral .alethe/merge-<id> worktree
+    // The mergeStore transitions preparing -> resolving and creates the ephemeral .atrium/merge-<id> worktree
     const envResolved = await waitUntil(
       async () => {
         const mergeEnvs = await invokeTauri<{ id: string; path: string }[]>('worktree_list', {
@@ -125,10 +125,10 @@ describe('E2E: Merge conflict and clicking Integrate in the UI', function () {
     const mergeEnvPath = envResolved!.path
     expect(existsSync(mergeEnvPath)).toBe(true)
 
-    // Simulates the agent resolving the conflict: removes markers and writes ALETHE_RESOLVED
+    // Simulates the agent resolving the conflict: removes markers and writes ATRIUM_RESOLVED
     const resolvedContent = 'linha base original\nmudança do agente + mudança em main\n'
     writeFileSync(join(mergeEnvPath, 'shared.txt'), resolvedContent)
-    writeFileSync(join(mergeEnvPath, 'ALETHE_RESOLVED'), '')
+    writeFileSync(join(mergeEnvPath, 'ATRIUM_RESOLVED'), '')
 
     // Waits for the UI to detect the marker and advance to 'Aguardando sua revisão' / 'awaiting_review'
     await waitForText('Aguardando sua revisão', 15_000).catch(() => {})

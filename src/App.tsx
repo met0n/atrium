@@ -134,7 +134,7 @@ function LoadingScreen({ reducedMotion = false }: { reducedMotion?: boolean }) {
         />
       </div>
       <div className={styles.loadingInner}>
-        <div className={styles.loadingWordmark}>Alethe</div>
+        <div className={styles.loadingWordmark}>Atrium</div>
         <div className={styles.loadingConsole}>
           <span className={styles.loadingPrompt} aria-hidden="true">
             ›
@@ -281,7 +281,7 @@ export default function App() {
         /* Browser tests may not expose the Tauri permission. */
       })
       .finally(() => {
-        window.dispatchEvent(new CustomEvent('alethe:zoom-changed', { detail: { zoom: uiZoom } }))
+        window.dispatchEvent(new CustomEvent('atrium:zoom-changed', { detail: { zoom: uiZoom } }))
       })
   }, [hydrated, uiZoom])
 
@@ -506,7 +506,7 @@ export default function App() {
           resizeTargetMinimumSize={{ coarse: 28, fine: 18 }}
         >
           <Panel
-            id="alethe-left-sidebar"
+            id="atrium-left-sidebar"
             panelRef={leftPanelRef}
             elementRef={leftPanelElementRef}
             defaultSize={leftSidebarVisible ? `${leftSidebarDefaultRef.current}px` : '0px'}
@@ -575,7 +575,7 @@ export default function App() {
             }}
           />
 
-          <Panel id="alethe-main" minSize="360px">
+          <Panel id="atrium-main" minSize="360px">
             <main className={styles.mainView}>
               <ErrorBoundary label="view">
                 <Suspense
@@ -622,7 +622,7 @@ export default function App() {
                 }}
               />
               <Panel
-                id="alethe-todo-sidebar"
+                id="atrium-todo-sidebar"
                 panelRef={rightPanelRef}
                 elementRef={rightPanelElementRef}
                 defaultSize={rightSidebarVisible ? `${rightSidebarDefaultRef.current}px` : '0px'}

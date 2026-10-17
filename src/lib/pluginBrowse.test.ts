@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  browseRows,
   type BrowseRow,
+  browseRows,
   capabilityFacets,
   EMPTY_FILTER,
   foldSearch,
@@ -66,7 +66,7 @@ describe('narrowing the list', () => {
     expect(matchesFilter(one, filter)).toBe(false)
   })
 
-  it('separates what ships with Alethe from what was installed here', () => {
+  it('separates what ships with Atrium from what was installed here', () => {
     const mine = row({ installed: true, origin: 'local' })
     const shipped = row({ installed: true, origin: 'bundled' })
     const filter = { ...EMPTY_FILTER, origins: ['local' as const] }
@@ -123,7 +123,7 @@ describe('one list from the catalogue and what is installed', () => {
     name: 'Hello World',
     description: 'A worked example.',
     author: 'João Bernardo',
-    repo: 'Jbnado/alethe-plugin-hello',
+    repo: 'Jbnado/atrium-plugin-hello',
     downloadUrl: 'https://example.invalid/releases',
     version: '0.2.0',
     minApiVersion: 1,

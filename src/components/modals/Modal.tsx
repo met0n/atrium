@@ -36,16 +36,16 @@ export function Modal({
       <Dialog.Portal>
         <Dialog.Overlay className={`${styles.overlay} ${nested ? styles.overlayNested : ''}`} />
         <Dialog.Content
-          data-alethe-modal-content=""
+          data-atrium-modal-content=""
           className={`${styles.content} ${nested ? styles.contentNested : ''} ${className ?? ''}`}
           style={{ width }}
           aria-describedby={undefined}
           onInteractOutside={(event) => {
             const target = event.target as Element | null
-            if (target?.closest('[data-alethe-dropdown-menu]')) event.preventDefault()
+            if (target?.closest('[data-atrium-dropdown-menu]')) event.preventDefault()
           }}
           onEscapeKeyDown={(event) => {
-            if (document.querySelector('[data-alethe-dropdown-menu]')) event.preventDefault()
+            if (document.querySelector('[data-atrium-dropdown-menu]')) event.preventDefault()
           }}
           onOpenAutoFocus={(e) => {
             const root = e.currentTarget as HTMLElement | null

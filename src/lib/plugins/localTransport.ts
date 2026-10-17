@@ -12,7 +12,7 @@ const LOAD_TIMEOUT_MS = 10_000
  * purpose: the production bundle is minified with `mangle.toplevel`, so a
  * plugin can never import from the host by module name.
  */
-export type AletheGlobal = {
+export type AtriumGlobal = {
   apiVersion: number
   react: typeof React
   jsxRuntime: typeof jsxRuntime
@@ -21,15 +21,15 @@ export type AletheGlobal = {
 
 declare global {
   interface Window {
-    alethe?: AletheGlobal
+    atrium?: AtriumGlobal
   }
 }
 
 const pending = new Map<string, (module: PluginModule) => void>()
 
 function installGlobalApi() {
-  if (window.alethe) return
-  window.alethe = {
+  if (window.atrium) return
+  window.atrium = {
     apiVersion: PLUGIN_API_VERSION,
     react: React,
     jsxRuntime,
@@ -55,8 +55,8 @@ export function pluginAssetUrl(
 ): string {
   const path = file.split('/').map(encodeURIComponent).join('/')
   const base = localhostScheme
-    ? `http://alethe-plugin.localhost/${pluginId}`
-    : `alethe-plugin://${pluginId}`
+    ? `http://atrium-plugin.localhost/${pluginId}`
+    : `atrium-plugin://${pluginId}`
   return `${base}/${path}`
 }
 
@@ -65,15 +65,15 @@ function injectStyles(manifest: PluginManifest): HTMLLinkElement | null {
   const link = document.createElement('link')
   link.rel = 'stylesheet'
   link.href = pluginAssetUrl(manifest.id, manifest.styles)
-  link.dataset.alethePlugin = manifest.id
+  link.dataset.atriumPlugin = manifest.id
   document.head.appendChild(link)
   return link
 }
 
 /**
- * Loads a local plugin's `entry` through the `alethe-plugin://` scheme, which
+ * Loads a local plugin's `entry` through the `atrium-plugin://` scheme, which
  * resolves only inside that plugin's own directory. The script registers itself
- * through `window.alethe`; nothing is evaluated from a string.
+ * through `window.atrium`; nothing is evaluated from a string.
  */
 export async function loadLocalPlugin(manifest: PluginManifest): Promise<PluginModule> {
   if (!manifest.entry) throw new Error(`missing_entry:${manifest.id}`)
@@ -83,7 +83,7 @@ export async function loadLocalPlugin(manifest: PluginManifest): Promise<PluginM
   const script = document.createElement('script')
   script.src = pluginAssetUrl(manifest.id, manifest.entry)
   script.async = true
-  script.dataset.alethePlugin = manifest.id
+  script.dataset.atriumPlugin = manifest.id
 
   let timer: number | undefined
   const cleanUp = () => {
@@ -124,5 +124,5 @@ export async function loadLocalPlugin(manifest: PluginManifest): Promise<PluginM
 /** Test seam. */
 export function resetLocalTransportForTests(): void {
   pending.clear()
-  delete window.alethe
+  delete window.atrium
 }

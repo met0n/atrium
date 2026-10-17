@@ -277,8 +277,8 @@ mod tests {
     #[test]
     fn reads_owner_and_name_from_a_pull_request_url() {
         assert_eq!(
-            repo_from_pr_url("https://github.com/Kc1t/alethe-agents/pull/42"),
-            "Kc1t/alethe-agents"
+            repo_from_pr_url("https://github.com/met0n/atrium/pull/42"),
+            "met0n/atrium"
         );
     }
 
