@@ -1,128 +1,147 @@
-# Atrium — working guide (AI)
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 > Identical in content to [`AGENTS.md`](AGENTS.md) in this directory. Keep both in sync.
-> Contributing from outside? Start with [`CONTRIBUTING.md`](CONTRIBUTING.md) — setup, project
-> layout, house rules, and PR convention.
+> Contributing from outside? Start with [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-## 1. What it is
+## What it is
 
-**Atrium** is a **macOS-first, cross-platform** desktop app that organizes, operates, and resumes
-multiple coding agents (Claude Code, Codex, OpenCode) and shells in parallel, inside a persistent
-workspace with real terminals (PTYs), layouts, themes, history, and RAM control. It is a fork of
-[Alethe](https://github.com/Kc1t/alethe-agents) (AGPL-3.0); keep the attribution in `NOTICE`.
+**Atrium** is a macOS-first, cross-platform Tauri 2 desktop app (Rust backend, React 18 +
+TypeScript + Vite frontend, Zustand state, xterm.js) for running coding agents (Claude Code,
+Codex, OpenCode, Cursor, Copilot, Antigravity, Kiro…) and shells side by side in real PTYs, with
+persistent layouts, session resume, usage/cost tracking, an agent orchestrator, git/worktree tools,
+MCP management, plugins and LAN remote control. Bundle identifier `com.met0n.atrium`.
 
-> Tagline: **Every agent, shell, and project around one workspace.**
-> Identifier: `com.met0n.atrium`.
+It is a fork of [Alethe](https://github.com/Kc1t/alethe-agents) (AGPL-3.0-or-later). Keep the
+upstream copyright and attribution in `NOTICE`; never reintroduce the Alethe name, logo or icon
+(`TRADEMARK.md`).
 
-## 2. Commands (from `package.json`)
+## Commands
 
-```powershell
+```sh
 npm install
-npm run app      # = tauri dev — runs the full app with hot reload (RECOMMENDED WAY)
-npm run dev      # Vite frontend only, at http://localhost:1422 (strictPort)
-npm run build    # tsc + vite build — tsc typechecks and VALIDATES i18n (see §3)
-npm test         # vitest run over src/**/*.test.{ts,tsx}
+npm run app            # tauri dev with hot reload — the normal way to run the app
+npm run dev            # Vite frontend only on 127.0.0.1:1422 (no Tauri IPC: terminals won't work)
+npm run build          # tsc (typechecks and validates i18n) + vite build
+npm run lint           # eslint
+npm run format:check   # prettier (npm run format to fix)
+npm test               # vitest, jsdom, src/**/*.{test,spec}.{ts,tsx}
+npx vitest run src/lib/platform.test.ts          # one file
+npx vitest run -t "hasPrimaryModifier"           # by test name
+npm run test:rust                                 # cd src-tauri && cargo test --lib
+cd src-tauri && cargo test --lib quit_request     # Rust tests matching a path/name
+cd src-tauri && cargo test                        # also runs tests/orchestrator.rs
+cd src-tauri && cargo clippy --all-targets
+npm run tauri build    # bundle → src-tauri/target/release/bundle/ (macOS: Atrium.app + .dmg)
 ```
 
-**Building the macOS app:** `npm run tauri build` (needs Rust and the Xcode Command Line Tools)
-writes `src-tauri/target/release/bundle/macos/Atrium.app` and a `.dmg`. macOS-only window settings
-live in `src-tauri/tauri.macos.conf.json` (native traffic lights over the title bar).
+CI (`.github/workflows/ci.yml`) runs lint, format:check, `npm test` and `npm run build` on Ubuntu,
+then `cargo check`, `cargo clippy --all-targets` and `cargo test` on Windows, Linux and macOS.
 
-**Building the Windows installer (MSI/NSIS)** requires the MSVC environment (`vcvars64`):
+- E2E tests (`npm run test:e2e:build` then `npm run test:e2e`) drive the debug binary through
+  `tauri-driver`, which only exists for Linux and Windows — they cannot run on macOS.
+- A release build needs `node_modules`: `build.rs` copies the xterm files for the remote-control
+  page out of it and panics in release if they are missing.
+- Windows installers need the MSVC environment: run `npm run tauri build` from a `vcvars64` shell.
+- The in-app updater is off unless the build sets `VITE_ATRIUM_UPDATER=1` and
+  `plugins.updater.pubkey` holds Atrium's own key; `bundle.createUpdaterArtifacts` stays false
+  until then, so local builds need no signing key. Cloud sync needs `ATRIUM_SYNC_GITHUB_CLIENT_ID`.
+- The Tauri CLI refuses to build when an `@tauri-apps/*` npm package and its Rust crate differ in
+  major/minor version. Bump them together; `@tauri-apps/api` and the notification and updater
+  plugins are pinned with `~` in `package.json` for this reason.
 
-```powershell
-cmd /c '"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" >NUL && npm run tauri build'
-```
+## Non-negotiable rules
 
-The folder depends on the Build Tools version: `2022\BuildTools` for Visual Studio 2022,
-`18\BuildTools` for Visual Studio 2026. `vswhere -products * -property installationPath` (in
-`C:\Program Files (x86)\Microsoft Visual Studio\Installer`) prints the installed one.
+1. **Do not stop or restart the app or the dev server** if the owner is running it; changes land
+   through HMR.
+2. **Do not commit, push, tag or release without explicit permission at that moment.**
+3. **Design system:** no gradients, no generic template UI, real data only (no mocks in widgets).
+   One `.module.css` per component; colors and spacing only through the tokens in
+   `src/styles/theme.css` (`--bg`, `--fg`, `--accent`, `--agent-*`, `--status-*`…).
+4. **i18n:** every visible string goes through `t()`. Add the key to
+   `src/lib/i18n/messages/en.ts` (source of truth) and to `pt-BR.ts` and `zh-CN.ts`; they are typed
+   against `en.ts`, so `npm run build` fails on a missing translation.
+5. **Changelog:** every user-facing addition, change or removal updates `docs/CHANGELOG.md` in the
+   same task, under the `Atrium [Unreleased]` section at the top.
 
-When returning the path of a generated installer, always report the **full absolute path on the PC**
-(for example, `D:\project\src-tauri\target\release\bundle\nsis\Atrium_setup.exe`), never just the
-path relative to the repository.
+## Architecture
 
+**Frontend → backend.** Components never call `invoke` directly: `src/lib/tauri/*.ts` holds one
+typed wrapper module per backend area (pty, git, mcp, orchestrator, usage, plugins…), re-exported
+from `src/lib/tauri/index.ts`. A new backend command needs a `#[tauri::command]` in its Rust
+module, an entry in the `generate_handler![…]` list in `src-tauri/src/lib.rs`, and a wrapper here.
+Streaming comes back as Tauri events, e.g. `pty://data/{id}` and `pty://exit/{id}`.
 
+**State.** `src/stores/projectsStore.ts` is the persisted workspace (groups, projects, terminals,
+tabs, layouts, preferences), split into `projectsStore.{project,terminal,workspace}Slices.ts`. It
+is saved to `profiles/<profileId>/projects.json` through `save_projects` (debounced, atomic tmp →
+rename). The file is versioned: any shape change needs a step in
+`projectsStore.migrations.ts`. Runtime-only PTY state lives in `terminalsStore`, transient UI
+(modals, toasts) in `uiStore`. Use narrow selectors; broad ones re-render the whole workspace.
 
-## 3. Non-negotiable rules
+**Rust backend (`src-tauri/src`).** Flat modules per domain: `pty.rs` + `process_tree.rs`
+(PTYs, scrollback, kill trees), `*_sessions.rs` / `*_usage.rs` / `agent_cost.rs` (reading each
+agent's local history and quota), `git_control.rs` / `worktrees.rs` / `github_pr.rs`,
+`mcp_*.rs` / `skills.rs`, `plugins*.rs`, `remote/` (LAN HTTP + WebSocket server for the
+`src-tauri/remote/` phone page), `speech*.rs` (local sherpa-onnx dictation), `event_bus.rs`
+(internal broadcast feeding `telemetry.rs`).
 
-1. **DO NOT stop or restart the app or the dev server** (`tauri dev` / Vite). Do not kill the
-   process, do not run `npm run app` "just to test" if it is already running. Apply changes through
-   **HMR** and trust the reload.
-2. **DO NOT commit / push / tag / release without explicit permission from the owner at that
-   moment.** Make changes **in the working tree only** and stop — committing is the owner's call.
-3. **Strict design system — no gradients, nothing "vibecoded".** No generic template UI. Dashboards
-   and widgets show **real data**, never placeholder/mock. Style through CSS Modules + tokens from
-   `src/styles/theme.css`; **never** hardcode a color — use the variables (`--bg`, `--fg`,
-   `--accent`, `--agent-*`, `--status-*`, etc.).
-4. **i18n is mandatory.** Every visible string goes through `t()`. When adding text, register the key
-   in `src/lib/i18n/messages/en.ts` (**source of truth**, default EN) **and** in every other
-   locale: `src/lib/i18n/messages/pt-BR.ts` and `src/lib/i18n/messages/zh-CN.ts`. Each is typed
-   against the keys of `en.ts`, so `npm run build` **fails** if a translation is missing.
-5. **Changelog is mandatory for features.** Every feature addition, change, or removal must update
-   [`docs/CHANGELOG.md`](docs/CHANGELOG.md) in the same task, under the **`[Unreleased]`** section
-   (top of the file), with a short, objective, user-facing description. Never skip this step — the
-   changelog is the source for release notes.
+**Agent integration.** `agent_events.rs` runs a token-protected loopback HTTP listener on the
+first free port in 127.0.0.1:9123–9143. Agents report back through it: Claude Code gets HTTP hooks
+and an HTTP MCP server via a generated settings file; Codex gets `.codex/config.toml` entries
+pointing at bridge scripts (PowerShell on Windows, `sh` + `curl` elsewhere) because it only speaks
+stdio MCP and command hooks; OpenCode gets a bridge plugin in `~/.config/opencode/plugin/`.
 
-## 4. Architecture at a glance
+**Orchestrator.** `orchestrator_core.rs` is the delegation engine (job queue, Codex/Claude
+workers, the `atrium_*` MCP tools). It must stay free of Tauri and of other crate modules: it is
+compiled directly into the standalone stdio server `src/bin/atrium-orchestrator-mcp.rs` and into
+`tests/orchestrator.rs`. `orchestrator.rs` is the app layer that hosts it over the listener's
+`/mcp` route; `scheduler.rs` holds the task DAG.
 
-**Communication:** the frontend calls `invoke(...)` through `lib/tauri/`; the terminal receives
-streaming through the Tauri events `pty://data/{id}` and `pty://exit/{id}`.
+**Plugins.** The host, registry, permissions, trust and storage are in `src/lib/plugins/`;
+bundled plugins (`git-control`, `todos`, `theme-pack`) in `src/plugins/`. Plugin assets are
+served over the `atrium-plugin://` protocol registered in `lib.rs`, which the CSP allowlists.
+See `docs/PLUGINS.md`.
 
-## 5. Conventions
+**Platform specifics.**
+- macOS window: `src-tauri/tauri.macos.conf.json` (merged over `tauri.conf.json`) keeps native
+  traffic lights over the title bar; `useNativeWindowControls` gives the title bar room for them.
+  `window_style.rs` rounds corners only for an undecorated window.
+- `quit_request.rs` replaces the stock macOS Quit item: AppKit's terminates before Tauri sees it,
+  skipping the frontend close flow (`useCloseConfirmation` → `quit_app`) that saves the workspace.
+- `shell_path.rs` adopts the login shell's PATH when launched from Finder (launchd's minimal PATH).
+- App shortcuts use ⌘ on macOS and Ctrl elsewhere through `hasPrimaryModifier()` in
+  `src/lib/platform.ts`; never test `ctrlKey || metaKey` for a new shortcut, because Ctrl must
+  reach the terminal on macOS.
 
-- One `.module.css` file per component; color/spacing always through tokens, never literals.
-- New domain types go in `src/lib/types.ts`; reuse the existing ones.
-- Lean Zustand selectors to avoid rerender loops; `projects.json` is saved with debounce and atomic
-  writes (tmp → rename) — preserve that pattern.
-- The `projects.json` schema is versioned with migration/backfill — when changing its shape, keep the
-  migration.
+## Gotchas and security
 
-## 6. Gotchas / security
+- `tauri.conf.json` ships a strict CSP (`script-src 'self'`, `worker-src 'none'`) asserted by
+  `src/securityPolicy.test.ts`; changing it is a deliberate, reviewed decision. The webview has
+  full IPC access, so treat rendered content as untrusted.
+- `spawn_pty` runs commands and args supplied by the frontend; validate them before spawning.
+- Secrets (GitHub sync token, Spotify credentials) go through `secure_store.rs`, the OS keyring
+  under service `com.met0n.atrium`. Never write a new secret into `projects.json` or another JSON
+  file. Agent credentials stay in each agent's own files and are only read.
+- Local data: `~/Library/Application Support/com.met0n.atrium/` on macOS, the app-data folder
+  elsewhere (`profiles.json`, `profiles/<id>/projects.json`, `scrollback/*.bin`, `spawn.log`,
+  root `logs/`).
+- Many Rust warnings on macOS come from Windows-only code; don't "fix" them by deleting it.
 
-- `tauri.conf.json` ships a strict CSP (`script-src 'self'`, `worker-src 'none'`), asserted literally
-  by `src/securityPolicy.test.ts`. Any change there is a deliberate, reviewed one. Treat any
-  rendered input as untrusted; the webview still has full IPC access.
-- `spawn_pty` runs a shell with the command/args coming from the frontend — **validate input on the
-  frontend** before spawning.
-- OAuth tokens (Spotify, Claude) are stored in **plaintext** in app data; do not log or expose them.
-- The Windows build requires `vcvars64`. The Rust toolchain on `C:` can be corrupted by Windows
-  Defender — prefer building from `D:`.
-- Local data: `~/Library/Application Support/com.met0n.atrium/` on macOS, `%APPDATA%/Atrium/` on
-  Windows (profiles, `projects.json`, scrollback `*.bin`, `spawn.log`).
-- macOS: app shortcuts use ⌘ through `hasPrimaryModifier()` (`src/lib/platform.ts`); Ctrl always
-  goes to the terminal. Never test `ctrlKey || metaKey` directly for a new shortcut.
+## Language and comments
 
-## 7. Going deeper
+- English for all versioned content: comments, docs, changelog, UI strings, commits and PRs.
+  Locale files are the only exception. Translate non-English comments in files you touch.
+- Comment only non-obvious behavior, constraints or decisions.
 
-Versioned in this repo:
+## Going deeper
 
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — setup per OS, layout, house rules, commit/PR convention.
-- [`docs/FEATURES.md`](docs/FEATURES.md) — features in detail.
-- [`docs/CHANGELOG.md`](docs/CHANGELOG.md) — user-facing history.
-- [`docs/OVERVIEW.md`](docs/OVERVIEW.md) — domain model (Group, Project, Container, Pane, Terminal,
-  Sub-tab, PTY), stack, and persistence.
-- [`docs/BRAND.md`](docs/BRAND.md).
-- [`docs/PLUGINS.md`](docs/PLUGINS.md) — plugin system: manifest, capabilities, lifecycle, and how
-  to add a bundled plugin.
-- [`docs/THEMES.md`](docs/THEMES.md) — adding a theme, as a plugin or as a built-in.
-- [`docs/DIAGNOSTICO_MATURIDADE_TECNICA.md`](docs/DIAGNOSTICO_MATURIDADE_TECNICA.md) — diagnostic of
-  code organization, duplication, and performance, with prioritized recommendations.
+`docs/OVERVIEW.md` (domain model: Group → Project → Container → Pane → Terminal → Sub-tab → PTY,
+persistence), `docs/FEATURES.md`, `docs/PLUGINS.md`, `docs/THEMES.md`, `docs/PRIVACY.md` (every
+network surface and stored file), `docs/ROADMAP.md` and `docs/ORCHESTRATOR_ROADMAP.md`,
+`docs/DIAGNOSTICO_MATURIDADE_TECNICA.md` (known debt: the large `projectsStore`, thin frontend
+test coverage, duplicated polling).
 
-The domain glossary (Group, Project, Container, Pane, Sub-tab, PTY) is summarized in `CONTRIBUTING.md`.
-
-## Language and comment rules
-
-- English is the default language for all versioned repository content, including source comments,
-  JSDoc, documentation, changelog entries, user-facing strings, commit messages, and pull requests.
-- Never add Portuguese prose to source comments, JSDoc, internal logs, or documentation. Translate any
-  non-English comment encountered in a file being changed.
-- Use another language only when the target file explicitly requires it. Locale files are the standard
-  exception: translated UI text belongs in the matching locale file.
-- When editing existing mixed-language content, translate the touched content to English when practical
-  instead of extending the language inconsistency.
-- Keep comments concise. Add them only when they explain non-obvious behavior, constraints, or decisions.
-
-This project has a knowledge graph at `graphify-out/`. For codebase-structure questions
-(architecture, god nodes, cross-file relationships), use the `graphify-query` skill instead of
-raw grep/source browsing.
+The `graphify-query` skill (`.claude/skills/`) works only after a Graphify knowledge graph has
+been generated into `graphify-out/`, which is not checked in.

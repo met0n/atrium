@@ -234,7 +234,8 @@ export function useKeybindings() {
         return
       }
 
-      if (ctrl && e.key === 'Tab') {
+      // macOS keeps ⌘Tab for its app switcher, so Ctrl+Tab cycles tabs there, as in browsers.
+      if ((ctrl || e.ctrlKey) && e.key === 'Tab') {
         e.preventDefault()
         const projects = useProjectsStore.getState()
         const ui = useUiStore.getState()

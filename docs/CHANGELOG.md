@@ -32,7 +32,8 @@ Alethe history, kept for attribution.
   quit. Quitting from the Dock still exits immediately.
 - App shortcuts use ⌘ on macOS, and every Ctrl chord now reaches the terminal, so shell keys such as
   Ctrl+P, Ctrl+K, Ctrl+E, Ctrl+B, Ctrl+W and Ctrl+T work. ⌘C/⌘V copy and paste in the terminal;
-  pressing Ctrl+C twice quickly still force-kills a stuck process.
+  pressing Ctrl+C twice quickly still force-kills a stuck process. Ctrl+Tab cycles workspace tabs,
+  since macOS keeps ⌘Tab for its app switcher.
 - Opened from Finder, the Dock or Spotlight, Atrium reads the login shell's PATH at startup, so
   agent CLIs installed with nvm, bun, volta, pnpm, npm prefixes or vendor installers are found.
 - Codex integration works on macOS and Linux: the orchestrator MCP bridge and the subagent hook
