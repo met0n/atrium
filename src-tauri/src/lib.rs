@@ -75,6 +75,7 @@ mod router9;
 mod scheduler;
 mod secure_store;
 mod session_watcher;
+#[cfg_attr(not(target_os = "macos"), allow(dead_code))]
 mod shell_path;
 // The handoff it reports goes over D-Bus, which only the Linux build links (zbus).
 #[cfg(target_os = "linux")]

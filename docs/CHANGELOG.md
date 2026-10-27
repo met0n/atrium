@@ -21,6 +21,7 @@ Alethe history, kept for attribution.
   server `atrium` with `atrium_*` tools, so Atrium and Alethe can be installed side by side.
 - The in-app updater is off until Atrium publishes signed releases.
 - Cloud sync no longer uses the upstream GitHub OAuth app; set `ATRIUM_SYNC_GITHUB_CLIENT_ID`.
+- The Sync dialog no longer shows the upstream author's GitHub Sponsors button.
 
 ### macOS
 

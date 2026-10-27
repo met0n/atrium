@@ -2529,7 +2529,6 @@ export const zhCN: Record<MessageKey, string> = {
   'sync.cloud.pushDone': '偏好已上传。',
   'sync.cloud.pullDone': '已在此设备上应用首选项。',
   'sync.cloud.premiumSoon': '完整项目和统计同步 — 高级版，即将推出。',
-  'sync.sponsor': '在 GitHub 上赞助',
   'sync.error.empty_token': '先粘贴一个令牌。',
   'sync.error.invalid_token': '无效的令牌——请检查后重试。',
   'sync.error.not_connected': '先连接到 GitHub。',

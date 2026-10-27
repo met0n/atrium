@@ -179,8 +179,8 @@ CSS, and JSON, which is what makes install-from-a-link viable.
   "name": "Git",
   "version": "1.0.0",
   "apiVersion": 1,
-  "publisher": "kc1t",
-  "repository": "https://github.com/Kc1t/atrium-plugin-git",
+  "publisher": "example",
+  "repository": "https://github.com/example/atrium-plugin-git",
   "license": "MIT",
   "engines": { "atrium": "^1.7.0" },
 
@@ -285,7 +285,7 @@ version entry is admitted only by merged pull request:
 ```json
 {
   "id": "atrium-git",
-  "repository": "https://github.com/Kc1t/atrium-plugin-git",
+  "repository": "https://github.com/example/atrium-plugin-git",
   "versions": [
     {
       "version": "1.0.1",

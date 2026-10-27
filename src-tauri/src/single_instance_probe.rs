@@ -125,7 +125,7 @@ mod tests {
     fn path_mirrors_plugin_derivation() {
         assert_eq!(
             dbus_path("com.met0n.atrium.SingleInstance"),
-            "/com/kc1t/atrium/SingleInstance"
+            "/com/met0n/atrium/SingleInstance"
         );
     }
 

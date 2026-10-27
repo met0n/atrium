@@ -2876,7 +2876,6 @@ export const en = {
   'sync.cloud.pushDone': 'Preferences uploaded.',
   'sync.cloud.pullDone': 'Preferences applied on this device.',
   'sync.cloud.premiumSoon': 'Full projects & stats sync — Premium, coming soon.',
-  'sync.sponsor': 'Sponsor on GitHub',
   'sync.error.empty_token': 'Paste a token first.',
   'sync.error.invalid_token': 'Invalid token — check it and try again.',
   'sync.error.not_connected': 'Connect to GitHub first.',

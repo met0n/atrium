@@ -2907,7 +2907,6 @@ export const ptBR: Record<MessageKey, string> = {
   'sync.cloud.pushDone': 'Preferências enviadas.',
   'sync.cloud.pullDone': 'Preferências aplicadas neste dispositivo.',
   'sync.cloud.premiumSoon': 'Sync completo de projetos e estatísticas — Premium, em breve.',
-  'sync.sponsor': 'Apoiar no GitHub',
   'sync.error.empty_token': 'Cole um token primeiro.',
   'sync.error.invalid_token': 'Token inválido — confira e tente de novo.',
   'sync.error.not_connected': 'Conecte ao GitHub primeiro.',
