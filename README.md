@@ -303,10 +303,10 @@ signing key (`npx tauri signer generate`), put its public key in `src-tauri/taur
   <a href="https://github.com/GustavoAlmeidaDoNascimento"><img src="https://github.com/GustavoAlmeidaDoNascimento.png?size=100" width="80" height="80" alt="GustavoAlmeidaDoNascimento" title="GustavoAlmeidaDoNascimento" /></a>
   <a href="https://github.com/chintanparmar011"><img src="https://github.com/chintanparmar011.png?size=100" width="80" height="80" alt="chintanparmar011" title="chintanparmar011" /></a>
   <a href="https://github.com/jo20132012"><img src="https://github.com/jo20132012.png?size=100" width="80" height="80" alt="jo20132012" title="jo20132012" /></a>
+  <a href="https://github.com/Metas85"><img src="https://github.com/Metas85.png?size=100" width="80" height="80" alt="Metas85" title="Metas85" /></a>
   <a href="https://github.com/AshSgDe29071999"><img src="https://github.com/AshSgDe29071999.png?size=100" width="80" height="80" alt="AshSgDe29071999" title="AshSgDe29071999" /></a>
   <a href="https://github.com/sthevan027"><img src="https://github.com/sthevan027.png?size=100" width="80" height="80" alt="sthevan027" title="sthevan027" /></a>
   <a href="https://github.com/rlevidev"><img src="https://github.com/rlevidev.png?size=100" width="80" height="80" alt="rlevidev" title="rlevidev" /></a>
-  <a href="https://github.com/Metas85"><img src="https://github.com/Metas85.png?size=100" width="80" height="80" alt="Metas85" title="Metas85" /></a>
   <a href="https://github.com/mapsiva"><img src="https://github.com/mapsiva.png?size=100" width="80" height="80" alt="mapsiva" title="mapsiva" /></a>
   <a href="https://github.com/moisesz10"><img src="https://github.com/moisesz10.png?size=100" width="80" height="80" alt="moisesz10" title="moisesz10" /></a>
   <a href="https://github.com/verdejodev"><img src="https://github.com/verdejodev.png?size=100" width="80" height="80" alt="verdejodev" title="verdejodev" /></a>
