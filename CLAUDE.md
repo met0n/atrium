@@ -30,6 +30,7 @@ npm test               # vitest, jsdom, src/**/*.{test,spec}.{ts,tsx}
 npx vitest run src/lib/platform.test.ts          # one file
 npx vitest run -t "hasPrimaryModifier"           # by test name
 npm run test:rust                                 # cd src-tauri && cargo test --lib
+npm run test:ghostty                              # ignored Rust tests that drive a real terminal
 cd src-tauri && cargo test --lib quit_request     # Rust tests matching a path/name
 cd src-tauri && cargo test                        # also runs tests/orchestrator.rs
 cd src-tauri && cargo clippy --all-targets
@@ -39,6 +40,8 @@ npm run tauri build    # bundle → src-tauri/target/release/bundle/ (macOS: Atr
 CI (`.github/workflows/ci.yml`) runs lint, format:check, `npm test` and `npm run build` on Ubuntu,
 then `cargo check`, `cargo clippy --all-targets` and `cargo test` on Windows, Linux and macOS.
 
+- `npm run app` merges `src-tauri/tauri.dev.json`, so it runs as **Atrium Dev** under the identifier
+  `com.met0n.atrium.dev`: a separate app-data folder from an installed Atrium.
 - E2E tests (`npm run test:e2e:build` then `npm run test:e2e`) drive the debug binary through
   `tauri-driver`, which only exists for Linux and Windows — they cannot run on macOS.
 - A release build needs `node_modules`: `build.rs` copies the xterm files for the remote-control
@@ -50,6 +53,11 @@ then `cargo check`, `cargo clippy --all-targets` and `cargo test` on Windows, Li
 - The Tauri CLI refuses to build when an `@tauri-apps/*` npm package and its Rust crate differ in
   major/minor version. Bump them together; `@tauri-apps/api` and the notification and updater
   plugins are pinned with `~` in `package.json` for this reason.
+- Releases are two deliberate steps (`docs/RELEASING.md`). `npm run release [patch|minor|major|x.y.z]`
+  rewrites the four version files, commits, tags and pushes; it refuses to run until
+  `src/lib/changelogData.ts` (the in-app What's New list) has an entry for the new version.
+  `npm run release:publish` then dispatches `release.yml`; a pushed tag builds nothing. Never bump
+  a version by hand.
 
 ## Non-negotiable rules
 
@@ -128,6 +136,9 @@ See `docs/PLUGINS.md`.
   elsewhere (`profiles.json`, `profiles/<id>/projects.json`, `scrollback/*.bin`, `spawn.log`,
   root `logs/`).
 - Many Rust warnings on macOS come from Windows-only code; don't "fix" them by deleting it.
+- `origin` is `met0n/atrium` and `upstream` is `Kc1t/alethe-agents`. No `gh` default repo is set and
+  `gh` can resolve to upstream, so pass `-R met0n/atrium`.
+- `contributors.yml` can commit to `main` after a push, so run `git pull --ff-only` before more work.
 
 ## Language and comments
 
@@ -138,10 +149,14 @@ See `docs/PLUGINS.md`.
 ## Going deeper
 
 `docs/OVERVIEW.md` (domain model: Group → Project → Container → Pane → Terminal → Sub-tab → PTY,
-persistence), `docs/FEATURES.md`, `docs/PLUGINS.md`, `docs/THEMES.md`, `docs/PRIVACY.md` (every
-network surface and stored file), `docs/ROADMAP.md` and `docs/ORCHESTRATOR_ROADMAP.md`,
+persistence), `docs/FEATURES.md`, `docs/PLUGINS.md`, `docs/THEMES.md`, `docs/BRAND.md`,
+`docs/UI_VISUAL_STYLES.md`, `docs/RELEASING.md`, `docs/PRIVACY.md` (every network surface and
+stored file), `docs/ROADMAP.md` and `docs/ORCHESTRATOR_ROADMAP.md`,
 `docs/DIAGNOSTICO_MATURIDADE_TECNICA.md` (known debt: the large `projectsStore`, thin frontend
 test coverage, duplicated polling).
+
+`docs/HANDOFF_SESSAO_ATUAL.md` is a stale note inherited from upstream: its paths, branch and rules
+are not current, so follow this file instead.
 
 The `graphify-query` skill (`.claude/skills/`) works only after a Graphify knowledge graph has
 been generated into `graphify-out/`, which is not checked in.
